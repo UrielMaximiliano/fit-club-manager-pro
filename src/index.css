@@ -1,6 +1,3 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -99,18 +96,6 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground;
   }
-}
-
-.sidebar-active {
-  @apply bg-gym-primary text-white font-medium;
-}
-
-.dashboard-stat {
-  @apply bg-white rounded-lg p-4 shadow-md border border-gray-100;
-}
-
-.transition-all {
-  transition: all 0.2s ease-in-out;
 }
