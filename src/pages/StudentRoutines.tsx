@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, ArrowLeft, Eye } from 'lucide-react';
+import { Search, ArrowLeft, Eye, CalendarDays } from 'lucide-react';
 
 // Mock data for student list
 const studentsData = [
@@ -42,85 +42,130 @@ const StudentRoutines = () => {
   );
   
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Button 
-        variant="outline" 
-        onClick={() => navigate('/')} 
-        className="mb-6"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
-      </Button>
-      
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Student Routines</CardTitle>
-          <CardDescription>View and manage students' weekly exercise routines</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center mb-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-              <Input
-                placeholder="Search by name or membership type..." 
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+    <div className="flex min-h-screen bg-[#1A1F2C]">
+      {/* Sidebar - simulating the prototype sidebar */}
+      <div className="w-56 bg-[#1A1F2C] border-r border-gray-800">
+        <div className="p-4 border-b border-gray-800">
+          <h1 className="text-xl font-bold text-blue-400">GIMNASIO</h1>
+        </div>
+        <div className="py-2">
+          <div className="p-2 mx-2 text-gray-300 hover:bg-blue-700 rounded flex items-center">
+            <span className="mr-2">📊</span>
+            <span>Dashboard</span>
           </div>
-          
-          <div className="rounded-md border overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Student Name</TableHead>
-                  <TableHead>Age</TableHead>
-                  <TableHead>Membership Type</TableHead>
-                  <TableHead>Last Updated</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredStudents.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                      No students found
-                    </TableCell>
+          <div className="p-2 mx-2 bg-blue-700 text-white rounded flex items-center">
+            <span className="mr-2">👤</span>
+            <span>Miembros</span>
+          </div>
+          <div className="p-2 mx-2 text-gray-300 hover:bg-blue-700 rounded flex items-center">
+            <span className="mr-2">🏋️</span>
+            <span>Membresías</span>
+          </div>
+          <div className="p-2 mx-2 text-gray-300 hover:bg-blue-700 rounded flex items-center">
+            <span className="mr-2">💰</span>
+            <span>Pagos</span>
+          </div>
+          <div className="p-2 mx-2 text-gray-300 hover:bg-blue-700 rounded flex items-center">
+            <span className="mr-2">📅</span>
+            <span>Asistencias</span>
+          </div>
+          <div className="p-2 mx-2 text-gray-300 hover:bg-blue-700 rounded flex items-center">
+            <span className="mr-2">💵</span>
+            <span>Caja</span>
+          </div>
+          <div className="p-2 mx-2 text-gray-300 hover:bg-blue-700 rounded flex items-center">
+            <span className="mr-2">📈</span>
+            <span>Reportes</span>
+          </div>
+          <div className="p-2 mx-2 text-gray-300 hover:bg-blue-700 rounded flex items-center">
+            <span className="mr-2">⚙️</span>
+            <span>Configuración</span>
+          </div>
+        </div>
+      </div>
+      
+      {/* Main content */}
+      <div className="flex-1 p-6">
+        <div className="flex justify-end mb-6">
+          <div className="text-white">Administrador</div>
+        </div>
+        
+        <Card className="bg-[#1A1F2C] border-gray-800 shadow-lg">
+          <CardHeader>
+            <div className="flex justify-between">
+              <div>
+                <CardTitle className="text-2xl font-bold text-white">Miembros</CardTitle>
+                <CardDescription className="text-gray-400">Ver y gestionar las rutinas de ejercicio de los miembros</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center mb-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                <Input
+                  placeholder="Buscar por nombre o tipo de membresía..." 
+                  className="pl-8 bg-[#222732] border-gray-700 text-white"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+            
+            <div className="rounded-md border border-gray-700 overflow-hidden">
+              <Table>
+                <TableHeader className="bg-[#222732]">
+                  <TableRow className="border-gray-700">
+                    <TableHead className="text-gray-300">Nombre</TableHead>
+                    <TableHead className="text-gray-300">Edad</TableHead>
+                    <TableHead className="text-gray-300">Tipo de Membresía</TableHead>
+                    <TableHead className="text-gray-300">Última Actualización</TableHead>
+                    <TableHead className="text-gray-300 text-right">Acciones</TableHead>
                   </TableRow>
-                ) : (
-                  filteredStudents.map((student) => (
-                    <TableRow key={student.id}>
-                      <TableCell className="font-medium">{student.name}</TableCell>
-                      <TableCell>{student.age}</TableCell>
-                      <TableCell>
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          student.membershipType === "Premium" 
-                            ? "bg-green-100 text-green-800" 
-                            : student.membershipType === "Standard"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}>
-                          {student.membershipType}
-                        </span>
-                      </TableCell>
-                      <TableCell>{student.routineUpdated}</TableCell>
-                      <TableCell className="text-right">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => navigate(`/routines/${student.id}`)}
-                        >
-                          <Eye className="h-4 w-4 mr-1" /> View Routine
-                        </Button>
+                </TableHeader>
+                <TableBody>
+                  {filteredStudents.length === 0 ? (
+                    <TableRow className="border-gray-700">
+                      <TableCell colSpan={5} className="text-center py-8 text-gray-400">
+                        No se encontraron miembros
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                  ) : (
+                    filteredStudents.map((student) => (
+                      <TableRow key={student.id} className="border-gray-700 bg-[#1A1F2C] hover:bg-[#222732]">
+                        <TableCell className="font-medium text-white">{student.name}</TableCell>
+                        <TableCell className="text-gray-300">{student.age}</TableCell>
+                        <TableCell>
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            student.membershipType === "Premium" 
+                              ? "bg-green-900 text-green-300" 
+                              : student.membershipType === "Standard"
+                              ? "bg-blue-900 text-blue-300"
+                              : "bg-gray-800 text-gray-300"
+                          }`}>
+                            {student.membershipType}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-gray-300">{student.routineUpdated}</TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="bg-blue-700 hover:bg-blue-800 text-white border-blue-600"
+                            onClick={() => navigate(`/routines/${student.id}`)}
+                          >
+                            <CalendarDays className="h-4 w-4 mr-1" /> Ver Rutina
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
