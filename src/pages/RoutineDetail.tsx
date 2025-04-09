@@ -10,7 +10,6 @@ import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 
 // Mock data for students
@@ -202,7 +201,7 @@ const RoutineDetail = () => {
             </div>
             <div className="pt-4 border-t">
               <h3 className="text-sm font-medium mb-3">Weekly Intensity</h3>
-              <Form>
+              <div>
                 <RadioGroup 
                   value={intensity}
                   onValueChange={setIntensity}
@@ -221,7 +220,7 @@ const RoutineDetail = () => {
                     <Label htmlFor="intense">Intense</Label>
                   </div>
                 </RadioGroup>
-              </Form>
+              </div>
             </div>
           </CardContent>
         </Card>
