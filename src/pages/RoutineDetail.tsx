@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -11,8 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { format, addDays, startOfWeek } from 'date-fns';
 
-// Mock data for students
 const studentsData = [
   { 
     id: 1, 
@@ -77,7 +76,6 @@ const studentsData = [
       }
     }
   },
-  // Additional mocked students would go here
 ];
 
 const weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
@@ -87,13 +85,20 @@ const RoutineDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  // Find the student based on the ID from the URL
   const student = studentsData.find(s => s.id === Number(studentId));
   
   const [isEditing, setIsEditing] = useState(false);
   const [routineData, setRoutineData] = useState(student?.routines || {});
   const [selectedDay, setSelectedDay] = useState("monday");
   const [intensity, setIntensity] = useState("moderate");
+  const [weekStartDate, setWeekStartDate] = useState<Date>(startOfWeek(new Date()));
+  
+  const weekDates = weekdays.map((day, index) => {
+    return {
+      day,
+      date: addDays(weekStartDate, index)
+    };
+  });
   
   if (!student) {
     return (
@@ -108,7 +113,6 @@ const RoutineDetail = () => {
   }
   
   const handleSaveRoutine = () => {
-    // Here you would normally save to your backend
     toast({
       title: "Routine Saved",
       description: `The routine for ${student.name} has been updated successfully.`,
@@ -118,6 +122,14 @@ const RoutineDetail = () => {
   
   const handleDayChange = (day) => {
     setSelectedDay(day);
+  };
+
+  const handlePreviousWeek = () => {
+    setWeekStartDate(prevDate => addDays(prevDate, -7));
+  };
+
+  const handleNextWeek = () => {
+    setWeekStartDate(prevDate => addDays(prevDate, 7));
   };
   
   const handleNotesChange = (value) => {
@@ -180,7 +192,6 @@ const RoutineDetail = () => {
       </Button>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Student Information Card */}
         <Card className="lg:col-span-1">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -225,7 +236,6 @@ const RoutineDetail = () => {
           </CardContent>
         </Card>
         
-        {/* Routine Card */}
         <Card className="lg:col-span-2">
           <CardHeader>
             <div className="flex justify-between items-center">
@@ -248,6 +258,18 @@ const RoutineDetail = () => {
             </div>
           </CardHeader>
           <CardContent>
+            <div className="flex items-center justify-between mb-4">
+              <Button variant="outline" onClick={handlePreviousWeek} size="sm">
+                Previous Week
+              </Button>
+              <p className="text-sm font-medium">
+                {format(weekStartDate, 'MMM d')} - {format(addDays(weekStartDate, 6), 'MMM d, yyyy')}
+              </p>
+              <Button variant="outline" onClick={handleNextWeek} size="sm">
+                Next Week
+              </Button>
+            </div>
+
             <Tabs 
               defaultValue="monday" 
               value={selectedDay}
@@ -255,20 +277,28 @@ const RoutineDetail = () => {
               className="w-full"
             >
               <TabsList className="grid grid-cols-7 mb-6">
-                {weekdays.map(day => (
+                {weekDates.map(({ day, date }) => (
                   <TabsTrigger 
                     key={day} 
                     value={day}
-                    className="capitalize"
+                    className="capitalize flex flex-col"
                   >
-                    {day.substring(0, 3)}
+                    <span>{day.substring(0, 3)}</span>
+                    <span className="text-xs font-normal text-muted-foreground mt-1">
+                      {format(date, 'd')}
+                    </span>
                   </TabsTrigger>
                 ))}
               </TabsList>
               
-              {weekdays.map(day => (
+              {weekdays.map((day, index) => (
                 <TabsContent key={day} value={day} className="space-y-4">
-                  {/* Exercise List */}
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-lg font-semibold capitalize">
+                      {day}, {format(weekDates[index].date, 'MMMM d, yyyy')}
+                    </h3>
+                  </div>
+                  
                   {routineData[day]?.exercises?.length > 0 ? (
                     <div className="border rounded-lg overflow-hidden">
                       <table className="w-full">
@@ -362,7 +392,6 @@ const RoutineDetail = () => {
                     </div>
                   )}
                   
-                  {/* Add Exercise Button */}
                   {isEditing && (
                     <div className="flex justify-center">
                       <Button 
@@ -374,7 +403,6 @@ const RoutineDetail = () => {
                     </div>
                   )}
                   
-                  {/* Day Notes */}
                   <div className="mt-6">
                     <h3 className="text-sm font-medium mb-2">Day Notes</h3>
                     {isEditing ? (
@@ -395,7 +423,6 @@ const RoutineDetail = () => {
             </Tabs>
           </CardContent>
           
-          {/* Save Button */}
           {isEditing && (
             <CardFooter className="flex justify-end">
               <Button onClick={handleSaveRoutine}>
