@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { User, KeyRound } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const loginSchema = z.object({
   username: z.string().min(1, { message: 'El nombre de usuario es requerido' }),
@@ -21,6 +23,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const isMobile = useIsMobile();
 
   const defaultAdmin = {
     username: 'admin',
@@ -66,13 +69,13 @@ const Login = () => {
         </div>
         
         <Card className="bg-[#222732] border-gray-700 shadow-lg">
-          <CardHeader className="space-y-1 px-4 md:px-6">
-            <CardTitle className="text-xl md:text-2xl font-bold text-center text-white">Iniciar Sesión</CardTitle>
+          <CardHeader className="space-y-1 p-4 md:p-6">
+            <CardTitle className="text-lg md:text-2xl font-bold text-center text-white">Iniciar Sesión</CardTitle>
             <CardDescription className="text-sm md:text-base text-center text-gray-400">
               Ingresa tus credenciales para acceder al sistema
             </CardDescription>
           </CardHeader>
-          <CardContent className="px-4 md:px-6">
+          <CardContent className="p-4 md:p-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 md:space-y-4">
                 <FormField
@@ -85,13 +88,13 @@ const Login = () => {
                         <div className="relative">
                           <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                           <Input 
-                            className="pl-9 bg-[#1A1F2C] border-gray-700 text-white" 
+                            className="pl-9 bg-[#1A1F2C] border-gray-700 text-white h-10" 
                             placeholder="Ingresa tu nombre de usuario" 
                             {...field} 
                           />
                         </div>
                       </FormControl>
-                      <FormMessage className="text-red-400" />
+                      <FormMessage className="text-red-400 text-xs" />
                     </FormItem>
                   )}
                 />
@@ -105,20 +108,20 @@ const Login = () => {
                         <div className="relative">
                           <KeyRound className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                           <Input 
-                            className="pl-9 bg-[#1A1F2C] border-gray-700 text-white" 
+                            className="pl-9 bg-[#1A1F2C] border-gray-700 text-white h-10" 
                             type="password" 
                             placeholder="Ingresa tu contraseña" 
                             {...field} 
                           />
                         </div>
                       </FormControl>
-                      <FormMessage className="text-red-400" />
+                      <FormMessage className="text-red-400 text-xs" />
                     </FormItem>
                   )}
                 />
                 <Button 
                   type="submit" 
-                  className="w-full bg-blue-600 hover:bg-blue-700" 
+                  className="w-full bg-blue-600 hover:bg-blue-700 mt-2" 
                   disabled={isLoading}
                 >
                   {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
@@ -126,7 +129,7 @@ const Login = () => {
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="flex flex-col text-center text-xs text-gray-500 px-4 md:px-6">
+          <CardFooter className="flex flex-col text-center text-xs text-gray-500 px-4 md:px-6 py-3">
             <p>Para este prototipo, usa: admin / admin123</p>
           </CardFooter>
         </Card>

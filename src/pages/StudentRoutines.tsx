@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -43,21 +44,24 @@ const StudentRoutines = () => {
   );
   
   return (
-    <>
-      <div className="flex justify-end mb-4 md:mb-6">
-        <div className="text-white">Administrador</div>
+    <div className="pb-6">
+      <div className="flex justify-between items-center mb-4 md:mb-6">
+        <div className={isMobile ? "ml-14" : ""}>
+          <h1 className="text-lg md:text-xl font-bold text-white">Miembros</h1>
+        </div>
+        <div className="text-white text-sm">Administrador</div>
       </div>
       
-      <Card className="bg-[#1A1F2C] border-gray-800 shadow-lg">
-        <CardHeader>
-          <div className="flex flex-col md:flex-row justify-between gap-4">
+      <Card className="bg-[#1A1F2C] border-gray-800 shadow-lg overflow-hidden">
+        <CardHeader className="p-3 md:p-6">
+          <div className="flex flex-col md:flex-row justify-between gap-2 md:gap-4">
             <div>
-              <CardTitle className="text-xl md:text-2xl font-bold text-white">Miembros</CardTitle>
-              <CardDescription className="text-gray-400">Ver y gestionar las rutinas de ejercicio de los miembros</CardDescription>
+              <CardTitle className="text-lg md:text-xl font-bold text-white">Miembros</CardTitle>
+              <CardDescription className="text-sm text-gray-400">Ver y gestionar las rutinas de ejercicio de los miembros</CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 md:p-6">
           <div className="flex items-center mb-4">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
@@ -74,7 +78,7 @@ const StudentRoutines = () => {
             <Table>
               <TableHeader className="bg-[#222732]">
                 <TableRow className="border-gray-700">
-                  <TableHead className="text-gray-300">Nombre</TableHead>
+                  <TableHead className="text-gray-300 py-2">Nombre</TableHead>
                   <TableHead className="text-gray-300 hidden md:table-cell">Edad</TableHead>
                   <TableHead className="text-gray-300">Membresía</TableHead>
                   <TableHead className="text-gray-300 hidden md:table-cell">Actualización</TableHead>
@@ -91,10 +95,10 @@ const StudentRoutines = () => {
                 ) : (
                   filteredStudents.map((student) => (
                     <TableRow key={student.id} className="border-gray-700 bg-[#1A1F2C] hover:bg-[#222732]">
-                      <TableCell className="font-medium text-white">{student.name}</TableCell>
+                      <TableCell className="font-medium text-white py-2">{student.name}</TableCell>
                       <TableCell className="text-gray-300 hidden md:table-cell">{student.age}</TableCell>
                       <TableCell>
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                           student.membershipType === "Premium" 
                             ? "bg-green-900 text-green-300" 
                             : student.membershipType === "Standard"
@@ -105,7 +109,7 @@ const StudentRoutines = () => {
                         </span>
                       </TableCell>
                       <TableCell className="text-gray-300 hidden md:table-cell">{student.routineUpdated}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right py-2">
                         <Button 
                           variant="outline" 
                           size="sm" 
@@ -124,7 +128,7 @@ const StudentRoutines = () => {
           </div>
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 };
 

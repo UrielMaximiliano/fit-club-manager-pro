@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, UserCircle, Menu } from 'lucide-react';
+import { LogOut, UserCircle, Menu, X } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,13 @@ const AdminSidebar = () => {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(!isMobile);
   
+  // Close sidebar on mobile when route changes
+  useEffect(() => {
+    if (isMobile) {
+      setIsOpen(false);
+    }
+  }, [location.pathname, isMobile]);
+
   const handleLogout = () => {
     // Eliminamos la sesión
     localStorage.removeItem('gimnasio-admin-logged');
@@ -41,20 +49,21 @@ const AdminSidebar = () => {
         <Button
           variant="ghost"
           size="icon"
-          className="fixed top-4 left-4 z-50 text-white"
+          className="fixed top-2 left-2 z-50 text-white bg-blue-700 rounded-full h-10 w-10 flex items-center justify-center shadow-lg"
           onClick={toggleSidebar}
         >
-          <Menu className="h-6 w-6" />
+          {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
       )}
       
-      <div className={`${
-        isMobile 
-          ? `fixed left-0 top-0 z-40 h-full transition-transform duration-300 ease-in-out ${
-              isOpen ? 'translate-x-0' : '-translate-x-full'
-            }`
-          : 'relative'
-        } w-56 bg-[#1A1F2C] border-r border-gray-800 h-screen flex flex-col`}
+      <div 
+        className={`${
+          isMobile 
+            ? `fixed left-0 top-0 z-40 h-full transition-transform duration-300 ease-in-out ${
+                isOpen ? 'translate-x-0' : '-translate-x-full'
+              }`
+            : 'relative'
+          } w-56 bg-[#1A1F2C] border-r border-gray-800 h-screen flex flex-col`}
       >
         <div className="p-4 border-b border-gray-800">
           <h1 className="text-xl font-bold text-blue-400">GIMNASIO</h1>
