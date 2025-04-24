@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { User, KeyRound } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
-// Esquema de validación para el formulario de login
 const loginSchema = z.object({
   username: z.string().min(1, { message: 'El nombre de usuario es requerido' }),
   password: z.string().min(1, { message: 'La contraseña es requerida' }),
@@ -24,7 +22,6 @@ const Login = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Usuario predeterminado para este prototipo
   const defaultAdmin = {
     username: 'admin',
     password: 'admin123'
@@ -41,20 +38,15 @@ const Login = () => {
   const onSubmit = (data: LoginFormValues) => {
     setIsLoading(true);
     
-    // Simulamos un pequeño retraso para que parezca que se está procesando
     setTimeout(() => {
       if (data.username === defaultAdmin.username && data.password === defaultAdmin.password) {
-        // Login exitoso
         toast({
           title: "Acceso exitoso",
           description: "Bienvenido al sistema de administración",
         });
-        // Guardamos el estado de la sesión en localStorage (en un sistema real esto sería un token JWT)
         localStorage.setItem('gimnasio-admin-logged', 'true');
-        // Redirigimos a la página principal
         navigate('/routines');
       } else {
-        // Login fallido
         toast({
           variant: "destructive",
           title: "Error de acceso",
@@ -68,21 +60,21 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#1A1F2C] px-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-blue-400">GIMNASIO</h1>
-          <p className="text-gray-400 mt-2">Sistema de Administración</p>
+        <div className="text-center mb-4 md:mb-6">
+          <h1 className="text-xl md:text-3xl font-bold text-blue-400">GIMNASIO</h1>
+          <p className="text-sm md:text-base text-gray-400 mt-2">Sistema de Administración</p>
         </div>
         
         <Card className="bg-[#222732] border-gray-700 shadow-lg">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center text-white">Iniciar Sesión</CardTitle>
-            <CardDescription className="text-center text-gray-400">
+          <CardHeader className="space-y-1 px-4 md:px-6">
+            <CardTitle className="text-xl md:text-2xl font-bold text-center text-white">Iniciar Sesión</CardTitle>
+            <CardDescription className="text-sm md:text-base text-center text-gray-400">
               Ingresa tus credenciales para acceder al sistema
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4 md:px-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 md:space-y-4">
                 <FormField
                   control={form.control}
                   name="username"
@@ -134,7 +126,7 @@ const Login = () => {
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="flex flex-col text-center text-xs text-gray-500">
+          <CardFooter className="flex flex-col text-center text-xs text-gray-500 px-4 md:px-6">
             <p>Para este prototipo, usa: admin / admin123</p>
           </CardFooter>
         </Card>
