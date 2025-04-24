@@ -66,10 +66,10 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#1A1F2C]">
-      <div className="p-4 w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-400">GIMNASIO</h1>
+    <div className="min-h-screen flex items-center justify-center bg-[#1A1F2C] px-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-blue-400">GIMNASIO</h1>
           <p className="text-gray-400 mt-2">Sistema de Administración</p>
         </div>
         

@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +7,6 @@ import { ArrowRight, LogIn } from 'lucide-react';
 const Index = () => {
   const navigate = useNavigate();
   
-  // Verificamos si ya está autenticado
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('gimnasio-admin-logged') === 'true';
     if (isAuthenticated) {
@@ -18,14 +16,14 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-[#1A1F2C]">
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-8 md:py-16">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-blue-400 mb-4">Sistema de Gestión de Gimnasio</h1>
-            <p className="text-xl text-gray-400">Administra tus miembros, rutinas y más.</p>
+          <div className="text-center mb-8 md:mb-12">
+            <h1 className="text-3xl md:text-4xl font-bold text-blue-400 mb-4">Sistema de Gestión de Gimnasio</h1>
+            <p className="text-lg md:text-xl text-gray-400">Administra tus miembros, rutinas y más.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mt-8 md:mt-12">
             <Card className="bg-[#222732] border-gray-700 shadow-lg hover:shadow-xl transition-all duration-200">
               <CardHeader>
                 <CardTitle className="text-white">Administración de Miembros</CardTitle>
@@ -61,7 +59,7 @@ const Index = () => {
             </Card>
           </div>
           
-          <div className="mt-8 text-center">
+          <div className="mt-6 md:mt-8 text-center">
             <Button asChild variant="outline" className="border-blue-600 text-blue-400 hover:bg-blue-900">
               <Link to="/login">
                 <LogIn className="mr-2 h-4 w-4" /> Iniciar sesión como administrador
