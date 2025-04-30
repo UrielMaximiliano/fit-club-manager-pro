@@ -48,7 +48,7 @@ const Login = () => {
           description: "Bienvenido al sistema de administración",
         });
         localStorage.setItem('gimnasio-admin-logged', 'true');
-        navigate('/routines');
+        navigate('/dashboard'); // Redirect to dashboard instead of routines
       } else {
         toast({
           variant: "destructive",

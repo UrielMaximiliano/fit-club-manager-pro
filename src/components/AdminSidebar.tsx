@@ -36,12 +36,23 @@ const AdminSidebar = () => {
   
   // Función para determinar si un enlace está activo
   const isActive = (path: string) => {
-    return location.pathname.startsWith(path) ? "bg-blue-700 text-white" : "text-gray-300 hover:bg-blue-700";
+    return location.pathname.startsWith(path) ? "bg-blue-700 text-white" : "text-gray-300 hover:bg-blue-700 hover:text-white";
   };
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
+
+  // Navigation items with routes and icons
+  const navItems = [
+    { name: "Miembros", icon: "👤", path: '/routines' },
+    { name: "Membresías", icon: "🏋️", path: '/memberships' },
+    { name: "Pagos", icon: "💰", path: '/payments' },
+    { name: "Asistencias", icon: "📅", path: '/attendance' },
+    { name: "Caja", icon: "💵", path: '/cashbox' },
+    { name: "Reportes", icon: "📈", path: '/reports' },
+    { name: "Configuración", icon: "⚙️", path: '/settings' },
+  ];
 
   return (
     <>
@@ -65,39 +76,24 @@ const AdminSidebar = () => {
             : 'relative'
           } w-56 bg-[#1A1F2C] border-r border-gray-800 h-screen flex flex-col`}
       >
-        <div className="p-4 border-b border-gray-800">
+        <div className="p-4 border-b border-gray-800 flex items-center justify-center">
           <h1 className="text-xl font-bold text-blue-400">GIMNASIO</h1>
         </div>
         
         <div className="py-2 flex-grow overflow-y-auto">
-          <div className={`p-2 mx-2 rounded flex items-center ${isActive('/routines')}`}>
-            <span className="mr-2">👤</span>
-            <span className="cursor-pointer" onClick={() => navigate('/routines')}>Miembros</span>
-          </div>
-          <div className={`p-2 mx-2 rounded flex items-center ${isActive('/memberships')}`}>
-            <span className="mr-2">🏋️</span>
-            <span className="cursor-pointer" onClick={() => navigate('/memberships')}>Membresías</span>
-          </div>
-          <div className={`p-2 mx-2 rounded flex items-center ${isActive('/payments')}`}>
-            <span className="mr-2">💰</span>
-            <span className="cursor-pointer" onClick={() => navigate('/payments')}>Pagos</span>
-          </div>
-          <div className={`p-2 mx-2 rounded flex items-center ${isActive('/attendance')}`}>
-            <span className="mr-2">📅</span>
-            <span className="cursor-pointer" onClick={() => navigate('/attendance')}>Asistencias</span>
-          </div>
-          <div className={`p-2 mx-2 rounded flex items-center ${isActive('/cashbox')}`}>
-            <span className="mr-2">💵</span>
-            <span className="cursor-pointer" onClick={() => navigate('/cashbox')}>Caja</span>
-          </div>
-          <div className={`p-2 mx-2 rounded flex items-center ${isActive('/reports')}`}>
-            <span className="mr-2">📈</span>
-            <span className="cursor-pointer" onClick={() => navigate('/reports')}>Reportes</span>
-          </div>
-          <div className={`p-2 mx-2 rounded flex items-center ${isActive('/settings')}`}>
-            <span className="mr-2">⚙️</span>
-            <span className="cursor-pointer" onClick={() => navigate('/settings')}>Configuración</span>
-          </div>
+          {navItems.map((item) => (
+            <div 
+              key={item.name}
+              className={`p-2 mx-2 my-1 rounded flex items-center ${isActive(item.path)} transition-colors duration-200 cursor-pointer`}
+              onClick={() => {
+                navigate(item.path);
+                if (isMobile) setIsOpen(false);
+              }}
+            >
+              <span className="mr-3 text-lg">{item.icon}</span>
+              <span>{item.name}</span>
+            </div>
+          ))}
         </div>
         
         <div className="p-4 border-t border-gray-800">
@@ -107,7 +103,7 @@ const AdminSidebar = () => {
           </div>
           <button 
             onClick={handleLogout}
-            className="flex items-center w-full p-2 text-gray-300 hover:bg-gray-800 rounded"
+            className="flex items-center w-full p-2 text-gray-300 hover:bg-gray-800 rounded transition-colors duration-200"
           >
             <LogOut className="h-4 w-4 mr-2" />
             <span>Cerrar sesión</span>

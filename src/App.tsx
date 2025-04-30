@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import StudentRoutines from "./pages/StudentRoutines";
 import RoutineDetail from "./pages/RoutineDetail";
+import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/AdminLayout";
 
@@ -24,7 +25,15 @@ const App = () => (
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           
-          {/* Rutas protegidas */}
+          {/* Ruta inicial después del login */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <Dashboard />
+              </AdminLayout>
+            </ProtectedRoute>
+          } />
+          
           <Route path="/routines" element={
             <ProtectedRoute>
               <AdminLayout>
@@ -53,6 +62,55 @@ const App = () => (
             <ProtectedRoute>
               <AdminLayout>
                 <RoutineDetail />
+              </AdminLayout>
+            </ProtectedRoute>
+          } />
+          
+          {/* Rutas para las demás funcionalidades */}
+          <Route path="/memberships" element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <Dashboard />
+              </AdminLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/payments" element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <Dashboard />
+              </AdminLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/attendance" element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <Dashboard />
+              </AdminLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/cashbox" element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <Dashboard />
+              </AdminLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/reports" element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <Dashboard />
+              </AdminLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <Dashboard />
               </AdminLayout>
             </ProtectedRoute>
           } />
