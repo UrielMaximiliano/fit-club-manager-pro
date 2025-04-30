@@ -9,55 +9,31 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { User, KeyRound } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/contexts/AuthContext';
 
 const loginSchema = z.object({
-  username: z.string().min(1, { message: 'El nombre de usuario es requerido' }),
-  password: z.string().min(1, { message: 'La contraseña es requerida' }),
+  email: z.string().email({ message: 'El correo electrónico es inválido' }),
+  password: z.string().min(6, { message: 'La contraseña debe tener al menos 6 caracteres' }),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const Login = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const { signIn, loading } = useAuth();
   const isMobile = useIsMobile();
-
-  const defaultAdmin = {
-    username: 'admin',
-    password: 'admin123'
-  };
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: '',
+      email: '',
       password: '',
     },
   });
 
-  const onSubmit = (data: LoginFormValues) => {
-    setIsLoading(true);
-    
-    setTimeout(() => {
-      if (data.username === defaultAdmin.username && data.password === defaultAdmin.password) {
-        toast({
-          title: "Acceso exitoso",
-          description: "Bienvenido al sistema de administración",
-        });
-        localStorage.setItem('gimnasio-admin-logged', 'true');
-        navigate('/dashboard'); // Redirect to dashboard instead of routines
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error de acceso",
-          description: "Usuario o contraseña incorrectos",
-        });
-      }
-      setIsLoading(false);
-    }, 1000);
+  const onSubmit = async (data: LoginFormValues) => {
+    await signIn(data.email, data.password);
   };
 
   return (
@@ -80,16 +56,16 @@ const Login = () => {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 md:space-y-4">
                 <FormField
                   control={form.control}
-                  name="username"
+                  name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-300">Usuario</FormLabel>
+                      <FormLabel className="text-gray-300">Correo electrónico</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <User className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                           <Input 
                             className="pl-9 bg-[#1A1F2C] border-gray-700 text-white h-10" 
-                            placeholder="Ingresa tu nombre de usuario" 
+                            placeholder="Ingresa tu correo electrónico" 
                             {...field} 
                           />
                         </div>
@@ -122,15 +98,15 @@ const Login = () => {
                 <Button 
                   type="submit" 
                   className="w-full bg-blue-600 hover:bg-blue-700 mt-2" 
-                  disabled={isLoading}
+                  disabled={loading}
                 >
-                  {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                  {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
                 </Button>
               </form>
             </Form>
           </CardContent>
           <CardFooter className="flex flex-col text-center text-xs text-gray-500 px-4 md:px-6 py-3">
-            <p>Para este prototipo, usa: admin / admin123</p>
+            <p>Para probar, crea un usuario en Supabase o usa las credenciales provistas.</p>
           </CardFooter>
         </Card>
       </div>

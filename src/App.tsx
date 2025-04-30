@@ -16,116 +16,119 @@ import Attendance from "./pages/Attendance";
 import Cashbox from "./pages/Cashbox";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRouteAuth from "./components/ProtectedRouteAuth";
 import AdminLayout from "./components/AdminLayout";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/login" element={<Login />} />
-          
-          {/* Ruta inicial después del login */}
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <Dashboard />
-              </AdminLayout>
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/routines" element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <StudentRoutines />
-              </AdminLayout>
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/routines/:studentId" element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <RoutineDetail />
-              </AdminLayout>
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/members" element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <StudentRoutines />
-              </AdminLayout>
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/members/:studentId" element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <RoutineDetail />
-              </AdminLayout>
-            </ProtectedRoute>
-          } />
-          
-          {/* Rutas para las funcionalidades implementadas */}
-          <Route path="/memberships" element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <Memberships />
-              </AdminLayout>
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/payments" element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <Payments />
-              </AdminLayout>
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/attendance" element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <Attendance />
-              </AdminLayout>
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/cashbox" element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <Cashbox />
-              </AdminLayout>
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/reports" element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <Reports />
-              </AdminLayout>
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/settings" element={
-            <ProtectedRoute>
-              <AdminLayout>
-                <Settings />
-              </AdminLayout>
-            </ProtectedRoute>
-          } />
-          
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<Login />} />
+            
+            {/* Ruta inicial después del login */}
+            <Route path="/dashboard" element={
+              <ProtectedRouteAuth>
+                <AdminLayout>
+                  <Dashboard />
+                </AdminLayout>
+              </ProtectedRouteAuth>
+            } />
+            
+            <Route path="/routines" element={
+              <ProtectedRouteAuth>
+                <AdminLayout>
+                  <StudentRoutines />
+                </AdminLayout>
+              </ProtectedRouteAuth>
+            } />
+            
+            <Route path="/routines/:studentId" element={
+              <ProtectedRouteAuth>
+                <AdminLayout>
+                  <RoutineDetail />
+                </AdminLayout>
+              </ProtectedRouteAuth>
+            } />
+            
+            <Route path="/members" element={
+              <ProtectedRouteAuth>
+                <AdminLayout>
+                  <StudentRoutines />
+                </AdminLayout>
+              </ProtectedRouteAuth>
+            } />
+            
+            <Route path="/members/:studentId" element={
+              <ProtectedRouteAuth>
+                <AdminLayout>
+                  <RoutineDetail />
+                </AdminLayout>
+              </ProtectedRouteAuth>
+            } />
+            
+            {/* Rutas para las funcionalidades implementadas */}
+            <Route path="/memberships" element={
+              <ProtectedRouteAuth>
+                <AdminLayout>
+                  <Memberships />
+                </AdminLayout>
+              </ProtectedRouteAuth>
+            } />
+            
+            <Route path="/payments" element={
+              <ProtectedRouteAuth>
+                <AdminLayout>
+                  <Payments />
+                </AdminLayout>
+              </ProtectedRouteAuth>
+            } />
+            
+            <Route path="/attendance" element={
+              <ProtectedRouteAuth>
+                <AdminLayout>
+                  <Attendance />
+                </AdminLayout>
+              </ProtectedRouteAuth>
+            } />
+            
+            <Route path="/cashbox" element={
+              <ProtectedRouteAuth>
+                <AdminLayout>
+                  <Cashbox />
+                </AdminLayout>
+              </ProtectedRouteAuth>
+            } />
+            
+            <Route path="/reports" element={
+              <ProtectedRouteAuth>
+                <AdminLayout>
+                  <Reports />
+                </AdminLayout>
+              </ProtectedRouteAuth>
+            } />
+            
+            <Route path="/settings" element={
+              <ProtectedRouteAuth>
+                <AdminLayout>
+                  <Settings />
+                </AdminLayout>
+              </ProtectedRouteAuth>
+            } />
+            
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </TooltipProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 

@@ -5,6 +5,7 @@ import { LogOut, UserCircle, Menu, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 
 const AdminSidebar = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const AdminSidebar = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(!isMobile);
+  const { signOut, user } = useAuth();
   
   // Close sidebar on mobile when route changes
   useEffect(() => {
@@ -20,18 +22,8 @@ const AdminSidebar = () => {
     }
   }, [location.pathname, isMobile]);
 
-  const handleLogout = () => {
-    // Eliminamos la sesión
-    localStorage.removeItem('gimnasio-admin-logged');
-    
-    // Mostramos mensaje de éxito
-    toast({
-      title: "Sesión cerrada",
-      description: "Has cerrado sesión correctamente",
-    });
-    
-    // Redirigimos al login
-    navigate('/login');
+  const handleLogout = async () => {
+    await signOut();
   };
   
   // Función para determinar si un enlace está activo
@@ -100,7 +92,7 @@ const AdminSidebar = () => {
         <div className="p-4 border-t border-gray-800">
           <div className="flex items-center mb-3">
             <UserCircle className="h-5 w-5 mr-2 text-gray-400" />
-            <span className="text-gray-300">Administrador</span>
+            <span className="text-gray-300">{user?.email || 'Administrador'}</span>
           </div>
           <button 
             onClick={handleLogout}
