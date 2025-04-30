@@ -10,6 +10,12 @@ import NotFound from "./pages/NotFound";
 import StudentRoutines from "./pages/StudentRoutines";
 import RoutineDetail from "./pages/RoutineDetail";
 import Dashboard from "./pages/Dashboard";
+import Memberships from "./pages/Memberships";
+import Payments from "./pages/Payments";
+import Attendance from "./pages/Attendance";
+import Cashbox from "./pages/Cashbox";
+import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/AdminLayout";
 
@@ -66,11 +72,11 @@ const App = () => (
             </ProtectedRoute>
           } />
           
-          {/* Rutas para las demás funcionalidades */}
+          {/* Rutas para las funcionalidades implementadas */}
           <Route path="/memberships" element={
             <ProtectedRoute>
               <AdminLayout>
-                <Dashboard />
+                <Memberships />
               </AdminLayout>
             </ProtectedRoute>
           } />
@@ -78,7 +84,7 @@ const App = () => (
           <Route path="/payments" element={
             <ProtectedRoute>
               <AdminLayout>
-                <Dashboard />
+                <Payments />
               </AdminLayout>
             </ProtectedRoute>
           } />
@@ -86,7 +92,7 @@ const App = () => (
           <Route path="/attendance" element={
             <ProtectedRoute>
               <AdminLayout>
-                <Dashboard />
+                <Attendance />
               </AdminLayout>
             </ProtectedRoute>
           } />
@@ -94,7 +100,7 @@ const App = () => (
           <Route path="/cashbox" element={
             <ProtectedRoute>
               <AdminLayout>
-                <Dashboard />
+                <Cashbox />
               </AdminLayout>
             </ProtectedRoute>
           } />
@@ -102,7 +108,7 @@ const App = () => (
           <Route path="/reports" element={
             <ProtectedRoute>
               <AdminLayout>
-                <Dashboard />
+                <Reports />
               </AdminLayout>
             </ProtectedRoute>
           } />
@@ -110,7 +116,7 @@ const App = () => (
           <Route path="/settings" element={
             <ProtectedRoute>
               <AdminLayout>
-                <Dashboard />
+                <Settings />
               </AdminLayout>
             </ProtectedRoute>
           } />

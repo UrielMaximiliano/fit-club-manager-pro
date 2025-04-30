@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { LogOut, UserCircle, Menu, X } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 
@@ -45,7 +45,8 @@ const AdminSidebar = () => {
 
   // Navigation items with routes and icons
   const navItems = [
-    { name: "Miembros", icon: "👤", path: '/routines' },
+    { name: "Dashboard", icon: "📊", path: '/dashboard' },
+    { name: "Miembros", icon: "👤", path: '/members' },
     { name: "Membresías", icon: "🏋️", path: '/memberships' },
     { name: "Pagos", icon: "💰", path: '/payments' },
     { name: "Asistencias", icon: "📅", path: '/attendance' },
