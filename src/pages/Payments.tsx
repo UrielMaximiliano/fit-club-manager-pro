@@ -1,156 +1,289 @@
-
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PlusCircle, Search, Filter } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { useIsMobile } from '@/hooks/use-mobile';
-
-const payments = [
-  {
-    id: "P001",
-    member: "Juan Pérez",
-    amount: "$25.000",
-    concept: "Mensualidad - Plan Básico",
-    date: "28/04/2025",
-    method: "Efectivo",
-    status: "Completado"
-  },
-  {
-    id: "P002",
-    member: "María González",
-    amount: "$65.000",
-    concept: "Plan Trimestral",
-    date: "27/04/2025",
-    method: "Tarjeta",
-    status: "Completado"
-  },
-  {
-    id: "P003",
-    member: "Carlos Rodríguez",
-    amount: "$25.000",
-    concept: "Mensualidad - Plan Básico",
-    date: "26/04/2025",
-    method: "Transferencia",
-    status: "Completado"
-  },
-  {
-    id: "P004",
-    member: "Ana Martínez",
-    amount: "$120.000",
-    concept: "Plan Semestral",
-    date: "25/04/2025",
-    method: "Tarjeta",
-    status: "Completado"
-  }
-];
+import React, { useState, useEffect } from 'react';
+import { Plus, Search } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Member, Membership, Payment, memberServices, membershipServices, paymentServices } from '@/services/supabaseService';
 
 export default function Payments() {
-  const isMobile = useIsMobile();
-  const [searchTerm, setSearchTerm] = useState("");
-  
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [memberships, setMemberships] = useState<Membership[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  const [formData, setFormData] = useState({
+    member_id: '',
+    membership_id: '',
+    amount: 0,
+    payment_type: 'efectivo',
+    payment_date: new Date().toISOString().split('T')[0],
+  });
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const [paymentsData, membersData, membershipsData] = await Promise.all([
+        paymentServices.getAll(),
+        memberServices.getAll(),
+        membershipServices.getAll(),
+      ]);
+      setPayments(paymentsData);
+      setMembers(membersData);
+      setMemberships(membershipsData);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudieron cargar los datos',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await paymentServices.create(formData);
+      toast({
+        title: 'Éxito',
+        description: 'Pago registrado correctamente',
+      });
+      setIsDialogOpen(false);
+      loadData();
+      resetForm();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Hubo un error al procesar el pago',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      member_id: '',
+      membership_id: '',
+      amount: 0,
+      payment_type: 'efectivo',
+      payment_date: new Date().toISOString().split('T')[0],
+    });
+  };
+
+  const filteredPayments = payments.filter((payment: any) => {
+    const memberName = `${payment.members?.first_name} ${payment.members?.last_name}`.toLowerCase();
+    return memberName.includes(searchTerm.toLowerCase());
+  });
+
+  const paymentTypes = [
+    { value: 'efectivo', label: 'Efectivo' },
+    { value: 'tarjeta', label: 'Tarjeta' },
+    { value: 'transferencia', label: 'Transferencia' },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-white">Pagos</h1>
-          <p className="text-gray-400">Gestiona los pagos de los miembros</p>
-        </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Registrar Pago
-        </Button>
-      </div>
-      
-      <Card className="bg-gray-800 border-gray-700 text-white">
-        <CardHeader>
-          <CardTitle>Resumen de Pagos</CardTitle>
-          <CardDescription className="text-gray-400">Estadísticas del mes actual</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <div className="text-gray-400 text-sm">Total Recaudado</div>
-              <div className="text-2xl font-bold mt-1">$1,235,000</div>
-            </div>
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <div className="text-gray-400 text-sm">Pagos Procesados</div>
-              <div className="text-2xl font-bold mt-1">47</div>
-            </div>
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <div className="text-gray-400 text-sm">Promedio por Pago</div>
-              <div className="text-2xl font-bold mt-1">$26,276</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card className="bg-gray-800 border-gray-700 text-white">
-        <CardHeader className="flex flex-col md:flex-row justify-between items-start md:items-center">
-          <div>
-            <CardTitle>Registro de Pagos</CardTitle>
-            <CardDescription className="text-gray-400">Historial completo de pagos realizados</CardDescription>
-          </div>
-          <div className="w-full md:w-auto flex flex-col md:flex-row gap-2 mt-2 md:mt-0">
-            <div className="relative w-full md:w-64">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-              <Input
-                type="search"
-                placeholder="Buscar pago o miembro..."
-                className="pl-8 bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-700">
-              <Filter className="mr-2 h-4 w-4" />
-              Filtrar
+    <div className="container mx-auto p-4">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Pagos</h1>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              onClick={() => {
+                resetForm();
+                setIsDialogOpen(true);
+              }}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Nuevo Pago
             </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className={`${isMobile ? 'overflow-auto' : ''}`}>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-gray-700 hover:bg-gray-800">
-                  <TableHead className="text-gray-400">ID</TableHead>
-                  <TableHead className="text-gray-400">Miembro</TableHead>
-                  <TableHead className="text-gray-400">Concepto</TableHead>
-                  <TableHead className="text-gray-400">Fecha</TableHead>
-                  <TableHead className="text-gray-400">Monto</TableHead>
-                  <TableHead className="text-gray-400">Método</TableHead>
-                  <TableHead className="text-gray-400">Estado</TableHead>
-                  <TableHead className="text-gray-400 text-right">Acciones</TableHead>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Registrar Nuevo Pago</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Miembro
+                </label>
+                <Select
+                  value={formData.member_id}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, member_id: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar miembro" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {members.map((member) => (
+                      <SelectItem key={member.id} value={member.id}>
+                        {member.first_name} {member.last_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Membresía
+                </label>
+                <Select
+                  value={formData.membership_id}
+                  onValueChange={(value) => {
+                    const membership = memberships.find((m) => m.id === value);
+                    setFormData({
+                      ...formData,
+                      membership_id: value,
+                      amount: membership ? membership.price : 0,
+                    });
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar membresía" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {memberships.map((membership) => (
+                      <SelectItem key={membership.id} value={membership.id}>
+                        {membership.name} - ${membership.price}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Monto
+                </label>
+                <Input
+                  type="number"
+                  required
+                  min="0"
+                  step="0.01"
+                  value={formData.amount}
+                  onChange={(e) =>
+                    setFormData({ ...formData, amount: parseFloat(e.target.value) })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Tipo de Pago
+                </label>
+                <Select
+                  value={formData.payment_type}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, payment_type: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar tipo de pago" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {paymentTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Fecha
+                </label>
+                <Input
+                  type="date"
+                  required
+                  value={formData.payment_date}
+                  onChange={(e) =>
+                    setFormData({ ...formData, payment_date: e.target.value })
+                  }
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                Registrar Pago
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="mb-4">
+        <div className="relative">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+          <Input
+            placeholder="Buscar pagos por nombre de miembro..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-8"
+          />
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="text-center">Cargando...</div>
+      ) : (
+        <div className="border rounded-lg">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Fecha</TableHead>
+                <TableHead>Miembro</TableHead>
+                <TableHead>Membresía</TableHead>
+                <TableHead>Monto</TableHead>
+                <TableHead>Tipo de Pago</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredPayments.map((payment: any) => (
+                <TableRow key={payment.id}>
+                  <TableCell>
+                    {new Date(payment.payment_date).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    {payment.members?.first_name} {payment.members?.last_name}
+                  </TableCell>
+                  <TableCell>{payment.memberships?.name}</TableCell>
+                  <TableCell>${payment.amount.toFixed(2)}</TableCell>
+                  <TableCell>
+                    {paymentTypes.find((t) => t.value === payment.payment_type)?.label}
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {payments.map((payment) => (
-                  <TableRow key={payment.id} className="border-gray-700 hover:bg-gray-700">
-                    <TableCell className="font-medium">{payment.id}</TableCell>
-                    <TableCell>{payment.member}</TableCell>
-                    <TableCell>{payment.concept}</TableCell>
-                    <TableCell>{payment.date}</TableCell>
-                    <TableCell>{payment.amount}</TableCell>
-                    <TableCell>{payment.method}</TableCell>
-                    <TableCell>
-                      <span className="px-2 py-1 rounded text-xs bg-green-900 text-green-300">
-                        {payment.status}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-white">
-                        <span className="sr-only">Detalles</span>
-                        <Search className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 }

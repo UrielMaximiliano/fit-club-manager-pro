@@ -1,121 +1,258 @@
-
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PlusCircle } from "lucide-react";
-import { useIsMobile } from '@/hooks/use-mobile';
-
-const membershipPlans = [
-  {
-    id: 1,
-    name: "Plan Básico",
-    price: "$25.000",
-    duration: "1 mes",
-    description: "Acceso a todas las áreas del gimnasio",
-    active: true
-  },
-  {
-    id: 2,
-    name: "Plan Trimestral",
-    price: "$65.000",
-    duration: "3 meses",
-    description: "Acceso a todas las áreas + 1 clase semanal",
-    active: true
-  },
-  {
-    id: 3,
-    name: "Plan Semestral",
-    price: "$120.000",
-    duration: "6 meses",
-    description: "Acceso completo + 2 clases semanales + 1 evaluación",
-    active: true
-  },
-  {
-    id: 4,
-    name: "Plan Anual",
-    price: "$200.000",
-    duration: "12 meses",
-    description: "Acceso completo + todas las clases + evaluación mensual",
-    active: true
-  }
-];
+import React, { useState, useEffect } from 'react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Membership, membershipServices } from '@/services/supabaseService';
 
 export default function Memberships() {
-  const isMobile = useIsMobile();
-  
+  const [memberships, setMemberships] = useState<Membership[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedMembership, setSelectedMembership] = useState<Membership | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    price: 0,
+    duration_days: 30,
+  });
+
+  useEffect(() => {
+    loadMemberships();
+  }, []);
+
+  const loadMemberships = async () => {
+    try {
+      const data = await membershipServices.getAll();
+      setMemberships(data);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudieron cargar las membresías',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (selectedMembership) {
+        await membershipServices.update(selectedMembership.id, formData);
+        toast({
+          title: 'Éxito',
+          description: 'Membresía actualizada correctamente',
+        });
+      } else {
+        await membershipServices.create(formData);
+        toast({
+          title: 'Éxito',
+          description: 'Membresía creada correctamente',
+        });
+      }
+      setIsDialogOpen(false);
+      loadMemberships();
+      resetForm();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Hubo un error al procesar la operación',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar esta membresía?')) {
+      try {
+        await membershipServices.delete(id);
+        toast({
+          title: 'Éxito',
+          description: 'Membresía eliminada correctamente',
+        });
+        loadMemberships();
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: 'No se pudo eliminar la membresía',
+          variant: 'destructive',
+        });
+      }
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      description: '',
+      price: 0,
+      duration_days: 30,
+    });
+    setSelectedMembership(null);
+  };
+
+  const handleEdit = (membership: Membership) => {
+    setSelectedMembership(membership);
+    setFormData({
+      name: membership.name,
+      description: membership.description,
+      price: membership.price,
+      duration_days: membership.duration_days,
+    });
+    setIsDialogOpen(true);
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-white">Membresías</h1>
-          <p className="text-gray-400">Administra los planes de membresía del gimnasio</p>
-        </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Nuevo Plan
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {membershipPlans.map((plan) => (
-          <Card key={plan.id} className="bg-gray-800 border-gray-700 text-white">
-            <CardHeader className="pb-2">
-              <CardTitle>{plan.name}</CardTitle>
-              <CardDescription className="text-gray-400">{plan.duration}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold mb-2">{plan.price}</div>
-              <p className="text-sm text-gray-300 mb-4">{plan.description}</p>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm" className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-700">Editar</Button>
-                <Button variant="destructive" size="sm" className="flex-1">Desactivar</Button>
+    <div className="container mx-auto p-4">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Membresías</h1>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              onClick={() => {
+                resetForm();
+                setIsDialogOpen(true);
+              }}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Nueva Membresía
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {selectedMembership ? 'Editar Membresía' : 'Nueva Membresía'}
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Nombre
+                </label>
+                <Input
+                  required
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                />
               </div>
-            </CardContent>
-          </Card>
-        ))}
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Descripción
+                </label>
+                <Input
+                  required
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Precio
+                </label>
+                <Input
+                  type="number"
+                  required
+                  min="0"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={(e) =>
+                    setFormData({ ...formData, price: parseFloat(e.target.value) })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Duración (días)
+                </label>
+                <Input
+                  type="number"
+                  required
+                  min="1"
+                  value={formData.duration_days}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      duration_days: parseInt(e.target.value),
+                    })
+                  }
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                {selectedMembership ? 'Actualizar' : 'Crear'}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      <Card className="bg-gray-800 border-gray-700 text-white">
-        <CardHeader>
-          <CardTitle>Historial de Cambios en Planes</CardTitle>
-          <CardDescription className="text-gray-400">Registro de modificaciones a los planes de membresía</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className={`${isMobile ? 'overflow-auto' : ''}`}>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-gray-700 hover:bg-gray-800">
-                  <TableHead className="text-gray-400">Fecha</TableHead>
-                  <TableHead className="text-gray-400">Plan</TableHead>
-                  <TableHead className="text-gray-400">Cambio</TableHead>
-                  <TableHead className="text-gray-400">Usuario</TableHead>
+      {loading ? (
+        <div className="text-center">Cargando...</div>
+      ) : (
+        <div className="border rounded-lg">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nombre</TableHead>
+                <TableHead>Descripción</TableHead>
+                <TableHead>Precio</TableHead>
+                <TableHead>Duración</TableHead>
+                <TableHead>Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {memberships.map((membership) => (
+                <TableRow key={membership.id}>
+                  <TableCell>{membership.name}</TableCell>
+                  <TableCell>{membership.description}</TableCell>
+                  <TableCell>${membership.price.toFixed(2)}</TableCell>
+                  <TableCell>{membership.duration_days} días</TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(membership)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(membership.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow className="border-gray-700 hover:bg-gray-700">
-                  <TableCell>10/04/2025</TableCell>
-                  <TableCell>Plan Básico</TableCell>
-                  <TableCell>Aumento de precio: $22.000 → $25.000</TableCell>
-                  <TableCell>Admin</TableCell>
-                </TableRow>
-                <TableRow className="border-gray-700 hover:bg-gray-700">
-                  <TableCell>15/03/2025</TableCell>
-                  <TableCell>Plan Anual</TableCell>
-                  <TableCell>Modificación de beneficios</TableCell>
-                  <TableCell>Admin</TableCell>
-                </TableRow>
-                <TableRow className="border-gray-700 hover:bg-gray-700">
-                  <TableCell>01/03/2025</TableCell>
-                  <TableCell>Plan Trimestral</TableCell>
-                  <TableCell>Creación del plan</TableCell>
-                  <TableCell>Admin</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 }
