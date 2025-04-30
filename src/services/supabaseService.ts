@@ -195,8 +195,7 @@ export const reportServices = {
   async getMembershipStats() {
     const { data, error } = await supabase
       .from('members')
-      .select('membership_type, count')
-      .group('membership_type');
+      .select('membership_type, count:count(membership_type)', { head: true });
     
     if (error) throw error;
     return data;
