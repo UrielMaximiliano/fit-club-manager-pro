@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Member, memberServices } from '@/services/supabaseService';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function Members() {
   const [members, setMembers] = useState<Member[]>([]);
@@ -27,6 +36,7 @@ export default function Members() {
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -44,6 +54,7 @@ export default function Members() {
 
   const loadMembers = async () => {
     try {
+      setLoading(true);
       const data = await memberServices.getAll();
       setMembers(data);
     } catch (error) {
@@ -145,9 +156,24 @@ export default function Members() {
   );
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Miembros</h1>
+    <div className="pb-6">
+      <div className="flex justify-between items-center mb-4 md:mb-6">
+        <div className={isMobile ? "ml-14" : ""}>
+          <h1 className="text-lg md:text-xl font-bold text-white">Miembros</h1>
+        </div>
+        <div className="text-white text-xs md:text-sm">Administrador</div>
+      </div>
+
+      <div className="mb-6 flex justify-between items-center">
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+          <Input
+            placeholder="Buscar miembros..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-8 bg-[#1A1F2C] border-gray-700 text-white"
+          />
+        </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button
@@ -155,21 +181,22 @@ export default function Members() {
                 resetForm();
                 setIsDialogOpen(true);
               }}
+              className="bg-blue-600 hover:bg-blue-700 text-white ml-4"
             >
-              <Plus className="mr-2 h-4 w-4" />
-              Nuevo Miembro
+              <UserPlus className="mr-2 h-4 w-4" />
+              {!isMobile && "Nuevo Miembro"}
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="bg-[#1A1F2C] border-gray-700 text-white">
             <DialogHeader>
-              <DialogTitle>
+              <DialogTitle className="text-xl text-white">
                 {selectedMember ? 'Editar Miembro' : 'Nuevo Miembro'}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="block text-sm font-medium mb-1 text-gray-300">
                     Nombre
                   </label>
                   <Input
@@ -178,10 +205,11 @@ export default function Members() {
                     onChange={(e) =>
                       setFormData({ ...formData, first_name: e.target.value })
                     }
+                    className="bg-[#222732] border-gray-700 text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="block text-sm font-medium mb-1 text-gray-300">
                     Apellido
                   </label>
                   <Input
@@ -190,11 +218,12 @@ export default function Members() {
                     onChange={(e) =>
                       setFormData({ ...formData, last_name: e.target.value })
                     }
+                    className="bg-[#222732] border-gray-700 text-white"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block text-sm font-medium mb-1 text-gray-300">
                   Email
                 </label>
                 <Input
@@ -204,10 +233,11 @@ export default function Members() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
+                  className="bg-[#222732] border-gray-700 text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block text-sm font-medium mb-1 text-gray-300">
                   Teléfono
                 </label>
                 <Input
@@ -216,23 +246,30 @@ export default function Members() {
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value })
                   }
+                  className="bg-[#222732] border-gray-700 text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block text-sm font-medium mb-1 text-gray-300">
                   Tipo de Membresía
                 </label>
-                <Input
-                  required
+                <Select
                   value={formData.membership_type}
-                  onChange={(e) =>
-                    setFormData({ ...formData, membership_type: e.target.value })
-                  }
-                />
+                  onValueChange={(value) => setFormData({ ...formData, membership_type: value })}
+                >
+                  <SelectTrigger className="bg-[#222732] border-gray-700 text-white">
+                    <SelectValue placeholder="Seleccionar membresía" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#222732] border-gray-700 text-white">
+                    <SelectItem value="Estándar">Estándar</SelectItem>
+                    <SelectItem value="Premium">Premium</SelectItem>
+                    <SelectItem value="VIP">VIP</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="block text-sm font-medium mb-1 text-gray-300">
                     Fecha Inicio
                   </label>
                   <Input
@@ -242,10 +279,11 @@ export default function Members() {
                     onChange={(e) =>
                       setFormData({ ...formData, start_date: e.target.value })
                     }
+                    className="bg-[#222732] border-gray-700 text-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="block text-sm font-medium mb-1 text-gray-300">
                     Fecha Fin
                   </label>
                   <Input
@@ -255,10 +293,11 @@ export default function Members() {
                     onChange={(e) =>
                       setFormData({ ...formData, end_date: e.target.value })
                     }
+                    className="bg-[#222732] border-gray-700 text-white"
                   />
                 </div>
               </div>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
                 {selectedMember ? 'Actualizar' : 'Crear'}
               </Button>
             </form>
@@ -266,77 +305,89 @@ export default function Members() {
         </Dialog>
       </div>
 
-      <div className="mb-4">
-        <div className="relative">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-          <Input
-            placeholder="Buscar miembros..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-8"
-          />
-        </div>
-      </div>
-
       {loading ? (
-        <div className="text-center">Cargando...</div>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
       ) : (
-        <div className="border rounded-lg">
+        <div className="rounded-lg border border-gray-700 overflow-hidden">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nombre</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Teléfono</TableHead>
-                <TableHead>Membresía</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Acciones</TableHead>
+            <TableHeader className="bg-[#222732]">
+              <TableRow className="border-gray-700">
+                <TableHead className="text-gray-300">Nombre</TableHead>
+                <TableHead className="text-gray-300">Email</TableHead>
+                <TableHead className="text-gray-300 hidden md:table-cell">Teléfono</TableHead>
+                <TableHead className="text-gray-300">Membresía</TableHead>
+                <TableHead className="text-gray-300">Estado</TableHead>
+                <TableHead className="text-gray-300 text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredMembers.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell>
-                    {member.first_name} {member.last_name}
-                  </TableCell>
-                  <TableCell>{member.email}</TableCell>
-                  <TableCell>{member.phone}</TableCell>
-                  <TableCell>{member.membership_type}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        member.status === 'active'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {member.status === 'active' ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(member)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(member.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+              {filteredMembers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-10 text-gray-400">
+                    No se encontraron miembros
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                filteredMembers.map((member) => (
+                  <TableRow key={member.id} className="border-gray-700 bg-[#1A1F2C] hover:bg-[#222732]">
+                    <TableCell className="font-medium text-white">
+                      {member.first_name} {member.last_name}
+                    </TableCell>
+                    <TableCell className="text-gray-300">{member.email}</TableCell>
+                    <TableCell className="text-gray-300 hidden md:table-cell">{member.phone}</TableCell>
+                    <TableCell className="text-gray-300">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          member.membership_type === 'Premium'
+                            ? 'bg-green-900/40 text-green-300'
+                            : member.membership_type === 'VIP'
+                            ? 'bg-purple-900/40 text-purple-300'
+                            : 'bg-blue-900/40 text-blue-300'
+                        }`}
+                      >
+                        {member.membership_type}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          member.status === 'active'
+                            ? 'bg-green-900/40 text-green-300'
+                            : 'bg-red-900/40 text-red-300'
+                        }`}
+                      >
+                        {member.status === 'active' ? 'Activo' : 'Inactivo'}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex space-x-2 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(member)}
+                          className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(member.id)}
+                          className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
       )}
     </div>
   );
-} 
+}
