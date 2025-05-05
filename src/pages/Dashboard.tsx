@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -68,6 +69,7 @@ const Dashboard = () => {
         
         let totalRevenue = 0;
         payments.forEach(item => {
+          // Ensure amount is converted to a number before adding
           totalRevenue += Number(item.amount);
         });
         
@@ -77,7 +79,8 @@ const Dashboard = () => {
                  paymentDate.getFullYear() === currentYear;
         });
         
-        const monthlyRevenue = monthlyPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+        // Convert amount to number before performing arithmetic operation
+        const monthlyRevenue = monthlyPayments.reduce((sum, p) => Number(sum) + Number(p.amount), 0);
         
         // Actualizar estadísticas de resumen
         setSummaryStats({
@@ -139,7 +142,7 @@ const Dashboard = () => {
             const paymentDate = new Date(p.payment_date);
             return paymentDate.getMonth() === monthNum && 
                    paymentDate.getFullYear() === yearNum;
-          }).reduce((sum, p) => sum + Number(p.amount), 0);
+          }).reduce((sum, p) => Number(sum) + Number(p.amount), 0);
           
           return { name: month, ingresos: total };
         });
