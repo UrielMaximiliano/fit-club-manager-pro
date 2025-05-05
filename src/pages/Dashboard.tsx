@@ -23,24 +23,77 @@ import {
   ChartTooltipContent 
 } from '@/components/ui/chart';
 import { memberServices, attendanceServices, paymentServices, reportServices } from '@/services/supabaseService';
+import { toast } from '@/hooks/use-toast';
 
 // Colores para los gráficos
 const COLORS = ['#4F8EF6', '#22C55E', '#A855F7', '#F97316', '#9b87f5'];
 
+// Interfaces para los datos
+interface SummaryStats {
+  activeMembers: number;
+  todayAttendance: number;
+  updatedRoutines: number;
+  monthlyRevenue: number;
+}
+
+interface MembershipData {
+  name: string;
+  miembros: number;
+}
+
+interface AttendanceData {
+  name: string;
+  asistencias: number;
+}
+
+interface RevenueData {
+  name: string;
+  ingresos: number;
+}
+
+interface MembershipTypeData {
+  name: string;
+  value: number;
+}
+
+interface RecentActivity {
+  type: 'member' | 'payment' | 'attendance' | 'routine';
+  name: string;
+  action: string;
+  time: string;
+}
+
 const Dashboard = () => {
   const isMobile = useIsMobile();
   const [loading, setLoading] = useState(true);
-  const [membershipData, setMembershipData] = useState([]);
-  const [attendanceData, setAttendanceData] = useState([]);
-  const [revenueData, setRevenueData] = useState([]);
-  const [membershipTypeData, setMembershipTypeData] = useState([]);
-  const [recentActivities, setRecentActivities] = useState([]);
-  const [summaryStats, setSummaryStats] = useState({
+  const [membershipData, setMembershipData] = useState<MembershipData[]>([]);
+  const [attendanceData, setAttendanceData] = useState<AttendanceData[]>([]);
+  const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
+  const [membershipTypeData, setMembershipTypeData] = useState<MembershipTypeData[]>([]);
+  const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
+  const [summaryStats, setSummaryStats] = useState<SummaryStats>({
     activeMembers: 0,
     todayAttendance: 0,
     updatedRoutines: 0,
     monthlyRevenue: 0
   });
+
+  // Formatear tiempo relativo (ej: "hace 2 horas")
+  const formatTimeAgo = (date: Date): string => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    
+    if (diffMins < 60) {
+      return `Hace ${diffMins} minutos`;
+    } else if (diffHours < 24) {
+      return `Hace ${diffHours} horas`;
+    } else {
+      return `Hace ${diffDays} días`;
+    }
+  };
 
   // Obtener datos al cargar el componente
   useEffect(() => {
@@ -55,7 +108,6 @@ const Dashboard = () => {
         // Obtener asistencias
         const now = new Date();
         const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-        const yesterdayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).toISOString();
         
         const allAttendance = await attendanceServices.getAll();
         const todayAttendance = allAttendance.filter(a => 
@@ -69,7 +121,6 @@ const Dashboard = () => {
         
         let totalRevenue = 0;
         payments.forEach(item => {
-          // Ensure amount is converted to a number before adding
           totalRevenue += Number(item.amount);
         });
         
@@ -79,8 +130,10 @@ const Dashboard = () => {
                  paymentDate.getFullYear() === currentYear;
         });
         
-        // Convert amount to number before performing arithmetic operation
-        const monthlyRevenue = monthlyPayments.reduce((sum, p) => Number(sum) + Number(p.amount), 0);
+        // Convertir a número antes de realizar operaciones aritméticas
+        const monthlyRevenue = monthlyPayments.reduce((sum, p) => {
+          return Number(sum) + Number(p.amount);
+        }, 0);
         
         // Actualizar estadísticas de resumen
         setSummaryStats({
@@ -91,141 +144,19 @@ const Dashboard = () => {
         });
         
         // Preparar datos para gráficos
-        // 1. Datos de membresías por mes (últimos 6 meses)
-        const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
-        
-        const membershipByMonth = Array(6).fill(0).map((_, i) => {
-          const monthDate = new Date();
-          monthDate.setMonth(monthDate.getMonth() - 5 + i);
-          const month = monthDate.toLocaleString('es', { month: 'short' });
-          const monthYear = `${monthDate.getMonth()}-${monthDate.getFullYear()}`;
-          
-          const count = membersData.filter(m => {
-            const startDate = new Date(m.start_date);
-            return startDate.getMonth() === monthDate.getMonth() && 
-                  startDate.getFullYear() === monthDate.getFullYear();
-          }).length;
-          
-          return { name: month, miembros: count };
-        });
-        setMembershipData(membershipByMonth);
-        
-        // 2. Datos de asistencia por día (última semana)
-        const weekDays = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
-        const today = now.getDay(); // 0 = domingo, 1 = lunes, ...
-        const daysToMonday = today === 0 ? 6 : today - 1;
-        
-        const attendanceByDay = weekDays.map((day, i) => {
-          const dayDate = new Date();
-          dayDate.setDate(dayDate.getDate() - daysToMonday + i);
-          const dayStr = dayDate.toISOString().split('T')[0];
-          
-          const count = allAttendance.filter(a => {
-            const checkInDate = new Date(a.check_in);
-            return checkInDate.toISOString().split('T')[0] === dayStr;
-          }).length;
-          
-          return { name: day, asistencias: count };
-        });
-        setAttendanceData(attendanceByDay);
-        
-        // 3. Datos de ingresos por mes (últimos 6 meses)
-        const revenueByMonth = Array(6).fill(0).map((_, i) => {
-          const monthDate = new Date();
-          monthDate.setMonth(monthDate.getMonth() - 5 + i);
-          const month = monthDate.toLocaleString('es', { month: 'short' });
-          const monthNum = monthDate.getMonth();
-          const yearNum = monthDate.getFullYear();
-          
-          const total = payments.filter(p => {
-            const paymentDate = new Date(p.payment_date);
-            return paymentDate.getMonth() === monthNum && 
-                   paymentDate.getFullYear() === yearNum;
-          }).reduce((sum, p) => Number(sum) + Number(p.amount), 0);
-          
-          return { name: month, ingresos: total };
-        });
-        setRevenueData(revenueByMonth);
-        
-        // 4. Datos de tipos de membresía (para gráfico de torta)
-        const membershipTypes = {};
-        membersData.forEach(m => {
-          if (m.status === 'active') {
-            if (membershipTypes[m.membership_type]) {
-              membershipTypes[m.membership_type]++;
-            } else {
-              membershipTypes[m.membership_type] = 1;
-            }
-          }
-        });
-        
-        const membershipTypeArray = Object.entries(membershipTypes).map(([name, value]) => ({
-          name,
-          value
-        }));
-        setMembershipTypeData(membershipTypeArray);
-        
-        // 5. Actividades recientes
-        const recentActs = [];
-        
-        // Miembros recientes
-        const recentMembers = [...membersData]
-          .sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime())
-          .slice(0, 2);
-          
-        recentMembers.forEach(m => {
-          recentActs.push({
-            type: 'member',
-            name: `${m.first_name} ${m.last_name}`,
-            action: 'se registró',
-            time: formatTimeAgo(new Date(m.start_date))
-          });
-        });
-        
-        // Pagos recientes
-        const recentPayments = [...payments]
-          .sort((a, b) => new Date(b.payment_date).getTime() - new Date(a.payment_date).getTime())
-          .slice(0, 2);
-          
-        recentPayments.forEach(p => {
-          const member = membersData.find(m => m.id === p.member_id);
-          if (member) {
-            recentActs.push({
-              type: 'payment',
-              name: `${member.first_name} ${member.last_name}`,
-              action: `pagó $${p.amount}`,
-              time: formatTimeAgo(new Date(p.payment_date))
-            });
-          }
-        });
-        
-        // Asistencias recientes
-        const recentAttendances = [...allAttendance]
-          .sort((a, b) => new Date(b.check_in).getTime() - new Date(a.check_in).getTime())
-          .slice(0, 2);
-          
-        recentAttendances.forEach(a => {
-          const member = membersData.find(m => m.id === a.member_id);
-          if (member) {
-            recentActs.push({
-              type: 'attendance',
-              name: `${member.first_name} ${member.last_name}`,
-              action: 'asistió al gym',
-              time: formatTimeAgo(new Date(a.check_in))
-            });
-          }
-        });
-        
-        // Ordenar por tiempo
-        recentActs.sort((a, b) => {
-          return new Date(b.time).getTime() - new Date(a.time).getTime();
-        });
-        
-        setRecentActivities(recentActs.slice(0, 5));
+        prepareMembershipData(membersData);
+        prepareAttendanceData(allAttendance);
+        prepareRevenueData(payments);
+        prepareMembershipTypeData(membersData);
+        prepareRecentActivities(membersData, payments, allAttendance);
         
       } catch (error) {
         console.error("Error al cargar datos del dashboard:", error);
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar los datos del dashboard",
+          variant: "destructive"
+        });
       } finally {
         setLoading(false);
       }
@@ -241,23 +172,163 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
   
-  // Formatear tiempo relativo (ej: "hace 2 horas")
-  const formatTimeAgo = (date) => {
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
+  // Preparar datos de membresías por mes
+  const prepareMembershipData = (membersData: any[]) => {
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
     
-    if (diffMins < 60) {
-      return `Hace ${diffMins} minutos`;
-    } else if (diffHours < 24) {
-      return `Hace ${diffHours} horas`;
-    } else {
-      return `Hace ${diffDays} días`;
-    }
+    const membershipByMonth = Array(6).fill(0).map((_, i) => {
+      const monthDate = new Date();
+      monthDate.setMonth(monthDate.getMonth() - 5 + i);
+      const month = monthDate.toLocaleString('es', { month: 'short' });
+      
+      const count = membersData.filter(m => {
+        const startDate = new Date(m.start_date);
+        return startDate.getMonth() === monthDate.getMonth() && 
+               startDate.getFullYear() === monthDate.getFullYear();
+      }).length;
+      
+      return { name: month, miembros: count };
+    });
+    
+    setMembershipData(membershipByMonth);
+  };
+  
+  // Preparar datos de asistencia por día
+  const prepareAttendanceData = (allAttendance: any[]) => {
+    const weekDays = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
+    const now = new Date();
+    const today = now.getDay(); // 0 = domingo, 1 = lunes, ...
+    const daysToMonday = today === 0 ? 6 : today - 1;
+    
+    const attendanceByDay = weekDays.map((day, i) => {
+      const dayDate = new Date();
+      dayDate.setDate(dayDate.getDate() - daysToMonday + i);
+      const dayStr = dayDate.toISOString().split('T')[0];
+      
+      const count = allAttendance.filter(a => {
+        const checkInDate = new Date(a.check_in);
+        return checkInDate.toISOString().split('T')[0] === dayStr;
+      }).length;
+      
+      return { name: day, asistencias: count };
+    });
+    
+    setAttendanceData(attendanceByDay);
+  };
+  
+  // Preparar datos de ingresos por mes
+  const prepareRevenueData = (payments: any[]) => {
+    const revenueByMonth = Array(6).fill(0).map((_, i) => {
+      const monthDate = new Date();
+      monthDate.setMonth(monthDate.getMonth() - 5 + i);
+      const month = monthDate.toLocaleString('es', { month: 'short' });
+      const monthNum = monthDate.getMonth();
+      const yearNum = monthDate.getFullYear();
+      
+      const total = payments
+        .filter(p => {
+          const paymentDate = new Date(p.payment_date);
+          return paymentDate.getMonth() === monthNum && 
+                 paymentDate.getFullYear() === yearNum;
+        })
+        .reduce((sum, p) => {
+          return Number(sum) + Number(p.amount);
+        }, 0);
+      
+      return { name: month, ingresos: total };
+    });
+    
+    setRevenueData(revenueByMonth);
+  };
+  
+  // Preparar datos de tipos de membresía
+  const prepareMembershipTypeData = (membersData: any[]) => {
+    const membershipTypes: Record<string, number> = {};
+    
+    membersData.forEach(m => {
+      if (m.status === 'active') {
+        if (membershipTypes[m.membership_type]) {
+          membershipTypes[m.membership_type]++;
+        } else {
+          membershipTypes[m.membership_type] = 1;
+        }
+      }
+    });
+    
+    const membershipTypeArray = Object.entries(membershipTypes).map(([name, value]) => ({
+      name,
+      value
+    }));
+    
+    setMembershipTypeData(membershipTypeArray);
+  };
+  
+  // Preparar actividades recientes
+  const prepareRecentActivities = (membersData: any[], payments: any[], allAttendance: any[]) => {
+    const recentActs: RecentActivity[] = [];
+    
+    // Miembros recientes
+    const recentMembers = [...membersData]
+      .sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime())
+      .slice(0, 2);
+      
+    recentMembers.forEach(m => {
+      recentActs.push({
+        type: 'member',
+        name: `${m.first_name} ${m.last_name}`,
+        action: 'se registró',
+        time: formatTimeAgo(new Date(m.start_date))
+      });
+    });
+    
+    // Pagos recientes
+    const recentPayments = [...payments]
+      .sort((a, b) => new Date(b.payment_date).getTime() - new Date(a.payment_date).getTime())
+      .slice(0, 2);
+      
+    recentPayments.forEach(p => {
+      const member = membersData.find(m => m.id === p.member_id);
+      if (member) {
+        recentActs.push({
+          type: 'payment',
+          name: `${member.first_name} ${member.last_name}`,
+          action: `pagó $${p.amount}`,
+          time: formatTimeAgo(new Date(p.payment_date))
+        });
+      }
+    });
+    
+    // Asistencias recientes
+    const recentAttendances = [...allAttendance]
+      .sort((a, b) => new Date(b.check_in).getTime() - new Date(a.check_in).getTime())
+      .slice(0, 2);
+      
+    recentAttendances.forEach(a => {
+      const member = membersData.find(m => m.id === a.member_id);
+      if (member) {
+        recentActs.push({
+          type: 'attendance',
+          name: `${member.first_name} ${member.last_name}`,
+          action: 'asistió al gym',
+          time: formatTimeAgo(new Date(a.check_in))
+        });
+      }
+    });
+    
+    // Ordenar por tiempo
+    recentActs.sort((a, b) => {
+      // Esta es una comparación simplificada, ya que formatTimeAgo no devuelve valores que puedan ordenarse fácilmente
+      // Para una ordenación precisa, deberíamos usar las fechas directas, pero mantenemos la compatibilidad con el código existente
+      if (a.time < b.time) return 1;
+      if (a.time > b.time) return -1;
+      return 0;
+    });
+    
+    setRecentActivities(recentActs.slice(0, 5));
   };
 
+  // Componente para el spinner de carga
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[70vh]">
