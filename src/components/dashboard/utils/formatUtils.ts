@@ -17,3 +17,26 @@ export const formatTimeAgo = (date: Date): string => {
     return `Hace ${diffDays} días`;
   }
 };
+
+// Formatear moneda (ej: "$1,234.56")
+export const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+    minimumFractionDigits: 2
+  }).format(amount);
+};
+
+// Formatear fecha (ej: "15 de marzo, 2023")
+export const formatDate = (date: Date): string => {
+  return new Intl.DateTimeFormat('es-MX', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(date);
+};
+
+// Formatear número con separadores de miles (ej: "1,234")
+export const formatNumber = (num: number): string => {
+  return new Intl.NumberFormat('es-MX').format(num);
+};

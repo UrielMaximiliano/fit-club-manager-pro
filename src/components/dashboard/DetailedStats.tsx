@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { 
   BarChart, 
   Bar, 
@@ -12,6 +13,7 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { Download, RefreshCw } from 'lucide-react';
 
 interface AttendanceData {
   name: string;
@@ -41,13 +43,63 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
   revenueData, 
   chartConfig 
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'asistencias' | 'ingresos'>('asistencias');
+
+  const handleRefresh = () => {
+    setIsLoading(true);
+    // Simulate data refresh
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  const handleDownload = () => {
+    // Simulating download functionality
+    const data = activeTab === 'asistencias' ? attendanceData : revenueData;
+    const fileName = activeTab === 'asistencias' ? 'attendance_data.json' : 'revenue_data.json';
+    
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", fileName);
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
+
   return (
     <Card className="bg-[#1A1F2C] border-gray-800 shadow-lg col-span-1 lg:col-span-2">
       <CardHeader className="p-3 md:p-6">
-        <CardTitle className="text-sm md:text-lg text-white">Estadísticas Detalladas</CardTitle>
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-sm md:text-lg text-white">Estadísticas Detalladas</CardTitle>
+          <div className="flex gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-gray-400 hover:text-white hover:bg-gray-800"
+              onClick={handleRefresh}
+              disabled={isLoading}
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-gray-400 hover:text-white hover:bg-gray-800"
+              onClick={handleDownload}
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="p-3 md:p-6 pt-0">
-        <Tabs defaultValue="asistencias" className="w-full">
+        <Tabs 
+          defaultValue="asistencias" 
+          className="w-full"
+          onValueChange={(value) => setActiveTab(value as 'asistencias' | 'ingresos')}
+        >
           <TabsList className="grid w-full grid-cols-2 h-auto bg-[#222732]">
             <TabsTrigger 
               value="asistencias"

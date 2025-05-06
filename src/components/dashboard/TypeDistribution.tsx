@@ -1,7 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts';
+import { Button } from '@/components/ui/button';
+import { Download, RefreshCw } from 'lucide-react';
 
 interface MembershipTypeData {
   name: string;
@@ -14,13 +16,57 @@ interface TypeDistributionProps {
 }
 
 const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const handleRefresh = () => {
+    setIsLoading(true);
+    // Simulate data refresh
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  const handleDownload = () => {
+    // Simulating download functionality
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "membership_types.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
+
   return (
     <Card className="bg-[#1A1F2C] border-gray-800 shadow-lg">
       <CardHeader className="p-3 md:p-6">
-        <CardTitle className="text-sm md:text-lg text-white">Distribución de Membresías</CardTitle>
-        <CardDescription className="text-xs md:text-sm text-gray-400">
-          Tipos de membresías activas
-        </CardDescription>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle className="text-sm md:text-lg text-white">Distribución de Membresías</CardTitle>
+            <CardDescription className="text-xs md:text-sm text-gray-400">
+              Tipos de membresías activas
+            </CardDescription>
+          </div>
+          <div className="flex gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-gray-400 hover:text-white hover:bg-gray-800"
+              onClick={handleRefresh}
+              disabled={isLoading}
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-gray-400 hover:text-white hover:bg-gray-800"
+              onClick={handleDownload}
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="p-0 md:p-2">
         <div className="h-[200px] md:h-[240px] flex justify-center">

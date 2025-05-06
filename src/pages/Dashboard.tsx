@@ -67,6 +67,10 @@ const Dashboard = () => {
         setMembershipTypeData(prepareMembershipTypeData(membersData));
         setRecentActivities(prepareRecentActivities(membersData, payments, allAttendance));
         
+        toast({
+          title: "Dashboard actualizado",
+          description: "Datos cargados correctamente",
+        });
       } catch (error) {
         console.error("Error al cargar datos del dashboard:", error);
         toast({
@@ -126,13 +130,13 @@ const Dashboard = () => {
       {/* Tarjetas de resumen */}
       <SummaryCards stats={summaryStats} />
 
-      {/* Gráficos */}
+      {/* Sección principal con gráficos principales */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-6 mb-3 md:mb-6">
         <MembershipChart data={membershipData} chartConfig={chartConfig} />
         <RecentActivities activities={recentActivities} />
       </div>
 
-      {/* Gráfico de distribución de tipos de membresía */}
+      {/* Sección de estadísticas avanzadas */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-6 mb-3 md:mb-6">
         <TypeDistribution data={membershipTypeData} colors={COLORS} />
         <DetailedStats 
