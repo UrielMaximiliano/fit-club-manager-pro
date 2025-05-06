@@ -45,52 +45,83 @@ const Dashboard = () => {
     monthlyRevenue: 0
   });
 
+  // Función para cargar todos los datos del dashboard
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      
+      // Obtener datos de la API
+      const membersData = await memberServices.getAll();
+      const allAttendance = await attendanceServices.getAll();
+      const payments = await paymentServices.getAll();
+      
+      // Calcular estadísticas de resumen
+      const stats = calculateSummaryStats(membersData, allAttendance, payments);
+      setSummaryStats(stats);
+      
+      // Preparar datos para gráficos
+      setMembershipData(prepareMembershipData(membersData));
+      setAttendanceData(prepareAttendanceData(allAttendance));
+      setRevenueData(prepareRevenueData(payments));
+      setMembershipTypeData(prepareMembershipTypeData(membersData));
+      setRecentActivities(prepareRecentActivities(membersData, payments, allAttendance));
+      
+    } catch (error) {
+      console.error("Error al cargar datos del dashboard:", error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los datos del dashboard",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Obtener datos al cargar el componente
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        
-        // Obtener datos de la API
-        const membersData = await memberServices.getAll();
-        const allAttendance = await attendanceServices.getAll();
-        const payments = await paymentServices.getAll();
-        
-        // Calcular estadísticas de resumen
-        const stats = calculateSummaryStats(membersData, allAttendance, payments);
-        setSummaryStats(stats);
-        
-        // Preparar datos para gráficos
-        setMembershipData(prepareMembershipData(membersData));
-        setAttendanceData(prepareAttendanceData(allAttendance));
-        setRevenueData(prepareRevenueData(payments));
-        setMembershipTypeData(prepareMembershipTypeData(membersData));
-        setRecentActivities(prepareRecentActivities(membersData, payments, allAttendance));
-        
-        toast({
-          title: "Dashboard actualizado",
-          description: "Datos cargados correctamente",
-        });
-      } catch (error) {
-        console.error("Error al cargar datos del dashboard:", error);
-        toast({
-          title: "Error",
-          description: "No se pudieron cargar los datos del dashboard",
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     fetchDashboardData();
     
-    // Actualizar datos cada 5 minutos
-    const interval = setInterval(() => {
+    // Configurar suscripciones en tiempo real
+    const unsubscribeMembers = memberServices.onDataChange(() => {
+      console.log("Actualización en miembros detectada");
       fetchDashboardData();
-    }, 5 * 60 * 1000);
+      toast({
+        title: "Datos actualizados",
+        description: "Los datos de miembros han sido actualizados",
+      });
+    });
     
-    return () => clearInterval(interval);
+    const unsubscribeMemberships = memberServices.onDataChange(() => {
+      console.log("Actualización en membresías detectada");
+      fetchDashboardData();
+    });
+    
+    const unsubscribePayments = paymentServices.onDataChange(() => {
+      console.log("Actualización en pagos detectada");
+      fetchDashboardData();
+      toast({
+        title: "Datos actualizados",
+        description: "Los datos de pagos han sido actualizados",
+      });
+    });
+    
+    const unsubscribeAttendance = attendanceServices.onDataChange(() => {
+      console.log("Actualización en asistencias detectada");
+      fetchDashboardData();
+      toast({
+        title: "Datos actualizados",
+        description: "Los datos de asistencias han sido actualizados",
+      });
+    });
+    
+    return () => {
+      // Limpiar suscripciones
+      unsubscribeMembers();
+      unsubscribeMemberships();
+      unsubscribePayments();
+      unsubscribeAttendance();
+    };
   }, []);
 
   // Configuración para los gráficos

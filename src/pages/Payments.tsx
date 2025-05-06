@@ -44,10 +44,6 @@ export default function Payments() {
     payment_date: new Date().toISOString().split('T')[0],
   });
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
   const loadData = async () => {
     try {
       const [paymentsData, membersData, membershipsData] = await Promise.all([
@@ -68,6 +64,34 @@ export default function Payments() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadData();
+    
+    // Configurar suscripciones en tiempo real
+    const unsubscribePayments = paymentServices.onDataChange((data) => {
+      setPayments(data);
+      toast({
+        title: 'Actualización',
+        description: 'Los datos de pagos se han actualizado',
+      });
+    });
+    
+    const unsubscribeMembers = memberServices.onDataChange((data) => {
+      setMembers(data);
+    });
+    
+    const unsubscribeMemberships = membershipServices.onDataChange((data) => {
+      setMemberships(data);
+    });
+    
+    // Limpiar suscripciones al desmontar
+    return () => {
+      unsubscribePayments();
+      unsubscribeMembers();
+      unsubscribeMemberships();
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,4 +1,6 @@
+
 import { supabase } from '@/lib/supabase';
+import { realtimeService, TableName } from './realtimeService';
 
 // Tipos
 export interface Member {
@@ -37,8 +39,74 @@ export interface Attendance {
   check_out?: string;
 }
 
+// Tipo para listeners de cambios en datos
+export type DataChangeListener<T> = (data: T[]) => void;
+
+// Mapa para almacenar listeners por tipo de tabla
+const listeners = new Map<TableName, Set<DataChangeListener<any>>>();
+
+// Función para notificar a los listeners cuando hay cambios
+const notifyListeners = async (tableName: TableName) => {
+  const listenerSet = listeners.get(tableName);
+  if (!listenerSet || listenerSet.size === 0) return;
+
+  try {
+    // Recuperar datos actualizados
+    let data;
+    switch (tableName) {
+      case 'members':
+        data = await memberServices.getAll();
+        break;
+      case 'memberships':
+        data = await membershipServices.getAll();
+        break;
+      case 'payments':
+        data = await paymentServices.getAll();
+        break;
+      case 'attendance':
+        data = await attendanceServices.getAll();
+        break;
+    }
+
+    // Notificar a todos los listeners
+    listenerSet.forEach(listener => listener(data));
+  } catch (error) {
+    console.error(`Error al recuperar datos actualizados de ${tableName}:`, error);
+  }
+};
+
+// Configuración de suscripciones en tiempo real para cada tabla
+const setupRealtimeSubscriptions = () => {
+  const tables: TableName[] = ['members', 'memberships', 'payments', 'attendance'];
+  
+  tables.forEach(table => {
+    realtimeService.subscribe(table, {
+      onAny: () => notifyListeners(table)
+    });
+  });
+};
+
+// Iniciar suscripciones
+setupRealtimeSubscriptions();
+
 // Servicios para Miembros
 export const memberServices = {
+  // Registrar un listener para cambios en miembros
+  onDataChange(listener: DataChangeListener<Member>) {
+    let listenerSet = listeners.get('members');
+    if (!listenerSet) {
+      listenerSet = new Set();
+      listeners.set('members', listenerSet);
+    }
+    listenerSet.add(listener);
+    
+    // Retornar función para eliminar el listener
+    return () => {
+      const set = listeners.get('members');
+      if (set) set.delete(listener);
+    };
+  },
+
   async getAll() {
     const { data, error } = await supabase
       .from('members')
@@ -82,6 +150,22 @@ export const memberServices = {
 
 // Servicios para Membresías
 export const membershipServices = {
+  // Registrar un listener para cambios en membresías
+  onDataChange(listener: DataChangeListener<Membership>) {
+    let listenerSet = listeners.get('memberships');
+    if (!listenerSet) {
+      listenerSet = new Set();
+      listeners.set('memberships', listenerSet);
+    }
+    listenerSet.add(listener);
+    
+    // Retornar función para eliminar el listener
+    return () => {
+      const set = listeners.get('memberships');
+      if (set) set.delete(listener);
+    };
+  },
+
   async getAll() {
     const { data, error } = await supabase
       .from('memberships')
@@ -125,6 +209,22 @@ export const membershipServices = {
 
 // Servicios para Pagos
 export const paymentServices = {
+  // Registrar un listener para cambios en pagos
+  onDataChange(listener: DataChangeListener<Payment>) {
+    let listenerSet = listeners.get('payments');
+    if (!listenerSet) {
+      listenerSet = new Set();
+      listeners.set('payments', listenerSet);
+    }
+    listenerSet.add(listener);
+    
+    // Retornar función para eliminar el listener
+    return () => {
+      const set = listeners.get('payments');
+      if (set) set.delete(listener);
+    };
+  },
+
   async getAll() {
     const { data, error } = await supabase
       .from('payments')
@@ -152,6 +252,22 @@ export const paymentServices = {
 
 // Servicios para Asistencias
 export const attendanceServices = {
+  // Registrar un listener para cambios en asistencias
+  onDataChange(listener: DataChangeListener<Attendance>) {
+    let listenerSet = listeners.get('attendance');
+    if (!listenerSet) {
+      listenerSet = new Set();
+      listeners.set('attendance', listenerSet);
+    }
+    listenerSet.add(listener);
+    
+    // Retornar función para eliminar el listener
+    return () => {
+      const set = listeners.get('attendance');
+      if (set) set.delete(listener);
+    };
+  },
+
   async getAll() {
     const { data, error } = await supabase
       .from('attendance')

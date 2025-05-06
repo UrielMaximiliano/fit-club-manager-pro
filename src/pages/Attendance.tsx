@@ -28,10 +28,6 @@ export default function AttendancePage() {
   const [selectedMemberId, setSelectedMemberId] = useState('');
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
   const loadData = async () => {
     try {
       const [attendancesData, membersData] = await Promise.all([
@@ -50,6 +46,29 @@ export default function AttendancePage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadData();
+    
+    // Configurar suscripciones en tiempo real
+    const unsubscribeAttendances = attendanceServices.onDataChange((data) => {
+      setAttendances(data);
+      toast({
+        title: 'Actualización',
+        description: 'Los datos de asistencias se han actualizado',
+      });
+    });
+    
+    const unsubscribeMembers = memberServices.onDataChange((data) => {
+      setMembers(data);
+    });
+    
+    // Limpiar suscripciones al desmontar
+    return () => {
+      unsubscribeAttendances();
+      unsubscribeMembers();
+    };
+  }, []);
 
   const handleCheckIn = async () => {
     if (!selectedMemberId) {

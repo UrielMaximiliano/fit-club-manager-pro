@@ -34,10 +34,6 @@ export default function Memberships() {
     duration_days: 30,
   });
 
-  useEffect(() => {
-    loadMemberships();
-  }, []);
-
   const loadMemberships = async () => {
     try {
       const data = await membershipServices.getAll();
@@ -52,6 +48,22 @@ export default function Memberships() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadMemberships();
+
+    // Configurar suscripción en tiempo real
+    const unsubscribe = membershipServices.onDataChange((data) => {
+      setMemberships(data);
+      toast({
+        title: 'Actualización',
+        description: 'Los datos de membresías se han actualizado',
+      });
+    });
+    
+    // Limpiar suscripción al desmontar
+    return () => unsubscribe();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
