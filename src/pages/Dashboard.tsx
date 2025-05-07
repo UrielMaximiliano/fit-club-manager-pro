@@ -151,7 +151,7 @@ const Dashboard = () => {
 
   return (
     <div className="pb-6">
-      <div className="flex justify-between items-center mb-4 md:mb-6">
+      <div className="flex justify-between items-center mb-4">
         <div className={isMobile ? "ml-14" : ""}>
           <h1 className="text-lg md:text-xl font-bold text-white">Dashboard</h1>
         </div>
@@ -162,13 +162,13 @@ const Dashboard = () => {
       <SummaryCards stats={summaryStats} />
 
       {/* Sección principal con gráficos principales */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-6 mb-3 md:mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
         <MembershipChart data={membershipData} chartConfig={chartConfig} />
         <RecentActivities activities={recentActivities} />
       </div>
 
       {/* Sección de estadísticas avanzadas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-6 mb-3 md:mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <TypeDistribution data={membershipTypeData} colors={COLORS} />
         <DetailedStats 
           attendanceData={attendanceData}

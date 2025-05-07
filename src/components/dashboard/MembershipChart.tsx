@@ -48,11 +48,11 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig }) 
 
   return (
     <Card className="bg-[#1A1F2C] border-gray-800 shadow-lg col-span-1 lg:col-span-2">
-      <CardHeader className="p-3 md:p-6">
+      <CardHeader className="p-4">
         <div className="flex justify-between items-center">
           <div>
-            <CardTitle className="text-sm md:text-lg text-white">Análisis de Membresías</CardTitle>
-            <CardDescription className="text-xs md:text-sm text-gray-400">
+            <CardTitle className="text-sm md:text-base text-white">Análisis de Membresías</CardTitle>
+            <CardDescription className="text-xs text-gray-400">
               Evolución de miembros en los últimos 6 meses
             </CardDescription>
           </div>
@@ -76,14 +76,14 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig }) 
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-0 md:p-2">
-        <div className="h-[200px] md:h-[240px]">
+      <CardContent className="p-3">
+        <div className="h-[220px] md:h-[240px]">
           <ChartContainer config={chartConfig}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <BarChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="name" stroke="#999" fontSize={12} />
-                <YAxis stroke="#999" fontSize={12} />
+                <XAxis dataKey="name" stroke="#999" fontSize={10} />
+                <YAxis stroke="#999" fontSize={10} />
                 <ChartTooltip 
                   content={<ChartTooltipContent />}
                   cursor={{fill: 'rgba(255, 255, 255, 0.05)'}}

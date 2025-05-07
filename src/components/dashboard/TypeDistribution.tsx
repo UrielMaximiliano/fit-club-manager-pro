@@ -37,13 +37,17 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
     downloadAnchorNode.remove();
   };
 
+  const renderLabel = ({ name, percent }: { name: string; percent: number }) => {
+    return `${name}: ${(percent * 100).toFixed(0)}%`;
+  };
+
   return (
     <Card className="bg-[#1A1F2C] border-gray-800 shadow-lg">
-      <CardHeader className="p-3 md:p-6">
+      <CardHeader className="p-4">
         <div className="flex justify-between items-center">
           <div>
-            <CardTitle className="text-sm md:text-lg text-white">Distribución de Membresías</CardTitle>
-            <CardDescription className="text-xs md:text-sm text-gray-400">
+            <CardTitle className="text-sm md:text-base text-white">Distribución de Membresías</CardTitle>
+            <CardDescription className="text-xs text-gray-400">
               Tipos de membresías activas
             </CardDescription>
           </div>
@@ -68,8 +72,8 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-0 md:p-2">
-        <div className="h-[200px] md:h-[240px] flex justify-center">
+      <CardContent className="p-3">
+        <div className="h-[220px] md:h-[240px] flex justify-center">
           {data.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -78,11 +82,11 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  outerRadius={80}
+                  outerRadius={70}
                   fill="#8884d8"
                   dataKey="value"
                   nameKey="name"
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  label={renderLabel}
                 >
                   {data.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
@@ -97,7 +101,7 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
                   layout="horizontal" 
                   verticalAlign="bottom"
                   align="center"
-                  formatter={(value) => <span style={{ color: '#999' }}>{value}</span>}
+                  formatter={(value) => <span style={{ color: '#999', fontSize: '12px' }}>{value}</span>}
                 />
               </PieChart>
             </ResponsiveContainer>

@@ -70,9 +70,9 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
 
   return (
     <Card className="bg-[#1A1F2C] border-gray-800 shadow-lg col-span-1 lg:col-span-2">
-      <CardHeader className="p-3 md:p-6">
+      <CardHeader className="p-4">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-sm md:text-lg text-white">Estadísticas Detalladas</CardTitle>
+          <CardTitle className="text-sm md:text-base text-white">Estadísticas Detalladas</CardTitle>
           <div className="flex gap-2">
             <Button 
               variant="ghost" 
@@ -94,13 +94,13 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-3 md:p-6 pt-0">
+      <CardContent className="p-3 pt-0">
         <Tabs 
           defaultValue="asistencias" 
           className="w-full"
           onValueChange={(value) => setActiveTab(value as 'asistencias' | 'ingresos')}
         >
-          <TabsList className="grid w-full grid-cols-2 h-auto bg-[#222732]">
+          <TabsList className="grid w-full grid-cols-2 h-auto bg-[#222732] mb-3">
             <TabsTrigger 
               value="asistencias"
               className="text-xs md:text-sm py-2 data-[state=active]:bg-blue-700"
@@ -114,14 +114,14 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
               Ingresos
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="asistencias" className="pt-3">
-            <div className="h-[200px] md:h-[240px]">
+          <TabsContent value="asistencias" className="mt-0">
+            <div className="h-[220px] md:h-[240px]">
               <ChartContainer config={chartConfig}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={attendanceData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <BarChart data={attendanceData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                    <XAxis dataKey="name" stroke="#999" fontSize={12} />
-                    <YAxis stroke="#999" fontSize={12} />
+                    <XAxis dataKey="name" stroke="#999" fontSize={10} />
+                    <YAxis stroke="#999" fontSize={10} />
                     <ChartTooltip 
                       content={<ChartTooltipContent />}
                       cursor={{fill: 'rgba(255, 255, 255, 0.05)'}}
@@ -132,17 +132,17 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
               </ChartContainer>
             </div>
             <div className="text-center mt-2">
-              <p className="text-xs md:text-sm text-gray-400">Asistencias diarias - Última semana</p>
+              <p className="text-xs text-gray-400">Asistencias diarias - Última semana</p>
             </div>
           </TabsContent>
-          <TabsContent value="ingresos" className="pt-3">
-            <div className="h-[200px] md:h-[240px]">
+          <TabsContent value="ingresos" className="mt-0">
+            <div className="h-[220px] md:h-[240px]">
               <ChartContainer config={chartConfig}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={revenueData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <BarChart data={revenueData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                    <XAxis dataKey="name" stroke="#999" fontSize={12} />
-                    <YAxis stroke="#999" fontSize={12} />
+                    <XAxis dataKey="name" stroke="#999" fontSize={10} />
+                    <YAxis stroke="#999" fontSize={10} />
                     <ChartTooltip 
                       content={<ChartTooltipContent />}
                       cursor={{fill: 'rgba(255, 255, 255, 0.05)'}}
@@ -153,7 +153,7 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
               </ChartContainer>
             </div>
             <div className="text-center mt-2">
-              <p className="text-xs md:text-sm text-gray-400">Ingresos mensuales - Últimos 6 meses</p>
+              <p className="text-xs text-gray-400">Ingresos mensuales - Últimos 6 meses</p>
             </div>
           </TabsContent>
         </Tabs>
