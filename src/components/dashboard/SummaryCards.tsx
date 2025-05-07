@@ -53,18 +53,18 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-3 md:mb-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-3">
       {summaryCards.map((card, index) => (
         <Card key={index} className="bg-[#1A1F2C] border-gray-800 shadow-lg overflow-hidden hover:bg-[#202736] transition-colors">
           <div className={`h-1 w-full bg-gradient-to-r ${card.color}`}></div>
-          <CardHeader className="p-2 md:p-3 pb-0">
+          <CardHeader className="p-2 pb-0">
             <div className="flex justify-between items-center">
-              <CardTitle className="text-sm text-white">{card.title}</CardTitle>
+              <CardTitle className="text-xs sm:text-sm text-white">{card.title}</CardTitle>
               {card.icon}
             </div>
           </CardHeader>
-          <CardContent className="p-2 md:p-3 pt-1">
-            <div className="text-lg md:text-xl font-bold text-white mb-1">{card.value}</div>
+          <CardContent className="p-2 pt-1">
+            <div className="text-base sm:text-lg md:text-xl font-bold text-white mb-1">{card.value}</div>
             <div className="flex justify-between items-center">
               <p className="text-xs text-gray-400">{card.description}</p>
               <Button 
