@@ -70,9 +70,9 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
 
   return (
     <Card className="bg-[#1A1F2C] border-gray-800 shadow-lg col-span-1 lg:col-span-2">
-      <CardHeader className="p-4">
+      <CardHeader className="p-5">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-sm md:text-base text-white">Estadísticas Detalladas</CardTitle>
+          <CardTitle className="text-base md:text-lg text-white">Estadísticas Detalladas</CardTitle>
           <div className="flex gap-2">
             <Button 
               variant="ghost" 
@@ -81,7 +81,7 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
               onClick={handleRefresh}
               disabled={isLoading}
             >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-5 w-5 ${isLoading ? 'animate-spin' : ''}`} />
             </Button>
             <Button 
               variant="ghost" 
@@ -89,39 +89,39 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
               className="text-gray-400 hover:text-white hover:bg-gray-800"
               onClick={handleDownload}
             >
-              <Download className="h-4 w-4" />
+              <Download className="h-5 w-5" />
             </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-3 pt-0">
+      <CardContent className="p-5 pt-0">
         <Tabs 
           defaultValue="asistencias" 
           className="w-full"
           onValueChange={(value) => setActiveTab(value as 'asistencias' | 'ingresos')}
         >
-          <TabsList className="grid w-full grid-cols-2 h-auto bg-[#222732] mb-3">
+          <TabsList className="grid w-full grid-cols-2 h-auto bg-[#222732] mb-4">
             <TabsTrigger 
               value="asistencias"
-              className="text-xs md:text-sm py-2 data-[state=active]:bg-blue-700"
+              className="text-sm md:text-base py-3 data-[state=active]:bg-blue-700"
             >
               Asistencias
             </TabsTrigger>
             <TabsTrigger 
               value="ingresos" 
-              className="text-xs md:text-sm py-2 data-[state=active]:bg-blue-700"
+              className="text-sm md:text-base py-3 data-[state=active]:bg-blue-700"
             >
               Ingresos
             </TabsTrigger>
           </TabsList>
           <TabsContent value="asistencias" className="mt-0">
-            <div className="h-[220px] md:h-[240px]">
+            <div className="h-[260px] md:h-[300px]">
               <ChartContainer config={chartConfig}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={attendanceData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
+                  <BarChart data={attendanceData} margin={{ top: 20, right: 30, left: 0, bottom: 10 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                    <XAxis dataKey="name" stroke="#999" fontSize={10} />
-                    <YAxis stroke="#999" fontSize={10} />
+                    <XAxis dataKey="name" stroke="#999" fontSize={12} />
+                    <YAxis stroke="#999" fontSize={12} />
                     <ChartTooltip 
                       content={<ChartTooltipContent />}
                       cursor={{fill: 'rgba(255, 255, 255, 0.05)'}}
@@ -131,18 +131,18 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
                 </ResponsiveContainer>
               </ChartContainer>
             </div>
-            <div className="text-center mt-2">
-              <p className="text-xs text-gray-400">Asistencias diarias - Última semana</p>
+            <div className="text-center mt-3">
+              <p className="text-sm text-gray-400">Asistencias diarias - Última semana</p>
             </div>
           </TabsContent>
           <TabsContent value="ingresos" className="mt-0">
-            <div className="h-[220px] md:h-[240px]">
+            <div className="h-[260px] md:h-[300px]">
               <ChartContainer config={chartConfig}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={revenueData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
+                  <BarChart data={revenueData} margin={{ top: 20, right: 30, left: 0, bottom: 10 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                    <XAxis dataKey="name" stroke="#999" fontSize={10} />
-                    <YAxis stroke="#999" fontSize={10} />
+                    <XAxis dataKey="name" stroke="#999" fontSize={12} />
+                    <YAxis stroke="#999" fontSize={12} />
                     <ChartTooltip 
                       content={<ChartTooltipContent />}
                       cursor={{fill: 'rgba(255, 255, 255, 0.05)'}}
@@ -152,8 +152,8 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
                 </ResponsiveContainer>
               </ChartContainer>
             </div>
-            <div className="text-center mt-2">
-              <p className="text-xs text-gray-400">Ingresos mensuales - Últimos 6 meses</p>
+            <div className="text-center mt-3">
+              <p className="text-sm text-gray-400">Ingresos mensuales - Últimos 6 meses</p>
             </div>
           </TabsContent>
         </Tabs>

@@ -22,7 +22,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       title: "Miembros Activos",
       value: stats.activeMembers.toString(),
       description: "Miembros activos actualmente",
-      icon: <UserCircle className="h-4 w-4 md:h-5 md:w-5 text-blue-400" />,
+      icon: <UserCircle className="h-5 w-5 md:h-6 md:w-6 text-blue-400" />,
       color: "from-blue-500 to-blue-700",
       action: () => console.log("Ver detalles de miembros activos")
     },
@@ -30,7 +30,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       title: "Asistencias Hoy",
       value: stats.todayAttendance.toString(),
       description: "Visitantes del día",
-      icon: <CalendarCheck className="h-4 w-4 md:h-5 md:w-5 text-green-400" />,
+      icon: <CalendarCheck className="h-5 w-5 md:h-6 md:w-6 text-green-400" />,
       color: "from-green-500 to-green-700",
       action: () => console.log("Ver detalles de asistencias de hoy")
     },
@@ -38,7 +38,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       title: "Rutinas Actualizadas",
       value: stats.updatedRoutines.toString(),
       description: "Esta semana",
-      icon: <Calendar className="h-4 w-4 md:h-5 md:w-5 text-amber-400" />,
+      icon: <Calendar className="h-5 w-5 md:h-6 md:w-6 text-amber-400" />,
       color: "from-amber-500 to-amber-700",
       action: () => console.log("Ver rutinas actualizadas")
     },
@@ -46,31 +46,31 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       title: "Ingresos Mensuales",
       value: `$${stats.monthlyRevenue.toLocaleString()}`,
       description: "Este mes",
-      icon: <CreditCard className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />,
+      icon: <CreditCard className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />,
       color: "from-purple-500 to-purple-700",
       action: () => console.log("Ver detalles de ingresos mensuales")
     }
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       {summaryCards.map((card, index) => (
         <Card key={index} className="bg-[#1A1F2C] border-gray-800 shadow-lg overflow-hidden hover:bg-[#202736] transition-colors">
-          <div className={`h-1 w-full bg-gradient-to-r ${card.color}`}></div>
-          <CardHeader className="p-3 pb-0">
+          <div className={`h-1.5 w-full bg-gradient-to-r ${card.color}`}></div>
+          <CardHeader className="p-4 pb-1">
             <div className="flex justify-between items-center">
-              <CardTitle className="text-xs sm:text-sm text-white">{card.title}</CardTitle>
+              <CardTitle className="text-sm sm:text-base text-white">{card.title}</CardTitle>
               {card.icon}
             </div>
           </CardHeader>
-          <CardContent className="p-3 pt-1">
-            <div className="text-sm sm:text-base md:text-lg font-bold text-white mb-1">{card.value}</div>
+          <CardContent className="p-4 pt-2">
+            <div className="text-base sm:text-lg md:text-xl font-bold text-white mb-2">{card.value}</div>
             <div className="flex justify-between items-center">
-              <p className="text-xs text-gray-400">{card.description}</p>
+              <p className="text-xs sm:text-sm text-gray-400">{card.description}</p>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-xs text-gray-400 hover:text-white p-0 h-auto"
+                className="text-xs sm:text-sm text-gray-400 hover:text-white p-0 h-auto"
                 onClick={card.action}
               >
                 Detalles

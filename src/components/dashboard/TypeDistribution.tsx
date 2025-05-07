@@ -38,16 +38,34 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
   };
 
   const renderLabel = ({ name, percent }: { name: string; percent: number }) => {
-    return `${name}: ${(percent * 100).toFixed(0)}%`;
+    // Simplified label format to prevent truncation
+    return `${(percent * 100).toFixed(0)}%`;
+  };
+
+  const renderCustomizedLegend = (props: any) => {
+    const { payload } = props;
+    return (
+      <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4">
+        {payload.map((entry: any, index: number) => (
+          <li key={`item-${index}`} className="flex items-center gap-1 text-xs sm:text-sm">
+            <div 
+              className="w-3 h-3 rounded-sm" 
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-gray-300">{entry.value}</span>
+          </li>
+        ))}
+      </ul>
+    );
   };
 
   return (
     <Card className="bg-[#1A1F2C] border-gray-800 shadow-lg">
-      <CardHeader className="p-4">
+      <CardHeader className="p-5">
         <div className="flex justify-between items-center">
           <div>
-            <CardTitle className="text-sm md:text-base text-white">Distribución de Membresías</CardTitle>
-            <CardDescription className="text-xs text-gray-400">
+            <CardTitle className="text-base md:text-lg text-white">Distribución de Membresías</CardTitle>
+            <CardDescription className="text-sm text-gray-400 mt-1">
               Tipos de membresías activas
             </CardDescription>
           </div>
@@ -59,7 +77,7 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
               onClick={handleRefresh}
               disabled={isLoading}
             >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-5 w-5 ${isLoading ? 'animate-spin' : ''}`} />
             </Button>
             <Button 
               variant="ghost" 
@@ -67,22 +85,22 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
               className="text-gray-400 hover:text-white hover:bg-gray-800"
               onClick={handleDownload}
             >
-              <Download className="h-4 w-4" />
+              <Download className="h-5 w-5" />
             </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-3">
-        <div className="h-[220px] md:h-[240px] flex justify-center">
+      <CardContent className="p-5 pt-0">
+        <div className="h-[240px] md:h-[280px] flex justify-center">
           {data.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={data}
                   cx="50%"
-                  cy="50%"
+                  cy="45%"
                   labelLine={false}
-                  outerRadius={70}
+                  outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                   nameKey="name"
@@ -94,14 +112,14 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
                 </Pie>
                 <Tooltip 
                   formatter={(value, name) => [`${value} miembros`, name]}
-                  contentStyle={{ backgroundColor: '#222732', border: '1px solid #333' }}
+                  contentStyle={{ backgroundColor: '#222732', border: '1px solid #333', padding: '10px' }}
                   itemStyle={{ color: '#fff' }}
                 />
                 <Legend 
+                  content={renderCustomizedLegend}
                   layout="horizontal" 
                   verticalAlign="bottom"
                   align="center"
-                  formatter={(value) => <span style={{ color: '#999', fontSize: '12px' }}>{value}</span>}
                 />
               </PieChart>
             </ResponsiveContainer>
