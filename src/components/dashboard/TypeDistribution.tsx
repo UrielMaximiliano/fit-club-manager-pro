@@ -45,14 +45,14 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
   const renderCustomizedLegend = (props: any) => {
     const { payload } = props;
     return (
-      <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4">
+      <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-2">
         {payload.map((entry: any, index: number) => (
           <li key={`item-${index}`} className="flex items-center gap-1 text-xs sm:text-sm">
             <div 
               className="w-3 h-3 rounded-sm" 
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-gray-300">{entry.value}</span>
+            <span className="text-gray-300 text-ellipsis overflow-hidden max-w-[120px]">{entry.value}</span>
           </li>
         ))}
       </ul>
@@ -91,7 +91,7 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
         </div>
       </CardHeader>
       <CardContent className="p-5 pt-0">
-        <div className="h-[240px] md:h-[280px] flex justify-center">
+        <div className="h-[240px] md:h-[280px] xl:h-[300px] flex justify-center">
           {data.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>

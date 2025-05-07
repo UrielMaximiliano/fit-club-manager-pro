@@ -77,7 +77,7 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig }) 
         </div>
       </CardHeader>
       <CardContent className="p-5 pt-0">
-        <div className="h-[260px] md:h-[300px]">
+        <div className="h-[260px] md:h-[300px] xl:h-[340px]">
           <ChartContainer config={chartConfig}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 10 }}>

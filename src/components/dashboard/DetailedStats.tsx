@@ -115,7 +115,7 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
             </TabsTrigger>
           </TabsList>
           <TabsContent value="asistencias" className="mt-0">
-            <div className="h-[260px] md:h-[300px]">
+            <div className="h-[260px] md:h-[300px] xl:h-[320px]">
               <ChartContainer config={chartConfig}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={attendanceData} margin={{ top: 20, right: 30, left: 0, bottom: 10 }}>
@@ -136,7 +136,7 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
             </div>
           </TabsContent>
           <TabsContent value="ingresos" className="mt-0">
-            <div className="h-[260px] md:h-[300px]">
+            <div className="h-[260px] md:h-[300px] xl:h-[320px]">
               <ChartContainer config={chartConfig}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={revenueData} margin={{ top: 20, right: 30, left: 0, bottom: 10 }}>

@@ -53,11 +53,11 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       {summaryCards.map((card, index) => (
         <Card key={index} className="bg-[#1A1F2C] border-gray-800 shadow-lg overflow-hidden hover:bg-[#202736] transition-colors">
           <div className={`h-1.5 w-full bg-gradient-to-r ${card.color}`}></div>
-          <CardHeader className="p-4 pb-1">
+          <CardHeader className="p-4 pb-1 flex-nowrap">
             <div className="flex justify-between items-center">
               <CardTitle className="text-sm sm:text-base text-white">{card.title}</CardTitle>
               {card.icon}
@@ -66,11 +66,11 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
           <CardContent className="p-4 pt-2">
             <div className="text-base sm:text-lg md:text-xl font-bold text-white mb-2">{card.value}</div>
             <div className="flex justify-between items-center">
-              <p className="text-xs sm:text-sm text-gray-400">{card.description}</p>
+              <p className="text-xs sm:text-sm text-gray-400 truncate mr-2">{card.description}</p>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-xs sm:text-sm text-gray-400 hover:text-white p-0 h-auto"
+                className="text-xs sm:text-sm text-gray-400 hover:text-white p-0 h-auto whitespace-nowrap"
                 onClick={card.action}
               >
                 Detalles
