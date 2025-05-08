@@ -10,10 +10,14 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { Download, ZoomIn, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+<<<<<<< HEAD
 import { Download, ZoomIn } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { memberServices } from '@/services/supabaseService';
+=======
+>>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
 
 interface MembershipData {
   name: string;
@@ -28,8 +32,10 @@ interface MembershipChartProps {
       color: string;
     };
   };
+  onRefresh?: () => void;
 }
 
+<<<<<<< HEAD
 const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
@@ -78,6 +84,18 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig }) 
       });
     }
     setIsLoading(false);
+=======
+const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig, onRefresh }) => {
+  const handleDownload = () => {
+    // Simulating download functionality
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "membership_data.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+>>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
   };
 
   const handleZoom = () => {
@@ -96,6 +114,16 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig }) 
             </CardDescription>
           </div>
           <div className="flex gap-2">
+            {onRefresh && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-gray-400 hover:text-white hover:bg-gray-800"
+                onClick={onRefresh}
+              >
+                <RefreshCw className="h-5 w-5" />
+              </Button>
+            )}
             <Button 
               variant="ghost" 
               size="sm" 
@@ -127,15 +155,37 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig }) 
         <div className="h-[260px] md:h-[300px] xl:h-[340px]">
           <ChartContainer config={chartConfig}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="name" stroke="#999" fontSize={12} />
-                <YAxis stroke="#999" fontSize={12} />
+              <BarChart 
+                data={data} 
+                margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="#999" 
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={true}
+                  padding={{ left: 10, right: 10 }}
+                />
+                <YAxis 
+                  stroke="#999" 
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={true}
+                />
                 <ChartTooltip 
                   content={<ChartTooltipContent />}
                   cursor={{fill: 'rgba(255, 255, 255, 0.05)'}}
                 />
-                <Bar dataKey="miembros" fill="#4F8EF6" radius={[4, 4, 0, 0]} name="Miembros" />
+                <Bar 
+                  dataKey="miembros" 
+                  fill="#4F8EF6" 
+                  radius={[4, 4, 0, 0]} 
+                  name="Miembros"
+                  animationBegin={0} 
+                  animationDuration={800}
+                />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>

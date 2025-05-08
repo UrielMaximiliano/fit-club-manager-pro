@@ -50,8 +50,14 @@
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
     "input-otp": "^1.2.4",
+<<<<<<< HEAD
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
+=======
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
+    "lodash": "^4.17.21",
+>>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
     "lucide-react": "^0.462.0",
     "next-themes": "^0.3.0",
     "react": "^18.3.1",

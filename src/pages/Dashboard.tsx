@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 import React, { useEffect, useState } from 'react';
+=======
+
+import React, { useEffect, useState, useCallback } from 'react';
+>>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from '@/hooks/use-toast';
 import { memberServices, attendanceServices, paymentServices } from '@/services/supabaseService';
+import { subscriptionManager } from '@/services/subscriptionManager';
 
 // Componentes de panel de control
 import SummaryCards from '@/components/dashboard/SummaryCards';
@@ -23,8 +29,8 @@ import {
   MembershipTypeData
 } from '@/components/dashboard/utils/dataPreparation';
 
-// Colores para los gráficos
-const COLORS = ['#4F8EF6', '#22C55E', '#A855F7', '#F97316', '#9b87f5'];
+// Colores para los gráficos - ajustados para coincidir con la imagen de referencia
+const COLORS = ['#4F8EF6', '#22C55E', '#A855F7', '#F97316'];
 
 const Dashboard = () => {
   const isMobile = useIsMobile();
@@ -39,9 +45,10 @@ const Dashboard = () => {
     updatedRoutines: 0,
     monthlyRevenue: 0
   });
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   // Función para cargar todos los datos del dashboard
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -60,6 +67,8 @@ const Dashboard = () => {
       setRevenueData(prepareRevenueData(payments));
       setMembershipTypeData(prepareMembershipTypeData(membersData));
       
+      // Actualizar timestamp de última actualización
+      setLastUpdated(new Date());
     } catch (error) {
       console.error("Error al cargar datos del dashboard:", error);
       toast({
@@ -70,53 +79,37 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  // Refrescar datos manualmente
+  const handleRefresh = () => {
+    toast({
+      title: "Actualizando...",
+      description: "Obteniendo los datos más recientes",
+    });
+    fetchDashboardData();
   };
 
   // Obtener datos al cargar el componente
   useEffect(() => {
     fetchDashboardData();
     
-    // Configurar suscripciones en tiempo real
-    const unsubscribeMembers = memberServices.onDataChange(() => {
-      console.log("Actualización en miembros detectada");
-      fetchDashboardData();
-      toast({
-        title: "Datos actualizados",
-        description: "Los datos de miembros han sido actualizados",
-      });
-    });
-    
-    const unsubscribeMemberships = memberServices.onDataChange(() => {
-      console.log("Actualización en membresías detectada");
-      fetchDashboardData();
-    });
-    
-    const unsubscribePayments = paymentServices.onDataChange(() => {
-      console.log("Actualización en pagos detectada");
-      fetchDashboardData();
-      toast({
-        title: "Datos actualizados",
-        description: "Los datos de pagos han sido actualizados",
-      });
-    });
-    
-    const unsubscribeAttendance = attendanceServices.onDataChange(() => {
-      console.log("Actualización en asistencias detectada");
-      fetchDashboardData();
-      toast({
-        title: "Datos actualizados",
-        description: "Los datos de asistencias han sido actualizados",
-      });
-    });
+    // Configurar suscripciones en tiempo real usando el SubscriptionManager
+    const unsubscribe = subscriptionManager.subscribe(
+      ['members', 'memberships', 'payments', 'attendance'],
+      fetchDashboardData,
+      {
+        notify: true,
+        title: "Dashboard actualizado",
+        message: "Los datos del dashboard han sido actualizados"
+      }
+    );
     
     return () => {
       // Limpiar suscripciones
-      unsubscribeMembers();
-      unsubscribeMemberships();
-      unsubscribePayments();
-      unsubscribeAttendance();
+      unsubscribe();
     };
-  }, []);
+  }, [fetchDashboardData]);
 
   // Configuración para los gráficos
   const chartConfig = {
@@ -144,25 +137,55 @@ const Dashboard = () => {
   }
 
   return (
+<<<<<<< HEAD
     <div className="pb-20 bg-background min-h-screen">
       <div className="flex justify-between items-center mb-8 mt-4">
         <div className={isMobile ? "ml-14" : ""}>
           <h1 className="text-xl md:text-2xl font-bold text-text">Dashboard</h1>
         </div>
         <div className="text-textSecondary text-sm md:text-base">Administrador</div>
+=======
+    <div className="pb-20">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+        </div>
+        <div className="text-gray-600 dark:text-gray-300 text-sm md:text-base">Administrador</div>
+>>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
       </div>
 
       {/* Tarjetas de resumen */}
       <SummaryCards stats={summaryStats} />
 
+<<<<<<< HEAD
       {/* Gráficos principales, cada uno en su columna */}
       <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 my-10">
         <MembershipChart data={membershipData} chartConfig={chartConfig} />
         <TypeDistribution data={membershipTypeData} colors={COLORS} />
+=======
+      {/* Sección principal con gráficos principales */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <MembershipChart 
+          data={membershipData} 
+          chartConfig={chartConfig} 
+          onRefresh={handleRefresh} 
+        />
+        <RecentActivities activities={recentActivities} />
+      </div>
+
+      {/* Sección de estadísticas avanzadas */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <TypeDistribution 
+          data={membershipTypeData} 
+          colors={COLORS} 
+          onRefresh={handleRefresh} 
+        />
+>>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
         <DetailedStats 
           attendanceData={attendanceData}
           revenueData={revenueData}
           chartConfig={chartConfig}
+          onRefresh={handleRefresh}
         />
       </div>
     </div>
