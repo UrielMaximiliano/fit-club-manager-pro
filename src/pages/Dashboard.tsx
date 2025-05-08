@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-import React, { useEffect, useState } from 'react';
-=======
 
 import React, { useEffect, useState, useCallback } from 'react';
->>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from '@/hooks/use-toast';
 import { memberServices, attendanceServices, paymentServices } from '@/services/supabaseService';
@@ -137,50 +133,21 @@ const Dashboard = () => {
   }
 
   return (
-<<<<<<< HEAD
     <div className="pb-20 bg-background min-h-screen">
       <div className="flex justify-between items-center mb-8 mt-4">
         <div className={isMobile ? "ml-14" : ""}>
           <h1 className="text-xl md:text-2xl font-bold text-text">Dashboard</h1>
         </div>
         <div className="text-textSecondary text-sm md:text-base">Administrador</div>
-=======
-    <div className="pb-20">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-        </div>
-        <div className="text-gray-600 dark:text-gray-300 text-sm md:text-base">Administrador</div>
->>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
       </div>
 
       {/* Tarjetas de resumen */}
       <SummaryCards stats={summaryStats} />
 
-<<<<<<< HEAD
       {/* Gráficos principales, cada uno en su columna */}
       <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 my-10">
-        <MembershipChart data={membershipData} chartConfig={chartConfig} />
-        <TypeDistribution data={membershipTypeData} colors={COLORS} />
-=======
-      {/* Sección principal con gráficos principales */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <MembershipChart 
-          data={membershipData} 
-          chartConfig={chartConfig} 
-          onRefresh={handleRefresh} 
-        />
-        <RecentActivities activities={recentActivities} />
-      </div>
-
-      {/* Sección de estadísticas avanzadas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <TypeDistribution 
-          data={membershipTypeData} 
-          colors={COLORS} 
-          onRefresh={handleRefresh} 
-        />
->>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
+        <MembershipChart data={membershipData} chartConfig={chartConfig} onRefresh={handleRefresh} />
+        <TypeDistribution data={membershipTypeData} colors={COLORS} onRefresh={handleRefresh} />
         <DetailedStats 
           attendanceData={attendanceData}
           revenueData={revenueData}

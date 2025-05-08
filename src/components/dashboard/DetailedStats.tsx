@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -46,18 +47,9 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
   chartConfig,
   onRefresh
 }) => {
-<<<<<<< HEAD
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'asistencias' | 'ingresos'>('asistencias');
-
-  const handleRefresh = () => {
-    setIsLoading(true);
-    // Simulate data refresh
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  };
 
   const handleDownload = async (type: 'json' | 'csv') => {
     setIsLoading(true);
@@ -112,29 +104,6 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
       <CardHeader className="p-5">
         <div className="flex justify-between items-center">
           <CardTitle className="text-base md:text-lg text-text">Estadísticas Detalladas</CardTitle>
-=======
-  const [activeTab, setActiveTab] = useState<'asistencias' | 'ingresos'>('asistencias');
-
-  const handleDownload = () => {
-    // Simulating download functionality
-    const data = activeTab === 'asistencias' ? attendanceData : revenueData;
-    const fileName = activeTab === 'asistencias' ? 'attendance_data.json' : 'revenue_data.json';
-    
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", fileName);
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-  };
-
-  return (
-    <Card className="bg-white dark:bg-[#1A1F2C] border-gray-200 dark:border-gray-800 shadow-lg col-span-1 lg:col-span-2">
-      <CardHeader className="p-5">
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-base md:text-lg text-gray-900 dark:text-white">Estadísticas Detalladas</CardTitle>
->>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
           <div className="flex gap-2">
             {onRefresh && (
               <Button 
@@ -149,22 +118,8 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
             <Button 
               variant="ghost" 
               size="sm" 
-<<<<<<< HEAD
-              className="text-gray-400 hover:text-white hover:bg-gray-800"
-              onClick={handleRefresh}
-              disabled={isLoading}
-            >
-              <RefreshCw className={`h-5 w-5 ${isLoading ? 'animate-spin' : ''}`} />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
               className="text-gray-400 hover:text-white hover:bg-gray-800"
               onClick={() => handleDownload('json')}
-=======
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={handleDownload}
->>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
             >
               <Download className="h-5 w-5" />
             </Button>

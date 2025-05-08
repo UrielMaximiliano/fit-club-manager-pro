@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-import React, { useState } from 'react';
-=======
 
-import React from 'react';
->>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 import { Button } from '@/components/ui/button';
@@ -22,18 +18,9 @@ interface TypeDistributionProps {
   onRefresh?: () => void;
 }
 
-<<<<<<< HEAD
-const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => {
+const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRefresh }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  
-  const handleRefresh = () => {
-    setIsLoading(true);
-    // Simulate data refresh
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  };
 
   const handleDownload = async (type: 'json' | 'csv') => {
     setIsLoading(true);
@@ -88,18 +75,6 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
       });
     }
     setIsLoading(false);
-=======
-const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRefresh }) => {
-  const handleDownload = () => {
-    // Simulating download functionality
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "membership_types.json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
->>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
   };
 
   const renderLabel = ({ name, percent }: { name: string; percent: number }) => {
@@ -121,21 +96,12 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRef
   };
 
   return (
-<<<<<<< HEAD
     <Card className="bg-card border border-border shadow-lg">
       <CardHeader className="p-5">
         <div className="flex justify-between items-center">
           <div>
             <CardTitle className="text-base md:text-lg text-text">Distribución de Membresías</CardTitle>
             <CardDescription className="text-sm text-textSecondary mt-1">
-=======
-    <Card className="bg-white dark:bg-[#1A1F2C] border-gray-200 dark:border-gray-800 shadow-lg">
-      <CardHeader className="p-5">
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle className="text-base md:text-lg text-gray-900 dark:text-white">Distribución de Membresías</CardTitle>
-            <CardDescription className="text-sm text-gray-500 dark:text-gray-400 mt-1">
->>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
               Tipos de membresías activas
             </CardDescription>
           </div>
@@ -153,22 +119,8 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRef
             <Button 
               variant="ghost" 
               size="sm" 
-<<<<<<< HEAD
-              className="text-gray-400 hover:text-white hover:bg-gray-800"
-              onClick={handleRefresh}
-              disabled={isLoading}
-            >
-              <RefreshCw className={`h-5 w-5 ${isLoading ? 'animate-spin' : ''}`} />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
               className="text-gray-400 hover:text-white hover:bg-gray-800"
               onClick={() => handleDownload('json')}
-=======
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={handleDownload}
->>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
             >
               <Download className="h-5 w-5" />
             </Button>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -12,12 +13,8 @@ import {
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Download, ZoomIn, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-<<<<<<< HEAD
-import { Download, ZoomIn } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { memberServices } from '@/services/supabaseService';
-=======
->>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
 
 interface MembershipData {
   name: string;
@@ -35,8 +32,7 @@ interface MembershipChartProps {
   onRefresh?: () => void;
 }
 
-<<<<<<< HEAD
-const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig }) => {
+const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig, onRefresh }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
 
@@ -84,18 +80,6 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig }) 
       });
     }
     setIsLoading(false);
-=======
-const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig, onRefresh }) => {
-  const handleDownload = () => {
-    // Simulating download functionality
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "membership_data.json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
->>>>>>> 5831785e39c0e348f274421330cd0c20518d7da4
   };
 
   const handleZoom = () => {
