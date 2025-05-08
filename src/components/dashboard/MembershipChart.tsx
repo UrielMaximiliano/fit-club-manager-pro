@@ -11,8 +11,8 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { Download, ZoomIn, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Download, ZoomIn } from 'lucide-react';
 
 interface MembershipData {
   name: string;
@@ -27,9 +27,10 @@ interface MembershipChartProps {
       color: string;
     };
   };
+  onRefresh?: () => void;
 }
 
-const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig }) => {
+const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig, onRefresh }) => {
   const handleDownload = () => {
     // Simulating download functionality
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
@@ -57,6 +58,16 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig }) 
             </CardDescription>
           </div>
           <div className="flex gap-2">
+            {onRefresh && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-gray-400 hover:text-white hover:bg-gray-800"
+                onClick={onRefresh}
+              >
+                <RefreshCw className="h-5 w-5" />
+              </Button>
+            )}
             <Button 
               variant="ghost" 
               size="sm" 
@@ -84,7 +95,7 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig }) 
                 data={data} 
                 margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
                 <XAxis 
                   dataKey="name" 
                   stroke="#999" 

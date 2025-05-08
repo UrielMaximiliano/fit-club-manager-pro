@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { UserCircle, CalendarCheck, Calendar, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -41,6 +41,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       description: "Miembros activos actualmente",
       icon: <UserCircle className="h-5 w-5 md:h-6 md:w-6 text-blue-400" />,
       color: "from-blue-500 to-blue-700",
+      colorClass: "bg-blue-500",
       action: () => console.log("Ver detalles de miembros activos")
     },
     {
@@ -50,6 +51,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       description: "Visitantes del día",
       icon: <CalendarCheck className="h-5 w-5 md:h-6 md:w-6 text-green-400" />,
       color: "from-green-500 to-green-700",
+      colorClass: "bg-green-500",
       action: () => console.log("Ver detalles de asistencias de hoy")
     },
     {
@@ -59,6 +61,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       description: "Esta semana",
       icon: <Calendar className="h-5 w-5 md:h-6 md:w-6 text-amber-400" />,
       color: "from-amber-500 to-amber-700",
+      colorClass: "bg-amber-500",
       action: () => console.log("Ver rutinas actualizadas")
     },
     {
@@ -68,6 +71,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       description: "Este mes",
       icon: <CreditCard className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />,
       color: "from-purple-500 to-purple-700",
+      colorClass: "bg-purple-500",
       action: () => console.log("Ver detalles de ingresos mensuales")
     }
   ];
@@ -75,26 +79,26 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       {summaryCards.map((card, index) => (
-        <Card key={index} className="bg-[#1A1F2C] border-gray-800 shadow-lg overflow-hidden hover:bg-[#202736] transition-colors">
-          <div className={`h-1.5 w-full bg-gradient-to-r ${card.color}`}></div>
-          <CardHeader className="p-4 pb-1 flex-nowrap">
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-sm sm:text-base text-white">{card.title}</CardTitle>
-              {card.icon}
+        <Card key={index} className="bg-white dark:bg-[#1A1F2C] border-gray-200 dark:border-gray-800 shadow overflow-hidden">
+          <div className={`h-1.5 w-full ${card.colorClass}`}></div>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm sm:text-base font-medium text-gray-700 dark:text-white">{card.title}</h3>
+              <div className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-800">
+                {card.icon}
+              </div>
             </div>
-          </CardHeader>
-          <CardContent className="p-4 pt-2">
-            <div className={`text-base sm:text-lg md:text-xl font-bold text-white mb-2 transition-all duration-500 ease-in-out ${
+            <div className={`text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2 transition-all duration-500 ease-in-out ${
               isAnimating ? 'opacity-0 transform -translate-y-2' : 'opacity-100 transform translate-y-0'
             }`}>
               {card.value}
             </div>
-            <div className="flex justify-between items-center">
-              <p className="text-xs sm:text-sm text-gray-400 truncate mr-2">{card.description}</p>
+            <div className="flex justify-between items-center mt-2">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate mr-2">{card.description}</p>
               <Button 
-                variant="ghost" 
+                variant="link" 
                 size="sm" 
-                className="text-xs sm:text-sm text-gray-400 hover:text-white p-0 h-auto whitespace-nowrap"
+                className="text-xs sm:text-sm text-blue-500 dark:text-blue-400 p-0 h-auto whitespace-nowrap"
                 onClick={card.action}
               >
                 Detalles

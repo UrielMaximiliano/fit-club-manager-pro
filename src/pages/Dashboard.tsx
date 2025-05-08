@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useState, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from '@/hooks/use-toast';
 import { memberServices, attendanceServices, paymentServices } from '@/services/supabaseService';
@@ -27,8 +28,8 @@ import {
   RecentActivity
 } from '@/components/dashboard/utils/dataPreparation';
 
-// Colores para los gráficos
-const COLORS = ['#4F8EF6', '#22C55E', '#A855F7', '#F97316', '#9b87f5'];
+// Colores para los gráficos - ajustados para coincidir con la imagen de referencia
+const COLORS = ['#4F8EF6', '#22C55E', '#A855F7', '#F97316'];
 
 const Dashboard = () => {
   const isMobile = useIsMobile();
@@ -44,9 +45,10 @@ const Dashboard = () => {
     updatedRoutines: 0,
     monthlyRevenue: 0
   });
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   // Función para cargar todos los datos del dashboard
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -66,6 +68,8 @@ const Dashboard = () => {
       setMembershipTypeData(prepareMembershipTypeData(membersData));
       setRecentActivities(prepareRecentActivities(membersData, payments, allAttendance));
       
+      // Actualizar timestamp de última actualización
+      setLastUpdated(new Date());
     } catch (error) {
       console.error("Error al cargar datos del dashboard:", error);
       toast({
@@ -76,6 +80,15 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  // Refrescar datos manualmente
+  const handleRefresh = () => {
+    toast({
+      title: "Actualizando...",
+      description: "Obteniendo los datos más recientes",
+    });
+    fetchDashboardData();
   };
 
   // Obtener datos al cargar el componente
@@ -97,7 +110,7 @@ const Dashboard = () => {
       // Limpiar suscripciones
       unsubscribe();
     };
-  }, []);
+  }, [fetchDashboardData]);
 
   // Configuración para los gráficos
   const chartConfig = {
@@ -127,10 +140,10 @@ const Dashboard = () => {
   return (
     <div className="pb-20">
       <div className="flex justify-between items-center mb-6">
-        <div className={isMobile ? "ml-14" : ""}>
-          <h1 className="text-xl md:text-2xl font-bold text-white">Dashboard</h1>
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
         </div>
-        <div className="text-white text-sm md:text-base">Administrador</div>
+        <div className="text-gray-600 dark:text-gray-300 text-sm md:text-base">Administrador</div>
       </div>
 
       {/* Tarjetas de resumen */}
@@ -138,17 +151,26 @@ const Dashboard = () => {
 
       {/* Sección principal con gráficos principales */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <MembershipChart data={membershipData} chartConfig={chartConfig} />
+        <MembershipChart 
+          data={membershipData} 
+          chartConfig={chartConfig} 
+          onRefresh={handleRefresh} 
+        />
         <RecentActivities activities={recentActivities} />
       </div>
 
       {/* Sección de estadísticas avanzadas */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <TypeDistribution data={membershipTypeData} colors={COLORS} />
+        <TypeDistribution 
+          data={membershipTypeData} 
+          colors={COLORS} 
+          onRefresh={handleRefresh} 
+        />
         <DetailedStats 
           attendanceData={attendanceData}
           revenueData={revenueData}
           chartConfig={chartConfig}
+          onRefresh={handleRefresh}
         />
       </div>
     </div>
