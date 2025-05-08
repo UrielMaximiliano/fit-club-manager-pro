@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, Search, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -10,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Table,
@@ -192,6 +192,7 @@ export default function Members() {
               <DialogTitle className="text-xl text-white">
                 {selectedMember ? 'Editar Miembro' : 'Nuevo Miembro'}
               </DialogTitle>
+              <DialogDescription>Completa los datos del miembro y guarda los cambios.</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">

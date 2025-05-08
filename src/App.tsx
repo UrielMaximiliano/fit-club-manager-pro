@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +18,7 @@ import Settings from "./pages/Settings";
 import ProtectedRouteAuth from "./components/ProtectedRouteAuth";
 import AdminLayout from "./components/AdminLayout";
 import { AuthProvider } from "./contexts/AuthContext";
+import ThemeToggle from './components/ThemeToggle';
 
 const queryClient = new QueryClient();
 
@@ -29,6 +29,9 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <header className="w-full flex justify-end items-center p-4 bg-background border-b border-border">
+            <ThemeToggle />
+          </header>
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />

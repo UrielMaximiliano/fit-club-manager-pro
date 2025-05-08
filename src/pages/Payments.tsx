@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Table,
@@ -152,7 +153,8 @@ export default function Payments() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Registrar Nuevo Pago</DialogTitle>
+              <DialogTitle>Detalles de Pago</DialogTitle>
+              <DialogDescription>Completa los datos del pago y guarda los cambios.</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>

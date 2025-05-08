@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,6 +13,8 @@ import {
 } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Download, RefreshCw } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { attendanceServices, paymentServices } from '@/services/supabaseService';
 
 interface AttendanceData {
   name: string;
@@ -43,6 +44,7 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
   revenueData, 
   chartConfig 
 }) => {
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'asistencias' | 'ingresos'>('asistencias');
 
@@ -54,25 +56,59 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
     }, 1000);
   };
 
-  const handleDownload = () => {
-    // Simulating download functionality
-    const data = activeTab === 'asistencias' ? attendanceData : revenueData;
-    const fileName = activeTab === 'asistencias' ? 'attendance_data.json' : 'revenue_data.json';
-    
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", fileName);
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+  const handleDownload = async (type: 'json' | 'csv') => {
+    setIsLoading(true);
+    try {
+      // Obtener datos frescos de Supabase
+      const freshAttendance = await attendanceServices.getAll();
+      const freshRevenue = await paymentServices.getAll();
+      const data = activeTab === 'asistencias' ? freshAttendance : freshRevenue;
+      if (!data || data.length === 0) {
+        toast({
+          title: 'Sin datos',
+          description: 'No hay datos para exportar',
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
+      }
+      let dataStr = '';
+      let fileName = '';
+      if (type === 'json') {
+        dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+        fileName = activeTab === 'asistencias' ? 'attendance_data.json' : 'revenue_data.json';
+      } else {
+        // CSV
+        const header = Object.keys(data[0]).join(',');
+        const rows = data.map(row => Object.values(row).join(','));
+        dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent([header, ...rows].join('\n'));
+        fileName = activeTab === 'asistencias' ? 'attendance_data.csv' : 'revenue_data.csv';
+      }
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute('href', dataStr);
+      downloadAnchorNode.setAttribute('download', fileName);
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      toast({
+        title: 'Descarga exitosa',
+        description: `Archivo ${fileName} descargado correctamente`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudo obtener los datos actualizados',
+        variant: 'destructive',
+      });
+    }
+    setIsLoading(false);
   };
 
   return (
-    <Card className="bg-[#1A1F2C] border-gray-800 shadow-lg col-span-1 lg:col-span-2">
+    <Card className="bg-card border border-border shadow-lg col-span-1 lg:col-span-2">
       <CardHeader className="p-5">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-base md:text-lg text-white">Estadísticas Detalladas</CardTitle>
+          <CardTitle className="text-base md:text-lg text-text">Estadísticas Detalladas</CardTitle>
           <div className="flex gap-2">
             <Button 
               variant="ghost" 
@@ -87,9 +123,17 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
               variant="ghost" 
               size="sm" 
               className="text-gray-400 hover:text-white hover:bg-gray-800"
-              onClick={handleDownload}
+              onClick={() => handleDownload('json')}
             >
               <Download className="h-5 w-5" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-gray-400 hover:text-white hover:bg-gray-800"
+              onClick={() => handleDownload('csv')}
+            >
+              CSV
             </Button>
           </div>
         </div>

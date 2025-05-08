@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from '@/hooks/use-toast';
@@ -7,7 +6,6 @@ import { memberServices, attendanceServices, paymentServices } from '@/services/
 // Componentes de panel de control
 import SummaryCards from '@/components/dashboard/SummaryCards';
 import MembershipChart from '@/components/dashboard/MembershipChart';
-import RecentActivities from '@/components/dashboard/RecentActivities';
 import TypeDistribution from '@/components/dashboard/TypeDistribution';
 import DetailedStats from '@/components/dashboard/DetailedStats';
 
@@ -17,14 +15,12 @@ import {
   prepareAttendanceData, 
   prepareRevenueData, 
   prepareMembershipTypeData, 
-  prepareRecentActivities,
   calculateSummaryStats,
   SummaryStats,
   MembershipData,
   AttendanceData,
   RevenueData,
-  MembershipTypeData,
-  RecentActivity
+  MembershipTypeData
 } from '@/components/dashboard/utils/dataPreparation';
 
 // Colores para los gráficos
@@ -37,7 +33,6 @@ const Dashboard = () => {
   const [attendanceData, setAttendanceData] = useState<AttendanceData[]>([]);
   const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
   const [membershipTypeData, setMembershipTypeData] = useState<MembershipTypeData[]>([]);
-  const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
   const [summaryStats, setSummaryStats] = useState<SummaryStats>({
     activeMembers: 0,
     todayAttendance: 0,
@@ -64,7 +59,6 @@ const Dashboard = () => {
       setAttendanceData(prepareAttendanceData(allAttendance));
       setRevenueData(prepareRevenueData(payments));
       setMembershipTypeData(prepareMembershipTypeData(membersData));
-      setRecentActivities(prepareRecentActivities(membersData, payments, allAttendance));
       
     } catch (error) {
       console.error("Error al cargar datos del dashboard:", error);
@@ -150,25 +144,20 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="pb-20">
-      <div className="flex justify-between items-center mb-6">
+    <div className="pb-20 bg-background min-h-screen">
+      <div className="flex justify-between items-center mb-8 mt-4">
         <div className={isMobile ? "ml-14" : ""}>
-          <h1 className="text-xl md:text-2xl font-bold text-white">Dashboard</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-text">Dashboard</h1>
         </div>
-        <div className="text-white text-sm md:text-base">Administrador</div>
+        <div className="text-textSecondary text-sm md:text-base">Administrador</div>
       </div>
 
       {/* Tarjetas de resumen */}
       <SummaryCards stats={summaryStats} />
 
-      {/* Sección principal con gráficos principales */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      {/* Gráficos principales, cada uno en su columna */}
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 my-10">
         <MembershipChart data={membershipData} chartConfig={chartConfig} />
-        <RecentActivities activities={recentActivities} />
-      </div>
-
-      {/* Sección de estadísticas avanzadas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <TypeDistribution data={membershipTypeData} colors={COLORS} />
         <DetailedStats 
           attendanceData={attendanceData}

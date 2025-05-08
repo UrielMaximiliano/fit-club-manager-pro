@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -220,8 +219,38 @@ export default function Reports() {
   };
 
   // Generar PDF para reportes
-  const handleDownload = (reportName, reportData) => {
+  const handleDownload = async (reportName, reportData) => {
+    setLoading(true);
     try {
+      // Obtener datos frescos de Supabase según el reporte
+      let freshData = reportData;
+      if (reportName === 'Lista de Miembros') {
+        freshData = await memberServices.getAll();
+      } else if (reportName === 'Resumen de Pagos') {
+        freshData = await paymentServices.getAll();
+      } else if (reportName === 'Reporte de Asistencias') {
+        freshData = await attendanceServices.getAll();
+      }
+      if (!Array.isArray(freshData) || freshData.length === 0) {
+        toast({
+          title: 'Sin datos',
+          description: 'No hay datos para exportar o los datos están mal formateados',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+      // Validar que todos los objetos tengan las mismas keys
+      const keys = Object.keys(freshData[0]);
+      if (!keys.length) {
+        toast({
+          title: 'Error de datos',
+          description: 'Los datos no tienen columnas válidas',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
       const doc = new jsPDF();
       doc.setFontSize(16);
       doc.text(`Reporte: ${reportName}`, 10, 10);
@@ -236,7 +265,6 @@ export default function Reports() {
           `$${item.ingresos.toLocaleString()}`, 
           `$${item.gastos.toLocaleString()}`
         ]);
-        
         (doc as any).autoTable({
           startY: 40,
           head: [['Día', 'Ingresos', 'Gastos']],
@@ -248,106 +276,59 @@ export default function Reports() {
           item.day, 
           item.asistencias.toString()
         ]);
-        
         (doc as any).autoTable({
           startY: 40,
           head: [['Día', 'Asistencias']],
           body: tableData,
         });
-      }
+      } 
       else if (reportName === 'Membresías Activas') {
         const tableData = membershipData.map(item => [
-          item.name, 
+          item.name,
           item.value.toString()
         ]);
-        
         (doc as any).autoTable({
           startY: 40,
-          head: [['Tipo', 'Cantidad']],
+          head: [['Tipo de Membresía', 'Cantidad']],
           body: tableData,
         });
-      }
+      } 
       else if (reportName === 'Renovaciones y Bajas') {
         const tableData = retentionData.map(item => [
-          item.month, 
+          item.month,
           item.renovaciones.toString(),
           item.bajas.toString()
         ]);
-        
         (doc as any).autoTable({
           startY: 40,
           head: [['Mes', 'Renovaciones', 'Bajas']],
           body: tableData,
         });
+      } 
+      else if (Array.isArray(freshData) && freshData.length > 0) {
+        // Exportar cualquier otro reporte genérico
+        const header = Object.keys(freshData[0]);
+        const body = freshData.map(row => header.map(h => row[h]));
+        (doc as any).autoTable({
+          startY: 40,
+          head: [header],
+          body,
+        });
       }
-      else if (reportData) {
-        // Para reportes de la lista
-        if (reportName === 'Lista de Miembros') {
-          const tableData = reportData.map(member => [
-            `${member.first_name} ${member.last_name}`,
-            member.email,
-            member.phone,
-            member.membership_type,
-            member.status
-          ]);
-          
-          (doc as any).autoTable({
-            startY: 40,
-            head: [['Nombre', 'Email', 'Teléfono', 'Membresía', 'Estado']],
-            body: tableData,
-          });
-        }
-        else if (reportName === 'Resumen de Pagos') {
-          const tableData = reportData.map(payment => {
-            const memberName = payment.members?.first_name && payment.members?.last_name ? 
-              `${payment.members.first_name} ${payment.members.last_name}` : 'Desconocido';
-            return [
-              memberName,
-              `$${payment.amount.toLocaleString()}`,
-              new Date(payment.payment_date).toLocaleDateString(),
-              payment.payment_type
-            ];
-          });
-          
-          (doc as any).autoTable({
-            startY: 40,
-            head: [['Miembro', 'Monto', 'Fecha', 'Método']],
-            body: tableData,
-          });
-        }
-        else if (reportName === 'Reporte de Asistencias') {
-          const tableData = reportData.map(attendance => {
-            const memberName = attendance.members?.first_name && attendance.members?.last_name ? 
-              `${attendance.members.first_name} ${attendance.members.last_name}` : 'Desconocido';
-            return [
-              memberName,
-              new Date(attendance.check_in).toLocaleString(),
-              attendance.check_out ? new Date(attendance.check_out).toLocaleString() : 'Activo'
-            ];
-          });
-          
-          (doc as any).autoTable({
-            startY: 40,
-            head: [['Miembro', 'Entrada', 'Salida']],
-            body: tableData,
-          });
-        }
-      }
-
       doc.save(`${reportName.replace(/\s+/g, '_')}_${selectedPeriod.replace(/\s+/g, '_')}.pdf`);
-      
       toast({
-        title: 'Reporte generado',
+        title: 'Descarga exitosa',
         description: `${reportName} ha sido descargado correctamente`,
       });
     } catch (error) {
-      console.error("Error generando PDF:", error);
       toast({
         title: 'Error',
-        description: 'No se pudo generar el reporte',
+        description: 'Error generando PDF. Revisa la consola para más detalles.',
         variant: 'destructive',
       });
+      console.error("Error generando PDF:", error, { reportName, reportData });
     }
+    setLoading(false);
   };
 
   const chartConfig = {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -6,58 +6,44 @@ import { PlusCircle, Search, ArrowUp, ArrowDown, Calendar } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
 import jsPDF from "jspdf";
-
-const initialTransactions = [
-  {
-    id: "T001",
-    date: "30/04/2025",
-    concept: "Pago de membresía - Juan Pérez",
-    type: "Ingreso",
-    amount: 25000,
-  },
-  {
-    id: "T002",
-    date: "29/04/2025",
-    concept: "Compra de productos de limpieza",
-    type: "Gasto",
-    amount: 15000,
-  },
-  {
-    id: "T003",
-    date: "29/04/2025",
-    concept: "Pago de membresía - María González",
-    type: "Ingreso",
-    amount: 65000,
-  },
-  {
-    id: "T004",
-    date: "28/04/2025",
-    concept: "Reparación de equipo",
-    type: "Gasto",
-    amount: 45000,
-  },
-  {
-    id: "T005",
-    date: "28/04/2025",
-    concept: "Pago de membresía - Carlos Rodríguez",
-    type: "Ingreso",
-    amount: 25000,
-  }
-];
+import 'jspdf-autotable';
+import { useToast } from '@/hooks/use-toast';
+import { cashboxServices, CashboxTransaction } from '@/services/supabaseService';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 export default function Cashbox() {
   const isMobile = useIsMobile();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [showIncomeForm, setShowIncomeForm] = useState(false);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showCloseCashbox, setShowCloseCashbox] = useState(false);
-
-  const [transactions, setTransactions] = useState(initialTransactions);
+  const [transactions, setTransactions] = useState<CashboxTransaction[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Form state
   const [formDate, setFormDate] = useState("");
   const [formConcept, setFormConcept] = useState("");
   const [formAmount, setFormAmount] = useState("");
+
+  useEffect(() => {
+    loadTransactions();
+  }, []);
+
+  const loadTransactions = async () => {
+    setLoading(true);
+    try {
+      const data = await cashboxServices.getAll();
+      setTransactions(data || []);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudieron cargar las transacciones',
+        variant: 'destructive',
+      });
+    }
+    setLoading(false);
+  };
 
   const handleOpenIncomeForm = () => {
     setShowIncomeForm(true);
@@ -77,19 +63,23 @@ export default function Cashbox() {
     setShowCloseCashbox(true);
   };
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
     if (!formDate || !formConcept || !formAmount) {
       alert("Por favor, complete todos los campos.");
       return;
     }
-    const newTransaction = {
-      id: `T${(transactions.length + 1).toString().padStart(3, '0')}`,
-      date: formDate,
-      concept: formConcept,
-      type: showIncomeForm ? "Ingreso" : "Gasto",
-      amount: Number(formAmount),
-    };
-    setTransactions([newTransaction, ...transactions]);
+    try {
+      await cashboxServices.create({
+        date: formDate,
+        concept: formConcept,
+        type: showIncomeForm ? "Ingreso" : "Gasto",
+        amount: Number(formAmount),
+      });
+      toast({ title: 'Transacción registrada', description: 'Se ha registrado correctamente.' });
+      loadTransactions();
+    } catch (error) {
+      toast({ title: 'Error', description: 'No se pudo registrar la transacción', variant: 'destructive' });
+    }
     setShowIncomeForm(false);
     setShowExpenseForm(false);
     setFormDate("");
@@ -97,27 +87,67 @@ export default function Cashbox() {
     setFormAmount("");
   };
 
-  const handleCloseCashbox = () => {
-    alert("Cierre de caja simulado");
+  const handleCloseCashbox = async () => {
     setShowCloseCashbox(false);
-    const closeTransaction = {
-      id: `T${(transactions.length + 1).toString().padStart(3, '0')}`,
-      date: new Date().toISOString().split('T')[0],
-      concept: "Cierre de Caja",
-      type: "Cierre",
-      amount: 0,
-    };
-    setTransactions([closeTransaction, ...transactions]);
+    try {
+      await cashboxServices.create({
+        date: new Date().toISOString().split('T')[0],
+        concept: "Cierre de Caja",
+        type: "Cierre",
+        amount: 0,
+      });
+      toast({ title: 'Cierre de caja registrado', description: 'Se ha registrado el cierre de caja.' });
+      loadTransactions();
+    } catch (error) {
+      toast({ title: 'Error', description: 'No se pudo registrar el cierre de caja', variant: 'destructive' });
+    }
   };
 
   // Generate PDF for cash flow
-  const handleDownloadCashFlow = () => {
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text("Flujo de Efectivo - Abril 2025", 10, 10);
-    doc.setFontSize(12);
-    doc.text("Sin datos para mostrar", 10, 20);
-    doc.save("Flujo_de_Efectivo_Abril_2025.pdf");
+  const handleDownloadCashFlow = async () => {
+    setLoading(true);
+    try {
+      const freshTransactions = await cashboxServices.getAll();
+      if (!freshTransactions || freshTransactions.length === 0) {
+        toast({
+          title: 'Sin datos',
+          description: 'No hay transacciones para exportar',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text('Flujo de Efectivo - Abril 2025', 10, 10);
+      doc.setFontSize(12);
+      doc.text(`Fecha de generación: ${new Date().toLocaleDateString()}`, 10, 20);
+      // Tabla de transacciones
+      const tableData = freshTransactions.map(t => [
+        t.id,
+        t.date,
+        t.concept,
+        t.type,
+        `$${t.amount.toLocaleString()}`
+      ]);
+      (doc as any).autoTable({
+        startY: 30,
+        head: [['ID', 'Fecha', 'Concepto', 'Tipo', 'Monto']],
+        body: tableData,
+      });
+      doc.save('Flujo_de_Efectivo_Abril_2025.pdf');
+      toast({
+        title: 'Descarga exitosa',
+        description: 'PDF de flujo de efectivo descargado correctamente',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudo descargar el PDF',
+        variant: 'destructive',
+      });
+    }
+    setLoading(false);
   };
 
   // Filter transactions by search term
@@ -128,6 +158,20 @@ export default function Cashbox() {
     t.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
     t.amount.toString().includes(searchTerm)
   );
+
+  // Preparar datos para el gráfico de flujo de efectivo
+  const cashFlowChartData = React.useMemo(() => {
+    if (!transactions || transactions.length === 0) return [];
+    // Agrupar por fecha y sumar ingresos/gastos
+    const grouped: Record<string, { date: string; Ingreso: number; Gasto: number }> = {};
+    transactions.forEach(t => {
+      if (!grouped[t.date]) grouped[t.date] = { date: t.date, Ingreso: 0, Gasto: 0 };
+      if (t.type === 'Ingreso') grouped[t.date].Ingreso += Number(t.amount);
+      if (t.type === 'Gasto') grouped[t.date].Gasto += Number(t.amount);
+    });
+    // Ordenar por fecha ascendente
+    return Object.values(grouped).sort((a, b) => a.date.localeCompare(b.date));
+  }, [transactions]);
 
   return (
     <div className="space-y-6">
@@ -236,11 +280,25 @@ export default function Cashbox() {
                 Descargar Flujo de Efectivo
               </Button>
             </div>
-
-            {/* No sample chart data */}
-            <div className="w-full h-32 bg-gray-700 rounded-lg p-2 flex items-center justify-center text-gray-500">
-              Gráfico no disponible - Sin datos
-            </div>
+            {cashFlowChartData.length > 0 ? (
+              <div className="w-full h-48 bg-gray-700 rounded-lg p-2 flex items-center justify-center">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={cashFlowChartData} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                    <XAxis dataKey="date" stroke="#ccc" fontSize={12} />
+                    <YAxis stroke="#ccc" fontSize={12} />
+                    <Tooltip formatter={(value) => `$${value}`} />
+                    <Legend />
+                    <Bar dataKey="Ingreso" fill="#22C55E" name="Ingresos" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Gasto" fill="#EF4444" name="Gastos" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="w-full h-32 bg-gray-700 rounded-lg p-2 flex items-center justify-center text-gray-500">
+                Gráfico no disponible - Sin datos
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -1,9 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Download, RefreshCw } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { memberServices } from '@/services/supabaseService';
 
 interface MembershipTypeData {
   name: string;
@@ -16,6 +17,7 @@ interface TypeDistributionProps {
 }
 
 const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => {
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   
   const handleRefresh = () => {
@@ -26,15 +28,59 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
     }, 1000);
   };
 
-  const handleDownload = () => {
-    // Simulating download functionality
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "membership_types.json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+  const handleDownload = async (type: 'json' | 'csv') => {
+    setIsLoading(true);
+    try {
+      // Obtener miembros frescos de Supabase y calcular la distribución
+      const freshMembers = await memberServices.getAll();
+      const membershipTypes = {};
+      freshMembers.forEach(m => {
+        if (membershipTypes[m.membership_type]) {
+          membershipTypes[m.membership_type]++;
+        } else {
+          membershipTypes[m.membership_type] = 1;
+        }
+      });
+      const freshData = Object.entries(membershipTypes).map(([name, value]) => ({ name, value }));
+      if (!freshData || freshData.length === 0) {
+        toast({
+          title: 'Sin datos',
+          description: 'No hay datos para exportar',
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
+      }
+      let dataStr = '';
+      let fileName = '';
+      if (type === 'json') {
+        dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(freshData));
+        fileName = 'membership_types.json';
+      } else {
+        // CSV
+        const header = Object.keys(freshData[0]).join(',');
+        const rows = freshData.map(row => Object.values(row).join(','));
+        dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent([header, ...rows].join('\n'));
+        fileName = 'membership_types.csv';
+      }
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute('href', dataStr);
+      downloadAnchorNode.setAttribute('download', fileName);
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      toast({
+        title: 'Descarga exitosa',
+        description: `Archivo ${fileName} descargado correctamente`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudo obtener los datos actualizados',
+        variant: 'destructive',
+      });
+    }
+    setIsLoading(false);
   };
 
   const renderLabel = ({ name, percent }: { name: string; percent: number }) => {
@@ -60,12 +106,12 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
   };
 
   return (
-    <Card className="bg-[#1A1F2C] border-gray-800 shadow-lg">
+    <Card className="bg-card border border-border shadow-lg">
       <CardHeader className="p-5">
         <div className="flex justify-between items-center">
           <div>
-            <CardTitle className="text-base md:text-lg text-white">Distribución de Membresías</CardTitle>
-            <CardDescription className="text-sm text-gray-400 mt-1">
+            <CardTitle className="text-base md:text-lg text-text">Distribución de Membresías</CardTitle>
+            <CardDescription className="text-sm text-textSecondary mt-1">
               Tipos de membresías activas
             </CardDescription>
           </div>
@@ -83,9 +129,17 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
               variant="ghost" 
               size="sm" 
               className="text-gray-400 hover:text-white hover:bg-gray-800"
-              onClick={handleDownload}
+              onClick={() => handleDownload('json')}
             >
               <Download className="h-5 w-5" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-gray-400 hover:text-white hover:bg-gray-800"
+              onClick={() => handleDownload('csv')}
+            >
+              CSV
             </Button>
           </div>
         </div>

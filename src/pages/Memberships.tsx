@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Table,
@@ -151,9 +152,8 @@ export default function Memberships() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>
-                {selectedMembership ? 'Editar Membresía' : 'Nueva Membresía'}
-              </DialogTitle>
+              <DialogTitle>{selectedMembership ? 'Editar Membresía' : 'Nueva Membresía'}</DialogTitle>
+              <DialogDescription>Completa los datos de la membresía y guarda los cambios.</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>

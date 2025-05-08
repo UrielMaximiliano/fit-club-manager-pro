@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabase';
 import { realtimeService, TableName } from './realtimeService';
 
@@ -37,6 +36,14 @@ export interface Attendance {
   member_id: string;
   check_in: string;
   check_out?: string;
+}
+
+export interface CashboxTransaction {
+  id: string;
+  date: string;
+  concept: string;
+  type: 'Ingreso' | 'Gasto' | 'Cierre';
+  amount: number;
 }
 
 // Tipo para listeners de cambios en datos
@@ -337,5 +344,31 @@ export const reportServices = {
     
     if (error) throw error;
     return data;
+  }
+};
+
+export const cashboxServices = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('cashbox')
+      .select('*')
+      .order('date', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+  async create(transaction: Omit<CashboxTransaction, 'id'>) {
+    const { data, error } = await supabase
+      .from('cashbox')
+      .insert([transaction])
+      .select();
+    if (error) throw error;
+    return data[0];
+  },
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('cashbox')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
   }
 }; 
