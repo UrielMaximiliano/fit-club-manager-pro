@@ -13,7 +13,7 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { Download, RefreshCw } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 interface AttendanceData {
   name: string;
@@ -43,16 +43,7 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
   revenueData, 
   chartConfig 
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'asistencias' | 'ingresos'>('asistencias');
-
-  const handleRefresh = () => {
-    setIsLoading(true);
-    // Simulate data refresh
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  };
 
   const handleDownload = () => {
     // Simulating download functionality
@@ -74,15 +65,6 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
         <div className="flex justify-between items-center">
           <CardTitle className="text-base md:text-lg text-white">Estadísticas Detalladas</CardTitle>
           <div className="flex gap-2">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-gray-400 hover:text-white hover:bg-gray-800"
-              onClick={handleRefresh}
-              disabled={isLoading}
-            >
-              <RefreshCw className={`h-5 w-5 ${isLoading ? 'animate-spin' : ''}`} />
-            </Button>
             <Button 
               variant="ghost" 
               size="sm" 
@@ -118,7 +100,11 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
             <div className="h-[260px] md:h-[300px] xl:h-[320px]">
               <ChartContainer config={chartConfig}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={attendanceData} margin={{ top: 20, right: 30, left: 0, bottom: 10 }}>
+                  <BarChart 
+                    data={attendanceData} 
+                    margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
+                    animationDuration={500}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                     <XAxis dataKey="name" stroke="#999" fontSize={12} />
                     <YAxis stroke="#999" fontSize={12} />
@@ -139,7 +125,11 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
             <div className="h-[260px] md:h-[300px] xl:h-[320px]">
               <ChartContainer config={chartConfig}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={revenueData} margin={{ top: 20, right: 30, left: 0, bottom: 10 }}>
+                  <BarChart 
+                    data={revenueData} 
+                    margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
+                    animationDuration={500}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                     <XAxis dataKey="name" stroke="#999" fontSize={12} />
                     <YAxis stroke="#999" fontSize={12} />

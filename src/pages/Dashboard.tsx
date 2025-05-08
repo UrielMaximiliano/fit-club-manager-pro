@@ -1,8 +1,8 @@
-
 import React, { useEffect, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from '@/hooks/use-toast';
 import { memberServices, attendanceServices, paymentServices } from '@/services/supabaseService';
+import { subscriptionManager } from '@/services/subscriptionManager';
 
 // Componentes de panel de control
 import SummaryCards from '@/components/dashboard/SummaryCards';
@@ -82,45 +82,20 @@ const Dashboard = () => {
   useEffect(() => {
     fetchDashboardData();
     
-    // Configurar suscripciones en tiempo real
-    const unsubscribeMembers = memberServices.onDataChange(() => {
-      console.log("Actualización en miembros detectada");
-      fetchDashboardData();
-      toast({
-        title: "Datos actualizados",
-        description: "Los datos de miembros han sido actualizados",
-      });
-    });
-    
-    const unsubscribeMemberships = memberServices.onDataChange(() => {
-      console.log("Actualización en membresías detectada");
-      fetchDashboardData();
-    });
-    
-    const unsubscribePayments = paymentServices.onDataChange(() => {
-      console.log("Actualización en pagos detectada");
-      fetchDashboardData();
-      toast({
-        title: "Datos actualizados",
-        description: "Los datos de pagos han sido actualizados",
-      });
-    });
-    
-    const unsubscribeAttendance = attendanceServices.onDataChange(() => {
-      console.log("Actualización en asistencias detectada");
-      fetchDashboardData();
-      toast({
-        title: "Datos actualizados",
-        description: "Los datos de asistencias han sido actualizados",
-      });
-    });
+    // Configurar suscripciones en tiempo real usando el SubscriptionManager
+    const unsubscribe = subscriptionManager.subscribe(
+      ['members', 'memberships', 'payments', 'attendance'],
+      fetchDashboardData,
+      {
+        notify: true,
+        title: "Dashboard actualizado",
+        message: "Los datos del dashboard han sido actualizados"
+      }
+    );
     
     return () => {
       // Limpiar suscripciones
-      unsubscribeMembers();
-      unsubscribeMemberships();
-      unsubscribePayments();
-      unsubscribeAttendance();
+      unsubscribe();
     };
   }, []);
 

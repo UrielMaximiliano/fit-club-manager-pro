@@ -80,15 +80,38 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig }) 
         <div className="h-[260px] md:h-[300px] xl:h-[340px]">
           <ChartContainer config={chartConfig}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 10 }}>
+              <BarChart 
+                data={data} 
+                margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
+                animationDuration={500}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="name" stroke="#999" fontSize={12} />
-                <YAxis stroke="#999" fontSize={12} />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="#999" 
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={true}
+                  padding={{ left: 10, right: 10 }}
+                />
+                <YAxis 
+                  stroke="#999" 
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={true}
+                />
                 <ChartTooltip 
                   content={<ChartTooltipContent />}
                   cursor={{fill: 'rgba(255, 255, 255, 0.05)'}}
                 />
-                <Bar dataKey="miembros" fill="#4F8EF6" radius={[4, 4, 0, 0]} name="Miembros" />
+                <Bar 
+                  dataKey="miembros" 
+                  fill="#4F8EF6" 
+                  radius={[4, 4, 0, 0]} 
+                  name="Miembros"
+                  animationBegin={0} 
+                  animationDuration={800}
+                />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>

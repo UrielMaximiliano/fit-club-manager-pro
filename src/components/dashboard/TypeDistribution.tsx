@@ -1,9 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 import { Button } from '@/components/ui/button';
-import { Download, RefreshCw } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 interface MembershipTypeData {
   name: string;
@@ -16,16 +16,6 @@ interface TypeDistributionProps {
 }
 
 const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const handleRefresh = () => {
-    setIsLoading(true);
-    // Simulate data refresh
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  };
-
   const handleDownload = () => {
     // Simulating download functionality
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
@@ -45,14 +35,16 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
   const renderCustomizedLegend = (props: any) => {
     const { payload } = props;
     return (
-      <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-2">
+      <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-2 max-h-20 overflow-y-auto">
         {payload.map((entry: any, index: number) => (
           <li key={`item-${index}`} className="flex items-center gap-1 text-xs sm:text-sm">
             <div 
               className="w-3 h-3 rounded-sm" 
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-gray-300 text-ellipsis overflow-hidden max-w-[120px]">{entry.value}</span>
+            <span className="text-gray-300 text-ellipsis overflow-hidden max-w-[150px] whitespace-nowrap" title={entry.value}>
+              {entry.value}
+            </span>
           </li>
         ))}
       </ul>
@@ -70,15 +62,6 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
             </CardDescription>
           </div>
           <div className="flex gap-2">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-gray-400 hover:text-white hover:bg-gray-800"
-              onClick={handleRefresh}
-              disabled={isLoading}
-            >
-              <RefreshCw className={`h-5 w-5 ${isLoading ? 'animate-spin' : ''}`} />
-            </Button>
             <Button 
               variant="ghost" 
               size="sm" 
@@ -105,6 +88,8 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors }) => 
                   dataKey="value"
                   nameKey="name"
                   label={renderLabel}
+                  animationBegin={0}
+                  animationDuration={500}
                 >
                   {data.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
