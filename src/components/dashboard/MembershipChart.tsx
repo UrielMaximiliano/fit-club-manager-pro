@@ -83,7 +83,6 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig }) 
               <BarChart 
                 data={data} 
                 margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
-                animationDuration={500}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                 <XAxis 

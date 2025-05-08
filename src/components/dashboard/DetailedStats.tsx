@@ -103,7 +103,6 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
                   <BarChart 
                     data={attendanceData} 
                     margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
-                    animationDuration={500}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                     <XAxis dataKey="name" stroke="#999" fontSize={12} />
@@ -128,7 +127,6 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
                   <BarChart 
                     data={revenueData} 
                     margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
-                    animationDuration={500}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                     <XAxis dataKey="name" stroke="#999" fontSize={12} />
