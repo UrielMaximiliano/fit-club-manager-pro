@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from '@/hooks/use-toast';
 import { memberServices, attendanceServices, paymentServices } from '@/services/supabaseService';
-import { subscriptionManager } from '@/services/subscriptionManager';
+import { useRealtimeDashboard } from '@/hooks/use-realtime-dashboard';
 
 // Componentes de panel de control
 import SummaryCards from '@/components/dashboard/SummaryCards';
@@ -25,8 +25,8 @@ import {
   MembershipTypeData
 } from '@/components/dashboard/utils/dataPreparation';
 
-// Colores para los gráficos - ajustados para coincidir con la imagen de referencia
-const COLORS = ['#4F8EF6', '#22C55E', '#A855F7', '#F97316'];
+// Chart configuration
+import { colorArray } from '@/components/dashboard/utils/chartConfig';
 
 const Dashboard = () => {
   const isMobile = useIsMobile();
@@ -41,7 +41,6 @@ const Dashboard = () => {
     updatedRoutines: 0,
     monthlyRevenue: 0
   });
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   // Función para cargar todos los datos del dashboard
   const fetchDashboardData = useCallback(async () => {
@@ -63,8 +62,6 @@ const Dashboard = () => {
       setRevenueData(prepareRevenueData(payments));
       setMembershipTypeData(prepareMembershipTypeData(membersData));
       
-      // Actualizar timestamp de última actualización
-      setLastUpdated(new Date());
     } catch (error) {
       console.error("Error al cargar datos del dashboard:", error);
       toast({
@@ -77,49 +74,37 @@ const Dashboard = () => {
     }
   }, []);
 
-  // Refrescar datos manualmente
-  const handleRefresh = () => {
-    toast({
-      title: "Actualizando...",
-      description: "Obteniendo los datos más recientes",
-    });
-    fetchDashboardData();
-  };
+  // Set up real-time dashboard updates
+  const { loading: updatingData, lastUpdated, refreshDashboard } = useRealtimeDashboard({
+    onMembersUpdate: fetchDashboardData,
+    onMembershipsUpdate: fetchDashboardData,
+    onPaymentsUpdate: fetchDashboardData,
+    onAttendanceUpdate: fetchDashboardData,
+  });
 
   // Obtener datos al cargar el componente
   useEffect(() => {
     fetchDashboardData();
-    
-    // Configurar suscripciones en tiempo real usando el SubscriptionManager
-    const unsubscribe = subscriptionManager.subscribe(
-      ['members', 'memberships', 'payments', 'attendance'],
-      fetchDashboardData,
-      {
-        notify: true,
-        title: "Dashboard actualizado",
-        message: "Los datos del dashboard han sido actualizados"
-      }
-    );
-    
-    return () => {
-      // Limpiar suscripciones
-      unsubscribe();
-    };
   }, [fetchDashboardData]);
+
+  // Refrescar datos manualmente
+  const handleRefresh = () => {
+    refreshDashboard();
+  };
 
   // Configuración para los gráficos
   const chartConfig = {
     members: { 
       label: "Miembros", 
-      color: "#4F8EF6" 
+      color: colorArray[0]
     },
     attendance: { 
       label: "Asistencias", 
-      color: "#22C55E" 
+      color: colorArray[1] 
     },
     revenue: { 
       label: "Ingresos", 
-      color: "#A855F7" 
+      color: colorArray[2]
     }
   };
 
@@ -138,7 +123,14 @@ const Dashboard = () => {
         <div className={isMobile ? "ml-14" : ""}>
           <h1 className="text-xl md:text-2xl font-bold text-text">Dashboard</h1>
         </div>
-        <div className="text-textSecondary text-sm md:text-base">Administrador</div>
+        <div className="text-textSecondary text-sm md:text-base">
+          {lastUpdated && (
+            <span className="text-xs mr-2">
+              Actualizado: {lastUpdated.toLocaleTimeString()}
+            </span>
+          )}
+          Administrador
+        </div>
       </div>
 
       {/* Tarjetas de resumen */}
@@ -146,13 +138,24 @@ const Dashboard = () => {
 
       {/* Gráficos principales, cada uno en su columna */}
       <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 my-10">
-        <MembershipChart data={membershipData} chartConfig={chartConfig} onRefresh={handleRefresh} />
-        <TypeDistribution data={membershipTypeData} colors={COLORS} onRefresh={handleRefresh} />
+        <MembershipChart 
+          data={membershipData} 
+          chartConfig={chartConfig} 
+          onRefresh={handleRefresh} 
+          isUpdating={updatingData} 
+        />
+        <TypeDistribution 
+          data={membershipTypeData} 
+          colors={colorArray} 
+          onRefresh={handleRefresh}
+          isUpdating={updatingData}
+        />
         <DetailedStats 
           attendanceData={attendanceData}
           revenueData={revenueData}
           chartConfig={chartConfig}
           onRefresh={handleRefresh}
+          isUpdating={updatingData}
         />
       </div>
     </div>

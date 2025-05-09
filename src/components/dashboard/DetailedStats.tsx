@@ -10,19 +10,25 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  ResponsiveContainer, 
-  LineChart,
-  Line,
-  Area,
+  ResponsiveContainer,
   AreaChart,
+  Area,
   ReferenceLine,
   Cell,
-  Legend
 } from 'recharts';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Download, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { attendanceServices, paymentServices } from '@/services/supabaseService';
+import { 
+  CHART_COLORS, 
+  tooltipStyle, 
+  barChartConfig, 
+  lineChartConfig,
+  referenceLineConfig,
+  chartContainerClass,
+  getAreaGradient,
+  getBarGradient
+} from './utils/chartConfig';
 
 interface AttendanceData {
   name: string;
@@ -46,13 +52,15 @@ interface DetailedStatsProps {
   revenueData: RevenueData[];
   chartConfig: ChartConfig;
   onRefresh?: () => void;
+  isUpdating?: boolean;
 }
 
 const DetailedStats: React.FC<DetailedStatsProps> = ({ 
   attendanceData, 
   revenueData, 
   chartConfig,
-  onRefresh
+  onRefresh,
+  isUpdating = false
 }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -116,7 +124,7 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
   const attendanceAverage = calculateAttendanceAverage();
 
   return (
-    <Card className="bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300 col-span-1 lg:col-span-1">
+    <Card className={`bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300 col-span-1 lg:col-span-1 ${isUpdating ? 'data-update' : ''}`}>
       <CardHeader className="p-5 border-b border-border/40">
         <div className="flex justify-between items-center">
           <CardTitle className="text-base md:text-lg text-text">Estadísticas Detalladas</CardTitle>
@@ -127,9 +135,9 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
                 size="sm" 
                 className="text-textSecondary hover:text-text hover:bg-accent/10 rounded-full h-8 w-8 p-0 flex items-center justify-center"
                 onClick={onRefresh}
-                disabled={isLoading}
+                disabled={isLoading || isUpdating}
               >
-                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-4 w-4 ${(isLoading || isUpdating) ? 'animate-spin' : ''}`} />
               </Button>
             )}
             <Button 
@@ -174,54 +182,54 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
             </TabsTrigger>
           </TabsList>
           <TabsContent value="asistencias" className="mt-0">
-            <div className="h-[260px] md:h-[300px] xl:h-[320px]">
+            <div className={`h-[260px] md:h-[300px] xl:h-[320px] ${chartContainerClass}`}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart 
                   data={attendanceData} 
                   margin={{ top: 20, right: 10, left: 0, bottom: 30 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E3E8F0" opacity={0.3} vertical={false} />
+                  <CartesianGrid 
+                    strokeDasharray={barChartConfig.gridStrokeDasharray} 
+                    stroke={CHART_COLORS.grid} 
+                    opacity={barChartConfig.gridOpacity} 
+                    vertical={false} 
+                  />
                   <XAxis 
                     dataKey="name" 
-                    stroke="#9F9EA1" 
-                    fontSize={12}
-                    tickLine={false}
+                    stroke={CHART_COLORS.textSecondary} 
+                    fontSize={barChartConfig.axisProps.fontSize}
+                    tickLine={barChartConfig.axisProps.tickLine}
                     axisLine={true}
                     padding={{ left: 10, right: 10 }}
                   />
                   <YAxis 
-                    stroke="#9F9EA1" 
-                    fontSize={12}
-                    tickLine={false}
+                    stroke={CHART_COLORS.textSecondary} 
+                    fontSize={barChartConfig.axisProps.fontSize}
+                    tickLine={barChartConfig.axisProps.tickLine}
                     axisLine={true}
                   />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #E3E8F0',
-                      borderRadius: '8px',
-                      boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                      fontSize: '12px'
-                    }}
+                    contentStyle={tooltipStyle.contentStyle}
                     formatter={(value) => [`${value} asistentes`, '']}
                     labelFormatter={(name) => `${name}`}
+                    cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
                   />
                   <ReferenceLine 
                     y={attendanceAverage} 
-                    stroke="#9F9EA1" 
-                    strokeDasharray="3 3" 
+                    stroke={referenceLineConfig.stroke} 
+                    strokeDasharray={referenceLineConfig.strokeDasharray} 
                     label={{ 
                       value: `Prom: ${attendanceAverage}`, 
                       position: 'right', 
-                      fill: '#9F9EA1', 
-                      fontSize: 10 
+                      fill: referenceLineConfig.label.fill, 
+                      fontSize: referenceLineConfig.label.fontSize
                     }} 
                   />
                   <Bar 
                     dataKey="asistencias" 
-                    radius={[4, 4, 0, 0]} 
+                    radius={barChartConfig.barRadius} 
                     name="Asistencias" 
-                    animationDuration={800}
+                    animationDuration={barChartConfig.animationDuration}
                   >
                     {attendanceData.map((entry, index) => (
                       <Cell 
@@ -239,8 +247,8 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
                           x2="0" 
                           y2="1"
                         >
-                          <stop offset="0%" stopColor="#4ECDC4" stopOpacity={0.8} />
-                          <stop offset="100%" stopColor="#FFFFFF" stopOpacity={0.2} />
+                          <stop offset="0%" stopColor={CHART_COLORS.primary} stopOpacity={0.8} />
+                          <stop offset="100%" stopColor={CHART_COLORS.background} stopOpacity={0.2} />
                         </linearGradient>
                       ))}
                     </defs>
@@ -253,52 +261,47 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
             </div>
           </TabsContent>
           <TabsContent value="ingresos" className="mt-0">
-            <div className="h-[260px] md:h-[300px] xl:h-[320px]">
+            <div className={`h-[260px] md:h-[300px] xl:h-[320px] ${chartContainerClass}`}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart 
                   data={revenueData} 
                   margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E3E8F0" opacity={0.3} vertical={false} />
+                  <CartesianGrid 
+                    strokeDasharray={lineChartConfig.gridStrokeDasharray} 
+                    stroke={CHART_COLORS.grid}
+                    opacity={lineChartConfig.gridOpacity}
+                    vertical={false} 
+                  />
                   <XAxis 
                     dataKey="name" 
-                    stroke="#9F9EA1" 
-                    fontSize={12}
-                    tickLine={false}
+                    stroke={CHART_COLORS.textSecondary} 
+                    fontSize={lineChartConfig.axisProps.fontSize}
+                    tickLine={lineChartConfig.axisProps.tickLine}
                     axisLine={true}
                   />
                   <YAxis 
-                    stroke="#9F9EA1" 
-                    fontSize={12}
-                    tickLine={false}
+                    stroke={CHART_COLORS.textSecondary} 
+                    fontSize={lineChartConfig.axisProps.fontSize}
+                    tickLine={lineChartConfig.axisProps.tickLine}
                     axisLine={true}
                   />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #E3E8F0',
-                      borderRadius: '8px',
-                      boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                      fontSize: '12px'
-                    }}
+                    contentStyle={tooltipStyle.contentStyle}
                     formatter={(value) => [`$${value.toLocaleString()}`, '']}
                     labelFormatter={(name) => `${name}`}
+                    cursor={{ stroke: CHART_COLORS.textSecondary, strokeDasharray: '3 3', strokeWidth: 1 }}
                   />
-                  <defs>
-                    <linearGradient id="colorIngresos" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4ECDC4" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#4ECDC4" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
+                  {getAreaGradient('colorIngresos')}
                   <Area 
                     type="monotone" 
                     dataKey="ingresos" 
-                    stroke="#4ECDC4" 
+                    stroke={CHART_COLORS.primary} 
                     fill="url(#colorIngresos)"
-                    strokeWidth={2}
-                    animationDuration={800}
-                    dot={{ r: 4, fill: "#4ECDC4", stroke: "white", strokeWidth: 2 }}
-                    activeDot={{ r: 6, fill: "#4ECDC4", stroke: "white", strokeWidth: 2 }}
+                    strokeWidth={lineChartConfig.strokeWidth}
+                    animationDuration={lineChartConfig.animationDuration}
+                    dot={{ r: lineChartConfig.dotRadius, fill: CHART_COLORS.primary, stroke: "var(--card)", strokeWidth: 2 }}
+                    activeDot={{ r: lineChartConfig.activeDotRadius, fill: CHART_COLORS.primary, stroke: "var(--card)", strokeWidth: 2 }}
                   />
                 </AreaChart>
               </ResponsiveContainer>

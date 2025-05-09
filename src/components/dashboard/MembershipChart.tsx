@@ -10,13 +10,20 @@ import {
   Tooltip, 
   ResponsiveContainer,
   LabelList,
-  Cell // Add this import
+  Cell
 } from 'recharts';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { ChartContainer } from '@/components/ui/chart';
 import { Download, ZoomIn, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { memberServices } from '@/services/supabaseService';
+import { 
+  CHART_COLORS, 
+  tooltipStyle, 
+  barChartConfig, 
+  colorArray,
+  chartContainerClass 
+} from './utils/chartConfig';
 
 interface MembershipData {
   name: string;
@@ -32,9 +39,15 @@ interface MembershipChartProps {
     };
   };
   onRefresh?: () => void;
+  isUpdating?: boolean;
 }
 
-const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig, onRefresh }) => {
+const MembershipChart: React.FC<MembershipChartProps> = ({ 
+  data, 
+  chartConfig, 
+  onRefresh,
+  isUpdating = false
+}) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
 
@@ -89,11 +102,8 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig, on
     console.log("Zoom chart functionality to be implemented");
   };
 
-  // Colores actualizados a tonos verdes agua y gris claro
-  const barColors = ['#4ECDC4', '#5DADE2', '#7DCEA0', '#7FB3D5'];
-
   return (
-    <Card className="bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300 col-span-1 lg:col-span-2">
+    <Card className={`bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300 col-span-1 lg:col-span-2 ${isUpdating ? 'data-update' : ''}`}>
       <CardHeader className="p-5 border-b border-border/40">
         <div className="flex justify-between items-center">
           <div>
@@ -109,9 +119,9 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig, on
                 size="sm" 
                 className="text-textSecondary hover:text-text hover:bg-accent/10 rounded-full h-8 w-8 p-0 flex items-center justify-center"
                 onClick={onRefresh}
-                disabled={isLoading}
+                disabled={isLoading || isUpdating}
               >
-                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-4 w-4 ${(isLoading || isUpdating) ? 'animate-spin' : ''}`} />
               </Button>
             )}
             <Button 
@@ -144,7 +154,7 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig, on
         </div>
       </CardHeader>
       <CardContent className="p-5 pt-6">
-        <div className="h-[260px] md:h-[300px] xl:h-[340px]">
+        <div className={`h-[260px] md:h-[300px] xl:h-[340px] ${chartContainerClass}`}>
           {data.length > 0 ? (
             <ChartContainer config={chartConfig}>
               <ResponsiveContainer width="100%" height="100%">
@@ -153,49 +163,49 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig, on
                   layout="vertical"
                   margin={{ top: 20, right: 40, left: 20, bottom: 10 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} horizontal={true} vertical={false} />
+                  <CartesianGrid 
+                    strokeDasharray={barChartConfig.gridStrokeDasharray} 
+                    stroke={CHART_COLORS.grid} 
+                    opacity={barChartConfig.gridOpacity} 
+                    horizontal={true} 
+                    vertical={false} 
+                  />
                   <XAxis 
                     type="number"
-                    stroke="#9F9EA1" 
-                    fontSize={12}
-                    tickLine={false}
+                    stroke={CHART_COLORS.textSecondary} 
+                    fontSize={barChartConfig.axisProps.fontSize}
+                    tickLine={barChartConfig.axisProps.tickLine}
                     axisLine={true}
                   />
                   <YAxis 
                     dataKey="name" 
                     type="category"
-                    stroke="#9F9EA1" 
-                    fontSize={12}
-                    tickLine={false}
+                    stroke={CHART_COLORS.textSecondary} 
+                    fontSize={barChartConfig.axisProps.fontSize}
+                    tickLine={barChartConfig.axisProps.tickLine}
                     axisLine={false}
                     width={100}
                   />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #E3E8F0',
-                      borderRadius: '8px',
-                      boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                      fontSize: '12px'
-                    }}
+                    contentStyle={tooltipStyle.contentStyle}
                     formatter={(value) => [`${value} miembros`, '']}
                     labelFormatter={(name) => `${name}`}
                   />
                   <Bar 
                     dataKey="miembros" 
-                    fill="#4ECDC4"
-                    radius={[0, 4, 4, 0]} 
+                    fill={CHART_COLORS.primary}
+                    radius={barChartConfig.horizontalBarRadius} 
                     name="Miembros"
-                    barSize={30}
-                    animationDuration={800}
+                    barSize={barChartConfig.barSize}
+                    animationDuration={barChartConfig.animationDuration}
                   >
                     <LabelList 
                       dataKey="miembros" 
                       position="right" 
-                      style={{ fill: '#5A6275', fontSize: '12px', fontWeight: '500' }} 
+                      style={{ fill: CHART_COLORS.text, fontSize: '12px', fontWeight: '500' }} 
                     />
                     {data.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={barColors[index % barColors.length]} />
+                      <Cell key={`cell-${index}`} fill={colorArray[index % colorArray.length]} />
                     ))}
                   </Bar>
                 </BarChart>

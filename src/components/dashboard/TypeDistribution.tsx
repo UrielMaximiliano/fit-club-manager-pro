@@ -1,11 +1,17 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PieChart, Pie, Cell, Legend, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Download, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { memberServices } from '@/services/supabaseService';
+import { 
+  CHART_COLORS,
+  pieChartConfig,
+  colorArray,
+  chartContainerClass
+} from './utils/chartConfig';
 
 interface MembershipTypeData {
   name: string;
@@ -16,14 +22,17 @@ interface TypeDistributionProps {
   data: MembershipTypeData[];
   colors: string[];
   onRefresh?: () => void;
+  isUpdating?: boolean;
 }
 
-const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRefresh }) => {
+const TypeDistribution: React.FC<TypeDistributionProps> = ({ 
+  data, 
+  colors, 
+  onRefresh,
+  isUpdating = false
+}) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Colores actualizados, tonos de verde agua y gris
-  const updatedColors = ['#4ECDC4', '#5DADE2', '#7DCEA0', '#7FB3D5', '#E5E8E8'];
 
   const handleDownload = async (type: 'json' | 'csv') => {
     setIsLoading(true);
@@ -109,7 +118,7 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRef
           <div key={`legend-${index}`} className="flex items-center">
             <div
               className="w-3 h-3 mr-1 rounded-sm"
-              style={{ backgroundColor: updatedColors[index % updatedColors.length] }}
+              style={{ backgroundColor: colorArray[index % colorArray.length] }}
             ></div>
             <span className="text-xs text-textSecondary">{entry.name}</span>
           </div>
@@ -119,7 +128,7 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRef
   };
 
   return (
-    <Card className="bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300">
+    <Card className={`bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300 ${isUpdating ? 'data-update' : ''}`}>
       <CardHeader className="p-5 border-b border-border/40">
         <div className="flex justify-between items-center">
           <div>
@@ -135,9 +144,9 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRef
                 size="sm" 
                 className="text-textSecondary hover:text-text hover:bg-accent/10 rounded-full h-8 w-8 p-0 flex items-center justify-center"
                 onClick={onRefresh}
-                disabled={isLoading}
+                disabled={isLoading || isUpdating}
               >
-                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-4 w-4 ${(isLoading || isUpdating) ? 'animate-spin' : ''}`} />
               </Button>
             )}
             <Button 
@@ -162,7 +171,7 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRef
         </div>
       </CardHeader>
       <CardContent className="p-5 pt-6">
-        <div className="h-[240px] md:h-[280px] xl:h-[300px] flex justify-center">
+        <div className={`h-[240px] md:h-[280px] xl:h-[300px] flex justify-center ${chartContainerClass}`}>
           {data.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -171,19 +180,19 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRef
                   cx="50%"
                   cy="45%"
                   labelLine={false}
-                  outerRadius={90}
-                  innerRadius={40}
+                  outerRadius={pieChartConfig.outerRadius}
+                  innerRadius={pieChartConfig.innerRadius}
                   fill="#8884d8"
                   dataKey="value"
                   nameKey="name"
                   label={renderLabel}
-                  animationDuration={800}
-                  paddingAngle={2}
+                  animationDuration={pieChartConfig.animationDuration}
+                  paddingAngle={pieChartConfig.paddingAngle}
                 >
                   {data.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`} 
-                      fill={updatedColors[index % updatedColors.length]} 
+                      fill={colorArray[index % colorArray.length]} 
                       stroke="var(--card)"
                       strokeWidth={2}
                     />

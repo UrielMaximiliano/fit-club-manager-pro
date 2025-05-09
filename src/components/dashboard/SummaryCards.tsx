@@ -5,6 +5,7 @@ import { UserCircle, CalendarCheck, Calendar, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { CHART_COLORS } from './utils/chartConfig';
 
 interface SummaryStats {
   activeMembers: number;
@@ -44,10 +45,10 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       previousValue: prevStats.activeMembers.toString(),
       description: "Miembros activos actualmente",
       icon: <UserCircle className="h-5 w-5 md:h-6 md:w-6 text-[#4ECDC4]" />,
-      color: "from-[#4ECDC4] to-[#5DADE2]",
-      bgColor: "bg-gradient-to-br from-[#F9FFFE] to-[#F0F9F9] dark:from-[#1E3635] dark:to-[#1A2F30]",
-      iconBg: "bg-[#E7F8F7] dark:bg-[#1A3432]",
-      textColor: "text-[#1B5954] dark:text-[#7BDDDA]",
+      color: "from-[#4ECDC4]/20 to-[#5DADE2]/20",
+      bgColor: "bg-gradient-to-br from-[#1A2832] to-[#1A2B30] dark:from-[#1E3635] dark:to-[#1A2F30]",
+      iconBg: "bg-[#1A3432]/50",
+      textColor: "text-[#4ECDC4]",
       action: () => navigate('/members'),
       tooltip: "Ver todos los miembros"
     },
@@ -57,10 +58,10 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       previousValue: prevStats.todayAttendance.toString(),
       description: "Visitantes del día",
       icon: <CalendarCheck className="h-5 w-5 md:h-6 md:w-6 text-[#5DADE2]" />,
-      color: "from-[#5DADE2] to-[#7FB3D5]",
-      bgColor: "bg-gradient-to-br from-[#F5F9FD] to-[#EDF7FC] dark:from-[#1E2C35] dark:to-[#1A2730]",
-      iconBg: "bg-[#EEF7FC] dark:bg-[#1A2E3E]",
-      textColor: "text-[#2471A3] dark:text-[#7FB3D5]",
+      color: "from-[#5DADE2]/20 to-[#7FB3D5]/20",
+      bgColor: "bg-gradient-to-br from-[#1A2832] to-[#1A2C38] dark:from-[#1E2C35] dark:to-[#1A2730]",
+      iconBg: "bg-[#1A2E3E]/50",
+      textColor: "text-[#5DADE2]",
       action: () => navigate('/attendance'),
       tooltip: "Ver asistencias del día"
     },
@@ -70,10 +71,10 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       previousValue: prevStats.updatedRoutines.toString(),
       description: "Esta semana",
       icon: <Calendar className="h-5 w-5 md:h-6 md:w-6 text-[#7DCEA0]" />,
-      color: "from-[#7DCEA0] to-[#82E0AA]",
-      bgColor: "bg-gradient-to-br from-[#F9FCFA] to-[#F0F9F2] dark:from-[#1E3525] dark:to-[#1A3020]",
-      iconBg: "bg-[#EDF8F3] dark:bg-[#1A3426]",
-      textColor: "text-[#27AE60] dark:text-[#82E0AA]",
+      color: "from-[#7DCEA0]/20 to-[#82E0AA]/20",
+      bgColor: "bg-gradient-to-br from-[#1A2832] to-[#1A2C32] dark:from-[#1E3525] dark:to-[#1A3020]",
+      iconBg: "bg-[#1A3426]/50",
+      textColor: "text-[#7DCEA0]",
       action: () => navigate('/routines'),
       tooltip: "Ver rutinas"
     },
@@ -83,10 +84,10 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       previousValue: `$${prevStats.monthlyRevenue.toLocaleString()}`,
       description: "Este mes",
       icon: <CreditCard className="h-5 w-5 md:h-6 md:w-6 text-[#9F9EA1]" />,
-      color: "from-[#9F9EA1] to-[#C8C8C9]",
-      bgColor: "bg-gradient-to-br from-[#FAFAFA] to-[#F5F5F6] dark:from-[#2A2A2C] dark:to-[#252527]",
-      iconBg: "bg-[#F5F5F5] dark:bg-[#2A2A2C]",
-      textColor: "text-[#5A5A5C] dark:text-[#C8C8C9]",
+      color: "from-[#9F9EA1]/20 to-[#C8C8C9]/20",
+      bgColor: "bg-gradient-to-br from-[#1A2832] to-[#21252F] dark:from-[#2A2A2C] dark:to-[#252527]",
+      iconBg: "bg-[#2A2A2C]/50",
+      textColor: "text-[#9F9EA1]",
       action: () => navigate('/payments'),
       tooltip: "Ver ingresos"
     }
@@ -108,7 +109,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
         {summaryCards.map((card, index) => (
           <Card 
             key={index} 
-            className={`border border-border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col justify-between min-h-[170px] ${card.bgColor}`}
+            className={`border border-border/40 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col justify-between min-h-[170px] ${card.bgColor}`}
           >
             <div className={`h-1.5 w-full bg-gradient-to-r ${card.color}`}></div>
             <CardHeader className="p-4 pb-1 flex-nowrap">

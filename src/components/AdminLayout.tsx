@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import AdminSidebar from './AdminSidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -9,6 +9,11 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const isMobile = useIsMobile();
+
+  // Ensure dark mode is applied
+  useEffect(() => {
+    document.documentElement.classList.add('dark');
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-[#1A1F2C] w-full">
