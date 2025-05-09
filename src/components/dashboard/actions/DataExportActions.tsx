@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
 interface ExportActionsProps {
   onExport: (type: 'json' | 'csv') => Promise<void>;

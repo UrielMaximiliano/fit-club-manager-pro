@@ -13,8 +13,7 @@ export interface RevenueData {
 
 export interface MembershipData {
   name: string;
-  activos: number;
-  inactivos: number;
+  miembros: number;
 }
 
 export interface MembershipTypeData {
