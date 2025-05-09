@@ -13,10 +13,7 @@ import {
   AreaChart,
   Area,
   ReferenceLine,
-  Cell,
-  Gradient,
-  LinearGradient,
-  Stop,
+  Cell
 } from 'recharts';
 import { Download, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';

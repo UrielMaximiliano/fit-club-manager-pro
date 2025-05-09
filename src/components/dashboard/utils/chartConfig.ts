@@ -1,5 +1,4 @@
 
-import { Theme } from 'recharts';
 import React from 'react';
 
 // Color palette for charts
@@ -19,7 +18,7 @@ export const CHART_COLORS = {
 };
 
 // Common chart theme for consistent styling
-export const chartTheme: Theme = {
+export const chartTheme = {
   colorScheme: 'dark',
 };
 
@@ -44,8 +43,8 @@ export const tooltipStyle = {
 // Bar chart configuration
 export const barChartConfig = {
   barSize: 30,
-  barRadius: [4, 4, 0, 0],
-  horizontalBarRadius: [0, 4, 4, 0],
+  barRadius: [4, 4, 0, 0] as [number, number, number, number],
+  horizontalBarRadius: [0, 4, 4, 0] as [number, number, number, number],
   animationDuration: 800,
   gridStrokeDasharray: '3 3',
   gridOpacity: 0.3,

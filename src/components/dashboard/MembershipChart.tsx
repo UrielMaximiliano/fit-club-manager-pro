@@ -10,9 +10,7 @@ import {
   Tooltip, 
   ResponsiveContainer,
   LabelList,
-  Cell,
-  LinearGradient,
-  Stop
+  Cell
 } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 import { Download, ZoomIn, RefreshCw } from 'lucide-react';
