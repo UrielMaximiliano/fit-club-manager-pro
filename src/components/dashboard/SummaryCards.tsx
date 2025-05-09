@@ -36,18 +36,18 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
     }
   }, [stats, prevStats]);
 
-  // Summary cards data
+  // Summary cards data con colores actualizados
   const summaryCards = [
     {
       title: "Miembros Activos",
       value: stats.activeMembers.toString(),
       previousValue: prevStats.activeMembers.toString(),
       description: "Miembros activos actualmente",
-      icon: <UserCircle className="h-5 w-5 md:h-6 md:w-6 text-blue-400" />,
-      color: "from-blue-500 to-blue-700",
-      bgColor: "bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20",
-      iconBg: "bg-blue-100 dark:bg-blue-700/30",
-      textColor: "text-blue-700 dark:text-blue-300",
+      icon: <UserCircle className="h-5 w-5 md:h-6 md:w-6 text-[#4ECDC4]" />,
+      color: "from-[#4ECDC4] to-[#5DADE2]",
+      bgColor: "bg-gradient-to-br from-[#F9FFFE] to-[#F0F9F9] dark:from-[#1E3635] dark:to-[#1A2F30]",
+      iconBg: "bg-[#E7F8F7] dark:bg-[#1A3432]",
+      textColor: "text-[#1B5954] dark:text-[#7BDDDA]",
       action: () => navigate('/members'),
       tooltip: "Ver todos los miembros"
     },
@@ -56,11 +56,11 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       value: stats.todayAttendance.toString(),
       previousValue: prevStats.todayAttendance.toString(),
       description: "Visitantes del día",
-      icon: <CalendarCheck className="h-5 w-5 md:h-6 md:w-6 text-green-400" />,
-      color: "from-green-500 to-green-700",
-      bgColor: "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20",
-      iconBg: "bg-green-100 dark:bg-green-700/30",
-      textColor: "text-green-700 dark:text-green-300",
+      icon: <CalendarCheck className="h-5 w-5 md:h-6 md:w-6 text-[#5DADE2]" />,
+      color: "from-[#5DADE2] to-[#7FB3D5]",
+      bgColor: "bg-gradient-to-br from-[#F5F9FD] to-[#EDF7FC] dark:from-[#1E2C35] dark:to-[#1A2730]",
+      iconBg: "bg-[#EEF7FC] dark:bg-[#1A2E3E]",
+      textColor: "text-[#2471A3] dark:text-[#7FB3D5]",
       action: () => navigate('/attendance'),
       tooltip: "Ver asistencias del día"
     },
@@ -69,11 +69,11 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       value: stats.updatedRoutines.toString(),
       previousValue: prevStats.updatedRoutines.toString(),
       description: "Esta semana",
-      icon: <Calendar className="h-5 w-5 md:h-6 md:w-6 text-amber-400" />,
-      color: "from-amber-500 to-amber-700",
-      bgColor: "bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20",
-      iconBg: "bg-amber-100 dark:bg-amber-700/30",
-      textColor: "text-amber-700 dark:text-amber-300",
+      icon: <Calendar className="h-5 w-5 md:h-6 md:w-6 text-[#7DCEA0]" />,
+      color: "from-[#7DCEA0] to-[#82E0AA]",
+      bgColor: "bg-gradient-to-br from-[#F9FCFA] to-[#F0F9F2] dark:from-[#1E3525] dark:to-[#1A3020]",
+      iconBg: "bg-[#EDF8F3] dark:bg-[#1A3426]",
+      textColor: "text-[#27AE60] dark:text-[#82E0AA]",
       action: () => navigate('/routines'),
       tooltip: "Ver rutinas"
     },
@@ -82,11 +82,11 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       value: `$${stats.monthlyRevenue.toLocaleString()}`,
       previousValue: `$${prevStats.monthlyRevenue.toLocaleString()}`,
       description: "Este mes",
-      icon: <CreditCard className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />,
-      color: "from-purple-500 to-purple-700",
-      bgColor: "bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20",
-      iconBg: "bg-purple-100 dark:bg-purple-700/30",
-      textColor: "text-purple-700 dark:text-purple-300",
+      icon: <CreditCard className="h-5 w-5 md:h-6 md:w-6 text-[#9F9EA1]" />,
+      color: "from-[#9F9EA1] to-[#C8C8C9]",
+      bgColor: "bg-gradient-to-br from-[#FAFAFA] to-[#F5F5F6] dark:from-[#2A2A2C] dark:to-[#252527]",
+      iconBg: "bg-[#F5F5F5] dark:bg-[#2A2A2C]",
+      textColor: "text-[#5A5A5C] dark:text-[#C8C8C9]",
       action: () => navigate('/payments'),
       tooltip: "Ver ingresos"
     }

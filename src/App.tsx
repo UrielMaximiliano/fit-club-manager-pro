@@ -18,7 +18,6 @@ import Settings from "./pages/Settings";
 import ProtectedRouteAuth from "./components/ProtectedRouteAuth";
 import AdminLayout from "./components/AdminLayout";
 import { AuthProvider } from "./contexts/AuthContext";
-import ThemeToggle from './components/ThemeToggle';
 
 const queryClient = new QueryClient();
 

@@ -10,7 +10,14 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  ResponsiveContainer 
+  ResponsiveContainer, 
+  LineChart,
+  Line,
+  Area,
+  AreaChart,
+  ReferenceLine,
+  Cell,
+  Legend
 } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Download, RefreshCw } from 'lucide-react';
@@ -99,8 +106,17 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
     setIsLoading(false);
   };
 
+  // Calcular el promedio de asistencias
+  const calculateAttendanceAverage = () => {
+    if (!attendanceData || attendanceData.length === 0) return 0;
+    const sum = attendanceData.reduce((acc, curr) => acc + curr.asistencias, 0);
+    return Math.round(sum / attendanceData.length);
+  };
+
+  const attendanceAverage = calculateAttendanceAverage();
+
   return (
-    <Card className="bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300 col-span-1 lg:col-span-2">
+    <Card className="bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300 col-span-1 lg:col-span-1">
       <CardHeader className="p-5 border-b border-border/40">
         <div className="flex justify-between items-center">
           <CardTitle className="text-base md:text-lg text-text">Estadísticas Detalladas</CardTitle>
@@ -159,41 +175,78 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
           </TabsList>
           <TabsContent value="asistencias" className="mt-0">
             <div className="h-[260px] md:h-[300px] xl:h-[320px]">
-              <ChartContainer config={chartConfig}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart 
-                    data={attendanceData} 
-                    margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart 
+                  data={attendanceData} 
+                  margin={{ top: 20, right: 10, left: 0, bottom: 30 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E3E8F0" opacity={0.3} vertical={false} />
+                  <XAxis 
+                    dataKey="name" 
+                    stroke="#9F9EA1" 
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={true}
+                    padding={{ left: 10, right: 10 }}
+                  />
+                  <YAxis 
+                    stroke="#9F9EA1" 
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={true}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'white',
+                      border: '1px solid #E3E8F0',
+                      borderRadius: '8px',
+                      boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                      fontSize: '12px'
+                    }}
+                    formatter={(value) => [`${value} asistentes`, '']}
+                    labelFormatter={(name) => `${name}`}
+                  />
+                  <ReferenceLine 
+                    y={attendanceAverage} 
+                    stroke="#9F9EA1" 
+                    strokeDasharray="3 3" 
+                    label={{ 
+                      value: `Prom: ${attendanceAverage}`, 
+                      position: 'right', 
+                      fill: '#9F9EA1', 
+                      fontSize: 10 
+                    }} 
+                  />
+                  <Bar 
+                    dataKey="asistencias" 
+                    radius={[4, 4, 0, 0]} 
+                    name="Asistencias" 
+                    animationDuration={800}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.4} vertical={false} />
-                    <XAxis 
-                      dataKey="name" 
-                      stroke="var(--text-secondary)" 
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={true}
-                    />
-                    <YAxis 
-                      stroke="var(--text-secondary)" 
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={true}
-                    />
-                    <ChartTooltip 
-                      content={<ChartTooltipContent />}
-                      cursor={{fill: 'var(--accent)', opacity: 0.1}}
-                    />
-                    <Bar 
-                      dataKey="asistencias" 
-                      fill="#22C55E" 
-                      radius={[4, 4, 0, 0]} 
-                      name="Asistencias" 
-                      animationBegin={0}
-                      animationDuration={800}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartContainer>
+                    {attendanceData.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={`url(#colorGradient${index})`} 
+                      />
+                    ))}
+                    <defs>
+                      {attendanceData.map((entry, index) => (
+                        <linearGradient 
+                          key={`gradient-${index}`}
+                          id={`colorGradient${index}`} 
+                          x1="0" 
+                          y1="0" 
+                          x2="0" 
+                          y2="1"
+                        >
+                          <stop offset="0%" stopColor="#4ECDC4" stopOpacity={0.8} />
+                          <stop offset="100%" stopColor="#FFFFFF" stopOpacity={0.2} />
+                        </linearGradient>
+                      ))}
+                    </defs>
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
             <div className="text-center mt-3">
               <p className="text-sm text-textSecondary">Asistencias diarias - Última semana</p>
@@ -201,41 +254,54 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
           </TabsContent>
           <TabsContent value="ingresos" className="mt-0">
             <div className="h-[260px] md:h-[300px] xl:h-[320px]">
-              <ChartContainer config={chartConfig}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart 
-                    data={revenueData} 
-                    margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.4} vertical={false} />
-                    <XAxis 
-                      dataKey="name" 
-                      stroke="var(--text-secondary)" 
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={true}
-                    />
-                    <YAxis 
-                      stroke="var(--text-secondary)" 
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={true}
-                    />
-                    <ChartTooltip 
-                      content={<ChartTooltipContent />}
-                      cursor={{fill: 'var(--accent)', opacity: 0.1}}
-                    />
-                    <Bar 
-                      dataKey="ingresos" 
-                      fill="#A855F7" 
-                      radius={[4, 4, 0, 0]} 
-                      name="Ingresos" 
-                      animationBegin={0}
-                      animationDuration={800}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartContainer>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart 
+                  data={revenueData} 
+                  margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E3E8F0" opacity={0.3} vertical={false} />
+                  <XAxis 
+                    dataKey="name" 
+                    stroke="#9F9EA1" 
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={true}
+                  />
+                  <YAxis 
+                    stroke="#9F9EA1" 
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={true}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'white',
+                      border: '1px solid #E3E8F0',
+                      borderRadius: '8px',
+                      boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                      fontSize: '12px'
+                    }}
+                    formatter={(value) => [`$${value.toLocaleString()}`, '']}
+                    labelFormatter={(name) => `${name}`}
+                  />
+                  <defs>
+                    <linearGradient id="colorIngresos" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#4ECDC4" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#4ECDC4" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <Area 
+                    type="monotone" 
+                    dataKey="ingresos" 
+                    stroke="#4ECDC4" 
+                    fill="url(#colorIngresos)"
+                    strokeWidth={2}
+                    animationDuration={800}
+                    dot={{ r: 4, fill: "#4ECDC4", stroke: "white", strokeWidth: 2 }}
+                    activeDot={{ r: 6, fill: "#4ECDC4", stroke: "white", strokeWidth: 2 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
             <div className="text-center mt-3">
               <p className="text-sm text-textSecondary">Ingresos mensuales - Últimos 6 meses</p>

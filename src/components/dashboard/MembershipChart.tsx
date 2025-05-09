@@ -8,7 +8,8 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  ResponsiveContainer
+  ResponsiveContainer,
+  LabelList
 } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Download, ZoomIn, RefreshCw } from 'lucide-react';
@@ -87,14 +88,17 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig, on
     console.log("Zoom chart functionality to be implemented");
   };
 
+  // Colores actualizados a tonos verdes agua y gris claro
+  const barColors = ['#4ECDC4', '#5DADE2', '#7DCEA0', '#7FB3D5'];
+
   return (
     <Card className="bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300 col-span-1 lg:col-span-2">
       <CardHeader className="p-5 border-b border-border/40">
         <div className="flex justify-between items-center">
           <div>
-            <CardTitle className="text-base md:text-lg text-text">Análisis de Membresías</CardTitle>
+            <CardTitle className="text-base md:text-lg text-text">Membresías Activas</CardTitle>
             <CardDescription className="text-sm text-textSecondary mt-1">
-              Evolución de miembros en los últimos 6 meses
+              Distribución por tipo de membresía
             </CardDescription>
           </div>
           <div className="flex gap-1">
@@ -145,35 +149,54 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig, on
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart 
                   data={data} 
-                  margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
+                  layout="vertical"
+                  margin={{ top: 20, right: 40, left: 20, bottom: 10 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.4} vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} horizontal={true} vertical={false} />
                   <XAxis 
-                    dataKey="name" 
-                    stroke="var(--text-secondary)" 
+                    type="number"
+                    stroke="#9F9EA1" 
                     fontSize={12}
                     tickLine={false}
                     axisLine={true}
-                    padding={{ left: 10, right: 10 }}
                   />
                   <YAxis 
-                    stroke="var(--text-secondary)" 
+                    dataKey="name" 
+                    type="category"
+                    stroke="#9F9EA1" 
                     fontSize={12}
                     tickLine={false}
-                    axisLine={true}
+                    axisLine={false}
+                    width={100}
                   />
-                  <ChartTooltip 
-                    content={<ChartTooltipContent />}
-                    cursor={{fill: 'var(--accent)', opacity: 0.1}}
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'white',
+                      border: '1px solid #E3E8F0',
+                      borderRadius: '8px',
+                      boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                      fontSize: '12px'
+                    }}
+                    formatter={(value) => [`${value} miembros`, '']}
+                    labelFormatter={(name) => `${name}`}
                   />
                   <Bar 
                     dataKey="miembros" 
-                    fill="var(--accent)" 
-                    radius={[4, 4, 0, 0]} 
+                    fill="#4ECDC4"
+                    radius={[0, 4, 4, 0]} 
                     name="Miembros"
-                    animationBegin={0}
+                    barSize={30}
                     animationDuration={800}
-                  />
+                  >
+                    <LabelList 
+                      dataKey="miembros" 
+                      position="right" 
+                      style={{ fill: '#5A6275', fontSize: '12px', fontWeight: '500' }} 
+                    />
+                    {data.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={barColors[index % barColors.length]} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>

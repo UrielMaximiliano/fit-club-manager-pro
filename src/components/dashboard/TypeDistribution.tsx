@@ -21,6 +21,9 @@ interface TypeDistributionProps {
 const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRefresh }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Colores actualizados, tonos de verde agua y gris
+  const updatedColors = ['#4ECDC4', '#5DADE2', '#7DCEA0', '#7FB3D5', '#E5E8E8'];
 
   const handleDownload = async (type: 'json' | 'csv') => {
     setIsLoading(true);
@@ -90,6 +93,9 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRef
           <p className="text-sm text-textSecondary">
             <span className="font-semibold">{payload[0].value}</span> miembros
           </p>
+          <p className="text-xs text-textSecondary mt-1">
+            {((payload[0].value / data.reduce((acc, curr) => acc + curr.value, 0)) * 100).toFixed(1)}% del total
+          </p>
         </div>
       );
     }
@@ -103,7 +109,7 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRef
           <div key={`legend-${index}`} className="flex items-center">
             <div
               className="w-3 h-3 mr-1 rounded-sm"
-              style={{ backgroundColor: colors[index % colors.length] }}
+              style={{ backgroundColor: updatedColors[index % updatedColors.length] }}
             ></div>
             <span className="text-xs text-textSecondary">{entry.name}</span>
           </div>
@@ -166,17 +172,18 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRef
                   cy="45%"
                   labelLine={false}
                   outerRadius={90}
+                  innerRadius={40}
                   fill="#8884d8"
                   dataKey="value"
                   nameKey="name"
                   label={renderLabel}
-                  animationBegin={0}
                   animationDuration={800}
+                  paddingAngle={2}
                 >
                   {data.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`} 
-                      fill={colors[index % colors.length]} 
+                      fill={updatedColors[index % updatedColors.length]} 
                       stroke="var(--card)"
                       strokeWidth={2}
                     />
