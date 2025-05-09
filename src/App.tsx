@@ -19,7 +19,6 @@ import Settings from "./pages/Settings";
 import ProtectedRouteAuth from "./components/ProtectedRouteAuth";
 import AdminLayout from "./components/AdminLayout";
 import { AuthProvider } from "./contexts/AuthContext";
-import ThemeToggle from "./components/ThemeToggle"; // Add this import
 
 const queryClient = new QueryClient();
 
@@ -30,9 +29,6 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <header className="w-full flex justify-end items-center p-4 bg-background border-b border-border">
-            <ThemeToggle />
-          </header>
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />
