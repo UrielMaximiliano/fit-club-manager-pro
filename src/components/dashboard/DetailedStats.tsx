@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,6 +14,9 @@ import {
   Area,
   ReferenceLine,
   Cell,
+  Gradient,
+  LinearGradient,
+  Stop,
 } from 'recharts';
 import { Download, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -26,8 +28,11 @@ import {
   lineChartConfig,
   referenceLineConfig,
   chartContainerClass,
-  getAreaGradient,
-  getBarGradient
+  createAreaGradient,
+  createBarGradient,
+  getAreaGradientId,
+  getBarGradientId,
+  GRADIENT_IDS,
 } from './utils/chartConfig';
 
 interface AttendanceData {
@@ -225,6 +230,30 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
                       fontSize: referenceLineConfig.label.fontSize
                     }} 
                   />
+                  <defs>
+                    {attendanceData.map((entry, index) => {
+                      const gradient = createBarGradient(GRADIENT_IDS.bar, index);
+                      return (
+                        <linearGradient 
+                          key={`gradient-${index}`}
+                          id={gradient.id}
+                          x1={gradient.x1}
+                          y1={gradient.y1}
+                          x2={gradient.x2}
+                          y2={gradient.y2}
+                        >
+                          {gradient.stops.map((stop, stopIndex) => (
+                            <stop 
+                              key={`stop-${stopIndex}`}
+                              offset={stop.offset}
+                              stopColor={stop.stopColor}
+                              stopOpacity={stop.stopOpacity}
+                            />
+                          ))}
+                        </linearGradient>
+                      );
+                    })}
+                  </defs>
                   <Bar 
                     dataKey="asistencias" 
                     radius={barChartConfig.barRadius} 
@@ -234,24 +263,9 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
                     {attendanceData.map((entry, index) => (
                       <Cell 
                         key={`cell-${index}`} 
-                        fill={`url(#colorGradient${index})`} 
+                        fill={getBarGradientId(GRADIENT_IDS.bar, index)} 
                       />
                     ))}
-                    <defs>
-                      {attendanceData.map((entry, index) => (
-                        <linearGradient 
-                          key={`gradient-${index}`}
-                          id={`colorGradient${index}`} 
-                          x1="0" 
-                          y1="0" 
-                          x2="0" 
-                          y2="1"
-                        >
-                          <stop offset="0%" stopColor={CHART_COLORS.primary} stopOpacity={0.8} />
-                          <stop offset="100%" stopColor={CHART_COLORS.background} stopOpacity={0.2} />
-                        </linearGradient>
-                      ))}
-                    </defs>
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -292,12 +306,34 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
                     labelFormatter={(name) => `${name}`}
                     cursor={{ stroke: CHART_COLORS.textSecondary, strokeDasharray: '3 3', strokeWidth: 1 }}
                   />
-                  {getAreaGradient('colorIngresos')}
+                  <defs>
+                    {(() => {
+                      const gradient = createAreaGradient(GRADIENT_IDS.area);
+                      return (
+                        <linearGradient 
+                          id={gradient.id}
+                          x1={gradient.x1}
+                          y1={gradient.y1}
+                          x2={gradient.x2}
+                          y2={gradient.y2}
+                        >
+                          {gradient.stops.map((stop, stopIndex) => (
+                            <stop 
+                              key={`stop-${stopIndex}`}
+                              offset={stop.offset}
+                              stopColor={stop.stopColor}
+                              stopOpacity={stop.stopOpacity}
+                            />
+                          ))}
+                        </linearGradient>
+                      );
+                    })()}
+                  </defs>
                   <Area 
                     type="monotone" 
                     dataKey="ingresos" 
                     stroke={CHART_COLORS.primary} 
-                    fill="url(#colorIngresos)"
+                    fill={getAreaGradientId(GRADIENT_IDS.area)}
                     strokeWidth={lineChartConfig.strokeWidth}
                     animationDuration={lineChartConfig.animationDuration}
                     dot={{ r: lineChartConfig.dotRadius, fill: CHART_COLORS.primary, stroke: "var(--card)", strokeWidth: 2 }}

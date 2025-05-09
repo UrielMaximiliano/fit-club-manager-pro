@@ -10,7 +10,9 @@ import {
   Tooltip, 
   ResponsiveContainer,
   LabelList,
-  Cell
+  Cell,
+  LinearGradient,
+  Stop
 } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
 import { Download, ZoomIn, RefreshCw } from 'lucide-react';
@@ -22,7 +24,10 @@ import {
   tooltipStyle, 
   barChartConfig, 
   colorArray,
-  chartContainerClass 
+  chartContainerClass,
+  createBarGradient,
+  getBarGradientId,
+  GRADIENT_IDS
 } from './utils/chartConfig';
 
 interface MembershipData {
@@ -191,6 +196,30 @@ const MembershipChart: React.FC<MembershipChartProps> = ({
                     formatter={(value) => [`${value} miembros`, '']}
                     labelFormatter={(name) => `${name}`}
                   />
+                  <defs>
+                    {data.map((entry, index) => {
+                      const gradient = createBarGradient(GRADIENT_IDS.bar, index);
+                      return (
+                        <linearGradient 
+                          key={`gradient-${index}`}
+                          id={gradient.id}
+                          x1={gradient.x1}
+                          y1={gradient.y1}
+                          x2={gradient.x2}
+                          y2={gradient.y2}
+                        >
+                          {gradient.stops.map((stop, stopIndex) => (
+                            <stop 
+                              key={`stop-${stopIndex}`}
+                              offset={stop.offset}
+                              stopColor={stop.stopColor}
+                              stopOpacity={stop.stopOpacity}
+                            />
+                          ))}
+                        </linearGradient>
+                      );
+                    })}
+                  </defs>
                   <Bar 
                     dataKey="miembros" 
                     fill={CHART_COLORS.primary}
@@ -205,7 +234,10 @@ const MembershipChart: React.FC<MembershipChartProps> = ({
                       style={{ fill: CHART_COLORS.text, fontSize: '12px', fontWeight: '500' }} 
                     />
                     {data.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={colorArray[index % colorArray.length]} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={colorArray[index % colorArray.length]} 
+                      />
                     ))}
                   </Bar>
                 </BarChart>

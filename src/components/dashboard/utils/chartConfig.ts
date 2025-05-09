@@ -1,5 +1,6 @@
 
 import { Theme } from 'recharts';
+import React from 'react';
 
 // Color palette for charts
 export const CHART_COLORS = {
@@ -95,28 +96,65 @@ export const referenceLineConfig = {
 // Shared chart canvas container style
 export const chartContainerClass = "w-full h-full transition-all duration-300 ease-in-out";
 
-// Gradient definitions commonly used
-export const getAreaGradient = (id: string) => (
-  <defs>
-    <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-      <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.8}/>
-      <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0}/>
-    </linearGradient>
-  </defs>
-);
+// Gradient IDs for consistent reference
+export const GRADIENT_IDS = {
+  area: 'areaGradient',
+  bar: 'barGradient',
+};
 
-export const getBarGradient = (id: string, index: number) => (
-  <linearGradient 
-    id={id} 
-    x1="0" 
-    y1="0" 
-    x2="0" 
-    y2="1"
-  >
-    <stop offset="0%" stopColor={CHART_COLORS.primary} stopOpacity={0.8} />
-    <stop offset="100%" stopColor={CHART_COLORS.background} stopOpacity={0.2} />
-  </linearGradient>
-);
+// Gradient definitions as objects (not JSX)
+export const getAreaGradientId = (id: string): string => {
+  return `url(#${id})`;
+};
+
+export const getBarGradientId = (id: string, index: number): string => {
+  return `url(#${id}${index})`;
+};
+
+// These functions return React elements and should be used in TSX files
+export const createAreaGradient = (id: string) => {
+  return {
+    id: id,
+    x1: '0',
+    y1: '0',
+    x2: '0',
+    y2: '1',
+    stops: [
+      {
+        offset: '5%',
+        stopColor: CHART_COLORS.primary,
+        stopOpacity: 0.8
+      },
+      {
+        offset: '95%',
+        stopColor: CHART_COLORS.primary,
+        stopOpacity: 0
+      }
+    ]
+  };
+};
+
+export const createBarGradient = (id: string, index: number) => {
+  return {
+    id: `${id}${index}`,
+    x1: '0',
+    y1: '0',
+    x2: '0',
+    y2: '1',
+    stops: [
+      {
+        offset: '0%',
+        stopColor: CHART_COLORS.primary,
+        stopOpacity: 0.8
+      },
+      {
+        offset: '100%',
+        stopColor: CHART_COLORS.background,
+        stopOpacity: 0.2
+      }
+    ]
+  };
+};
 
 // Export color array for consistent usage across charts
 export const colorArray = [
