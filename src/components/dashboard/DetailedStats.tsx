@@ -100,56 +100,59 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
   };
 
   return (
-    <Card className="bg-card border border-border shadow-lg col-span-1 lg:col-span-2">
-      <CardHeader className="p-5">
+    <Card className="bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300 col-span-1 lg:col-span-2">
+      <CardHeader className="p-5 border-b border-border/40">
         <div className="flex justify-between items-center">
           <CardTitle className="text-base md:text-lg text-text">Estadísticas Detalladas</CardTitle>
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             {onRefresh && (
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="text-textSecondary hover:text-text hover:bg-accent/10 rounded-full h-8 w-8 p-0 flex items-center justify-center"
                 onClick={onRefresh}
+                disabled={isLoading}
               >
-                <RefreshCw className="h-5 w-5" />
+                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
               </Button>
             )}
             <Button 
               variant="ghost" 
               size="sm" 
-              className="text-gray-400 hover:text-white hover:bg-gray-800"
+              className="text-textSecondary hover:text-text hover:bg-accent/10 rounded-full h-8 w-8 p-0 flex items-center justify-center"
               onClick={() => handleDownload('json')}
+              disabled={isLoading}
             >
-              <Download className="h-5 w-5" />
+              <Download className="h-4 w-4" />
             </Button>
             <Button 
-              variant="ghost" 
+              variant="outline" 
               size="sm" 
-              className="text-gray-400 hover:text-white hover:bg-gray-800"
+              className="text-xs text-textSecondary hover:text-text h-8"
               onClick={() => handleDownload('csv')}
+              disabled={isLoading}
             >
               CSV
             </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-5 pt-0">
+      <CardContent className="p-5 pt-6">
         <Tabs 
           defaultValue="asistencias" 
           className="w-full"
           onValueChange={(value) => setActiveTab(value as 'asistencias' | 'ingresos')}
         >
-          <TabsList className="grid w-full grid-cols-2 h-auto bg-gray-100 dark:bg-[#222732] mb-4">
+          <TabsList className="grid w-full grid-cols-2 h-auto bg-muted rounded-lg mb-4">
             <TabsTrigger 
               value="asistencias"
-              className="text-sm md:text-base py-3 data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+              className="text-sm md:text-base py-2.5 data-[state=active]:bg-accent data-[state=active]:text-white rounded-md"
             >
               Asistencias
             </TabsTrigger>
             <TabsTrigger 
               value="ingresos" 
-              className="text-sm md:text-base py-3 data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+              className="text-sm md:text-base py-2.5 data-[state=active]:bg-accent data-[state=active]:text-white rounded-md"
             >
               Ingresos
             </TabsTrigger>
@@ -162,12 +165,23 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
                     data={attendanceData} 
                     margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-                    <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} />
-                    <YAxis stroke="#9ca3af" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.4} vertical={false} />
+                    <XAxis 
+                      dataKey="name" 
+                      stroke="var(--text-secondary)" 
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={true}
+                    />
+                    <YAxis 
+                      stroke="var(--text-secondary)" 
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={true}
+                    />
                     <ChartTooltip 
                       content={<ChartTooltipContent />}
-                      cursor={{fill: 'rgba(0, 0, 0, 0.05)'}}
+                      cursor={{fill: 'var(--accent)', opacity: 0.1}}
                     />
                     <Bar 
                       dataKey="asistencias" 
@@ -182,7 +196,7 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
               </ChartContainer>
             </div>
             <div className="text-center mt-3">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Asistencias diarias - Última semana</p>
+              <p className="text-sm text-textSecondary">Asistencias diarias - Última semana</p>
             </div>
           </TabsContent>
           <TabsContent value="ingresos" className="mt-0">
@@ -193,12 +207,23 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
                     data={revenueData} 
                     margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-                    <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} />
-                    <YAxis stroke="#9ca3af" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.4} vertical={false} />
+                    <XAxis 
+                      dataKey="name" 
+                      stroke="var(--text-secondary)" 
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={true}
+                    />
+                    <YAxis 
+                      stroke="var(--text-secondary)" 
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={true}
+                    />
                     <ChartTooltip 
                       content={<ChartTooltipContent />}
-                      cursor={{fill: 'rgba(0, 0, 0, 0.05)'}}
+                      cursor={{fill: 'var(--accent)', opacity: 0.1}}
                     />
                     <Bar 
                       dataKey="ingresos" 
@@ -213,7 +238,7 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
               </ChartContainer>
             </div>
             <div className="text-center mt-3">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Ingresos mensuales - Últimos 6 meses</p>
+              <p className="text-sm text-textSecondary">Ingresos mensuales - Últimos 6 meses</p>
             </div>
           </TabsContent>
         </Tabs>

@@ -45,6 +45,9 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       description: "Miembros activos actualmente",
       icon: <UserCircle className="h-5 w-5 md:h-6 md:w-6 text-blue-400" />,
       color: "from-blue-500 to-blue-700",
+      bgColor: "bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20",
+      iconBg: "bg-blue-100 dark:bg-blue-700/30",
+      textColor: "text-blue-700 dark:text-blue-300",
       action: () => navigate('/members'),
       tooltip: "Ver todos los miembros"
     },
@@ -55,6 +58,9 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       description: "Visitantes del día",
       icon: <CalendarCheck className="h-5 w-5 md:h-6 md:w-6 text-green-400" />,
       color: "from-green-500 to-green-700",
+      bgColor: "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20",
+      iconBg: "bg-green-100 dark:bg-green-700/30",
+      textColor: "text-green-700 dark:text-green-300",
       action: () => navigate('/attendance'),
       tooltip: "Ver asistencias del día"
     },
@@ -65,6 +71,9 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       description: "Esta semana",
       icon: <Calendar className="h-5 w-5 md:h-6 md:w-6 text-amber-400" />,
       color: "from-amber-500 to-amber-700",
+      bgColor: "bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20",
+      iconBg: "bg-amber-100 dark:bg-amber-700/30",
+      textColor: "text-amber-700 dark:text-amber-300",
       action: () => navigate('/routines'),
       tooltip: "Ver rutinas"
     },
@@ -75,25 +84,43 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
       description: "Este mes",
       icon: <CreditCard className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />,
       color: "from-purple-500 to-purple-700",
+      bgColor: "bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20",
+      iconBg: "bg-purple-100 dark:bg-purple-700/30",
+      textColor: "text-purple-700 dark:text-purple-300",
       action: () => navigate('/payments'),
       tooltip: "Ver ingresos"
     }
   ];
 
+  // Clase para la animación del valor cuando cambia
+  const getValueClass = (index: number) => {
+    const baseClass = "text-base sm:text-lg md:text-xl font-bold mb-2 transition-all duration-300 ease-in-out";
+    if (isAnimating && prevStats[Object.keys(prevStats)[index] as keyof SummaryStats] !== 
+        stats[Object.keys(stats)[index] as keyof SummaryStats]) {
+      return `${baseClass} transform scale-110`;
+    }
+    return baseClass;
+  };
+
   return (
     <TooltipProvider>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {summaryCards.map((card, index) => (
-          <Card key={index} className="bg-card border border-border shadow-lg overflow-hidden hover:bg-blue-50 transition-colors flex flex-col justify-between min-h-[170px]">
+          <Card 
+            key={index} 
+            className={`border border-border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col justify-between min-h-[170px] ${card.bgColor}`}
+          >
             <div className={`h-1.5 w-full bg-gradient-to-r ${card.color}`}></div>
             <CardHeader className="p-4 pb-1 flex-nowrap">
               <div className="flex justify-between items-center">
-                <CardTitle className="text-sm sm:text-base text-text">{card.title}</CardTitle>
-                {card.icon}
+                <CardTitle className="text-sm sm:text-base text-text font-semibold">{card.title}</CardTitle>
+                <div className={`rounded-full p-2 ${card.iconBg}`}>
+                  {card.icon}
+                </div>
               </div>
             </CardHeader>
-            <CardContent className="p-4 pt-2 flex flex-col flex-1 justify-between">
-              <div className="text-base sm:text-lg md:text-xl font-bold text-text mb-2">{card.value}</div>
+            <CardContent className="p-4 pt-0 flex flex-col flex-1 justify-between">
+              <div className={`${card.textColor} ${getValueClass(index)}`}>{card.value}</div>
               <div className="flex justify-between items-center mt-auto">
                 <p className="text-xs sm:text-sm text-textSecondary truncate mr-2">{card.description}</p>
                 <Tooltip>
@@ -101,13 +128,15 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ stats }) => {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="text-xs sm:text-sm text-accent hover:text-white p-0 h-auto whitespace-nowrap"
+                      className={`text-xs sm:text-sm hover:bg-opacity-10 p-0 h-auto whitespace-nowrap ${card.textColor} hover:${card.textColor}`}
                       onClick={card.action}
                     >
                       Detalles
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>{card.tooltip}</TooltipContent>
+                  <TooltipContent className="bg-card border border-border shadow-md">
+                    {card.tooltip}
+                  </TooltipContent>
                 </Tooltip>
               </div>
             </CardContent>

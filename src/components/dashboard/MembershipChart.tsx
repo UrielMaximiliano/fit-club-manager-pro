@@ -88,8 +88,8 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig, on
   };
 
   return (
-    <Card className="bg-card border border-border shadow-lg col-span-1 lg:col-span-2">
-      <CardHeader className="p-5">
+    <Card className="bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300 col-span-1 lg:col-span-2">
+      <CardHeader className="p-5 border-b border-border/40">
         <div className="flex justify-between items-center">
           <div>
             <CardTitle className="text-base md:text-lg text-text">Análisis de Membresías</CardTitle>
@@ -97,82 +97,91 @@ const MembershipChart: React.FC<MembershipChartProps> = ({ data, chartConfig, on
               Evolución de miembros en los últimos 6 meses
             </CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             {onRefresh && (
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-gray-400 hover:text-white hover:bg-gray-800"
+                className="text-textSecondary hover:text-text hover:bg-accent/10 rounded-full h-8 w-8 p-0 flex items-center justify-center"
                 onClick={onRefresh}
+                disabled={isLoading}
               >
-                <RefreshCw className="h-5 w-5" />
+                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
               </Button>
             )}
             <Button 
               variant="ghost" 
               size="sm" 
-              className="text-gray-400 hover:text-white hover:bg-gray-800"
+              className="text-textSecondary hover:text-text hover:bg-accent/10 rounded-full h-8 w-8 p-0 flex items-center justify-center"
               onClick={handleZoom}
             >
-              <ZoomIn className="h-5 w-5" />
+              <ZoomIn className="h-4 w-4" />
             </Button>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="text-gray-400 hover:text-white hover:bg-gray-800"
+              className="text-textSecondary hover:text-text hover:bg-accent/10 rounded-full h-8 w-8 p-0 flex items-center justify-center"
               onClick={() => handleDownload('json')}
+              disabled={isLoading}
             >
-              <Download className="h-5 w-5" />
+              <Download className="h-4 w-4" />
             </Button>
             <Button 
-              variant="ghost" 
+              variant="outline" 
               size="sm" 
-              className="text-gray-400 hover:text-white hover:bg-gray-800"
+              className="text-xs text-textSecondary hover:text-text h-8"
               onClick={() => handleDownload('csv')}
+              disabled={isLoading}
             >
               CSV
             </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-5 pt-0">
+      <CardContent className="p-5 pt-6">
         <div className="h-[260px] md:h-[300px] xl:h-[340px]">
-          <ChartContainer config={chartConfig}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart 
-                data={data} 
-                margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                <XAxis 
-                  dataKey="name" 
-                  stroke="#999" 
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={true}
-                  padding={{ left: 10, right: 10 }}
-                />
-                <YAxis 
-                  stroke="#999" 
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={true}
-                />
-                <ChartTooltip 
-                  content={<ChartTooltipContent />}
-                  cursor={{fill: 'rgba(255, 255, 255, 0.05)'}}
-                />
-                <Bar 
-                  dataKey="miembros" 
-                  fill="#4F8EF6" 
-                  radius={[4, 4, 0, 0]} 
-                  name="Miembros"
-                  animationBegin={0} 
-                  animationDuration={800}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
+          {data.length > 0 ? (
+            <ChartContainer config={chartConfig}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart 
+                  data={data} 
+                  margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.4} vertical={false} />
+                  <XAxis 
+                    dataKey="name" 
+                    stroke="var(--text-secondary)" 
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={true}
+                    padding={{ left: 10, right: 10 }}
+                  />
+                  <YAxis 
+                    stroke="var(--text-secondary)" 
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={true}
+                  />
+                  <ChartTooltip 
+                    content={<ChartTooltipContent />}
+                    cursor={{fill: 'var(--accent)', opacity: 0.1}}
+                  />
+                  <Bar 
+                    dataKey="miembros" 
+                    fill="var(--accent)" 
+                    radius={[4, 4, 0, 0]} 
+                    name="Miembros"
+                    animationBegin={0}
+                    animationDuration={800}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          ) : (
+            <div className="flex items-center justify-center h-full text-textSecondary">
+              No hay datos disponibles
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

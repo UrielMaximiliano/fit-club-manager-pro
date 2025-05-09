@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Legend, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Download, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -82,13 +82,30 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRef
     return `${(percent * 100).toFixed(0)}%`;
   };
 
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-card p-3 border border-border rounded-md shadow-md">
+          <p className="font-medium text-text">{payload[0].name}</p>
+          <p className="text-sm text-textSecondary">
+            <span className="font-semibold">{payload[0].value}</span> miembros
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   const renderCustomizedLegend = () => {
     return (
       <div className="flex justify-center flex-wrap gap-4 mt-4">
         {data.map((entry, index) => (
           <div key={`legend-${index}`} className="flex items-center">
-            <div className="w-3 h-3 mr-1" style={{ backgroundColor: colors[index % colors.length] }}></div>
-            <span className="text-xs text-gray-500 dark:text-gray-300">{entry.name}</span>
+            <div
+              className="w-3 h-3 mr-1 rounded-sm"
+              style={{ backgroundColor: colors[index % colors.length] }}
+            ></div>
+            <span className="text-xs text-textSecondary">{entry.name}</span>
           </div>
         ))}
       </div>
@@ -96,8 +113,8 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRef
   };
 
   return (
-    <Card className="bg-card border border-border shadow-lg">
-      <CardHeader className="p-5">
+    <Card className="bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300">
+      <CardHeader className="p-5 border-b border-border/40">
         <div className="flex justify-between items-center">
           <div>
             <CardTitle className="text-base md:text-lg text-text">Distribución de Membresías</CardTitle>
@@ -105,37 +122,40 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRef
               Tipos de membresías activas
             </CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             {onRefresh && (
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="text-textSecondary hover:text-text hover:bg-accent/10 rounded-full h-8 w-8 p-0 flex items-center justify-center"
                 onClick={onRefresh}
+                disabled={isLoading}
               >
-                <RefreshCw className="h-5 w-5" />
+                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
               </Button>
             )}
             <Button 
               variant="ghost" 
               size="sm" 
-              className="text-gray-400 hover:text-white hover:bg-gray-800"
+              className="text-textSecondary hover:text-text hover:bg-accent/10 rounded-full h-8 w-8 p-0 flex items-center justify-center"
               onClick={() => handleDownload('json')}
+              disabled={isLoading}
             >
-              <Download className="h-5 w-5" />
+              <Download className="h-4 w-4" />
             </Button>
             <Button 
-              variant="ghost" 
+              variant="outline" 
               size="sm" 
-              className="text-gray-400 hover:text-white hover:bg-gray-800"
+              className="text-xs text-textSecondary hover:text-text h-8"
               onClick={() => handleDownload('csv')}
+              disabled={isLoading}
             >
               CSV
             </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-5 pt-0">
+      <CardContent className="p-5 pt-6">
         <div className="h-[240px] md:h-[280px] xl:h-[300px] flex justify-center">
           {data.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
@@ -154,17 +174,19 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({ data, colors, onRef
                   animationDuration={800}
                 >
                   {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={colors[index % colors.length]} 
+                      stroke="var(--card)"
+                      strokeWidth={2}
+                    />
                   ))}
                 </Pie>
-                <Tooltip 
-                  formatter={(value, name) => [`${value} miembros`, name]}
-                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', padding: '10px', color: '#000' }}
-                />
+                <RechartsTooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-full text-gray-500">
+            <div className="flex items-center justify-center h-full text-textSecondary">
               No hay datos disponibles
             </div>
           )}
