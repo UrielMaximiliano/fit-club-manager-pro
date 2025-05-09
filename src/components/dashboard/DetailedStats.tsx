@@ -1,36 +1,14 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  ReferenceLine,
-  Cell
-} from 'recharts';
-import { Download, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { attendanceServices, paymentServices } from '@/services/supabaseService';
-import { 
-  CHART_COLORS, 
-  tooltipStyle, 
-  barChartConfig, 
-  lineChartConfig,
-  referenceLineConfig,
-  chartContainerClass,
-  createAreaGradient,
-  createBarGradient,
-  getAreaGradientId,
-  getBarGradientId,
-  GRADIENT_IDS,
-} from './utils/chartConfig';
+import AttendanceBarChart from './charts/AttendanceBarChart';
+import RevenueAreaChart from './charts/RevenueAreaChart';
+import DataExportActions from './actions/DataExportActions';
 
 interface AttendanceData {
   name: string;
@@ -67,6 +45,15 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'asistencias' | 'ingresos'>('asistencias');
+
+  // Calcular el promedio de asistencias
+  const calculateAttendanceAverage = () => {
+    if (!attendanceData || attendanceData.length === 0) return 0;
+    const sum = attendanceData.reduce((acc, curr) => acc + curr.asistencias, 0);
+    return Math.round(sum / attendanceData.length);
+  };
+
+  const attendanceAverage = calculateAttendanceAverage();
 
   const handleDownload = async (type: 'json' | 'csv') => {
     setIsLoading(true);
@@ -116,15 +103,6 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
     setIsLoading(false);
   };
 
-  // Calcular el promedio de asistencias
-  const calculateAttendanceAverage = () => {
-    if (!attendanceData || attendanceData.length === 0) return 0;
-    const sum = attendanceData.reduce((acc, curr) => acc + curr.asistencias, 0);
-    return Math.round(sum / attendanceData.length);
-  };
-
-  const attendanceAverage = calculateAttendanceAverage();
-
   return (
     <Card className={`bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300 col-span-1 lg:col-span-1 ${isUpdating ? 'data-update' : ''}`}>
       <CardHeader className="p-5 border-b border-border/40">
@@ -142,24 +120,10 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
                 <RefreshCw className={`h-4 w-4 ${(isLoading || isUpdating) ? 'animate-spin' : ''}`} />
               </Button>
             )}
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-textSecondary hover:text-text hover:bg-accent/10 rounded-full h-8 w-8 p-0 flex items-center justify-center"
-              onClick={() => handleDownload('json')}
-              disabled={isLoading}
-            >
-              <Download className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="text-xs text-textSecondary hover:text-text h-8"
-              onClick={() => handleDownload('csv')}
-              disabled={isLoading}
-            >
-              CSV
-            </Button>
+            <DataExportActions 
+              onExport={handleDownload}
+              isLoading={isLoading}
+            />
           </div>
         </div>
       </CardHeader>
@@ -184,164 +148,13 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
             </TabsTrigger>
           </TabsList>
           <TabsContent value="asistencias" className="mt-0">
-            <div className={`h-[260px] md:h-[300px] xl:h-[320px] ${chartContainerClass}`}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart 
-                  data={attendanceData} 
-                  margin={{ top: 20, right: 10, left: 0, bottom: 30 }}
-                >
-                  <CartesianGrid 
-                    strokeDasharray={barChartConfig.gridStrokeDasharray} 
-                    stroke={CHART_COLORS.grid} 
-                    opacity={barChartConfig.gridOpacity} 
-                    vertical={false} 
-                  />
-                  <XAxis 
-                    dataKey="name" 
-                    stroke={CHART_COLORS.textSecondary} 
-                    fontSize={barChartConfig.axisProps.fontSize}
-                    tickLine={barChartConfig.axisProps.tickLine}
-                    axisLine={true}
-                    padding={{ left: 10, right: 10 }}
-                  />
-                  <YAxis 
-                    stroke={CHART_COLORS.textSecondary} 
-                    fontSize={barChartConfig.axisProps.fontSize}
-                    tickLine={barChartConfig.axisProps.tickLine}
-                    axisLine={true}
-                  />
-                  <Tooltip
-                    contentStyle={tooltipStyle.contentStyle}
-                    formatter={(value) => [`${value} asistentes`, '']}
-                    labelFormatter={(name) => `${name}`}
-                    cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
-                  />
-                  <ReferenceLine 
-                    y={attendanceAverage} 
-                    stroke={referenceLineConfig.stroke} 
-                    strokeDasharray={referenceLineConfig.strokeDasharray} 
-                    label={{ 
-                      value: `Prom: ${attendanceAverage}`, 
-                      position: 'right', 
-                      fill: referenceLineConfig.label.fill, 
-                      fontSize: referenceLineConfig.label.fontSize
-                    }} 
-                  />
-                  <defs>
-                    {attendanceData.map((entry, index) => {
-                      const gradient = createBarGradient(GRADIENT_IDS.bar, index);
-                      return (
-                        <linearGradient 
-                          key={`gradient-${index}`}
-                          id={gradient.id}
-                          x1={gradient.x1}
-                          y1={gradient.y1}
-                          x2={gradient.x2}
-                          y2={gradient.y2}
-                        >
-                          {gradient.stops.map((stop, stopIndex) => (
-                            <stop 
-                              key={`stop-${stopIndex}`}
-                              offset={stop.offset}
-                              stopColor={stop.stopColor}
-                              stopOpacity={stop.stopOpacity}
-                            />
-                          ))}
-                        </linearGradient>
-                      );
-                    })}
-                  </defs>
-                  <Bar 
-                    dataKey="asistencias" 
-                    radius={barChartConfig.barRadius} 
-                    name="Asistencias" 
-                    animationDuration={barChartConfig.animationDuration}
-                  >
-                    {attendanceData.map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={getBarGradientId(GRADIENT_IDS.bar, index)} 
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="text-center mt-3">
-              <p className="text-sm text-textSecondary">Asistencias diarias - Última semana</p>
-            </div>
+            <AttendanceBarChart 
+              data={attendanceData}
+              average={attendanceAverage}
+            />
           </TabsContent>
           <TabsContent value="ingresos" className="mt-0">
-            <div className={`h-[260px] md:h-[300px] xl:h-[320px] ${chartContainerClass}`}>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart 
-                  data={revenueData} 
-                  margin={{ top: 20, right: 30, left: 0, bottom: 10 }}
-                >
-                  <CartesianGrid 
-                    strokeDasharray={lineChartConfig.gridStrokeDasharray} 
-                    stroke={CHART_COLORS.grid}
-                    opacity={lineChartConfig.gridOpacity}
-                    vertical={false} 
-                  />
-                  <XAxis 
-                    dataKey="name" 
-                    stroke={CHART_COLORS.textSecondary} 
-                    fontSize={lineChartConfig.axisProps.fontSize}
-                    tickLine={lineChartConfig.axisProps.tickLine}
-                    axisLine={true}
-                  />
-                  <YAxis 
-                    stroke={CHART_COLORS.textSecondary} 
-                    fontSize={lineChartConfig.axisProps.fontSize}
-                    tickLine={lineChartConfig.axisProps.tickLine}
-                    axisLine={true}
-                  />
-                  <Tooltip
-                    contentStyle={tooltipStyle.contentStyle}
-                    formatter={(value) => [`$${value.toLocaleString()}`, '']}
-                    labelFormatter={(name) => `${name}`}
-                    cursor={{ stroke: CHART_COLORS.textSecondary, strokeDasharray: '3 3', strokeWidth: 1 }}
-                  />
-                  <defs>
-                    {(() => {
-                      const gradient = createAreaGradient(GRADIENT_IDS.area);
-                      return (
-                        <linearGradient 
-                          id={gradient.id}
-                          x1={gradient.x1}
-                          y1={gradient.y1}
-                          x2={gradient.x2}
-                          y2={gradient.y2}
-                        >
-                          {gradient.stops.map((stop, stopIndex) => (
-                            <stop 
-                              key={`stop-${stopIndex}`}
-                              offset={stop.offset}
-                              stopColor={stop.stopColor}
-                              stopOpacity={stop.stopOpacity}
-                            />
-                          ))}
-                        </linearGradient>
-                      );
-                    })()}
-                  </defs>
-                  <Area 
-                    type="monotone" 
-                    dataKey="ingresos" 
-                    stroke={CHART_COLORS.primary} 
-                    fill={getAreaGradientId(GRADIENT_IDS.area)}
-                    strokeWidth={lineChartConfig.strokeWidth}
-                    animationDuration={lineChartConfig.animationDuration}
-                    dot={{ r: lineChartConfig.dotRadius, fill: CHART_COLORS.primary, stroke: "var(--card)", strokeWidth: 2 }}
-                    activeDot={{ r: lineChartConfig.activeDotRadius, fill: CHART_COLORS.primary, stroke: "var(--card)", strokeWidth: 2 }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="text-center mt-3">
-              <p className="text-sm text-textSecondary">Ingresos mensuales - Últimos 6 meses</p>
-            </div>
+            <RevenueAreaChart data={revenueData} />
           </TabsContent>
         </Tabs>
       </CardContent>
