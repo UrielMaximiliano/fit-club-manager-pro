@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,6 +19,7 @@ import Settings from "./pages/Settings";
 import ProtectedRouteAuth from "./components/ProtectedRouteAuth";
 import AdminLayout from "./components/AdminLayout";
 import { AuthProvider } from "./contexts/AuthContext";
+import ThemeToggle from "./components/ThemeToggle"; // Add this import
 
 const queryClient = new QueryClient();
 

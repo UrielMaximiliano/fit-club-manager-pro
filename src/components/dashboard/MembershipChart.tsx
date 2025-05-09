@@ -9,7 +9,8 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  LabelList
+  LabelList,
+  Cell // Add this import
 } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Download, ZoomIn, RefreshCw } from 'lucide-react';
