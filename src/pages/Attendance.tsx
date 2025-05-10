@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Member, Attendance, memberServices, attendanceServices } from '@/services/supabaseService';
+import { Member, Attendance, memberServices, attendanceServices } from '@/services';
 
 export default function AttendancePage() {
   const [attendances, setAttendances] = useState<Attendance[]>([]);

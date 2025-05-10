@@ -1,25 +1,13 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
-import { Button } from '@/components/ui/button';
-import { Download, RefreshCw } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { MembershipExport } from './actions/MembershipExport';
 import { useToast } from '@/hooks/use-toast';
-import { memberServices } from '@/services/supabaseService';
-import { 
-  CHART_COLORS,
-  pieChartConfig,
-  colorArray,
-  chartContainerClass
-} from './utils/chartConfig';
-
-interface MembershipTypeData {
-  name: string;
-  value: number;
-}
+import { memberServices } from '@/services';
 
 interface TypeDistributionProps {
-  data: MembershipTypeData[];
+  data: { name: string; value: number }[];
   colors: string[];
   onRefresh?: () => void;
   isUpdating?: boolean;
@@ -27,187 +15,59 @@ interface TypeDistributionProps {
 
 const TypeDistribution: React.FC<TypeDistributionProps> = ({ 
   data, 
-  colors, 
+  colors,
   onRefresh,
   isUpdating = false
 }) => {
+  const isMobile = useIsMobile();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleDownload = async (type: 'json' | 'csv') => {
-    setIsLoading(true);
-    try {
-      // Obtener miembros frescos de Supabase y calcular la distribución
-      const freshMembers = await memberServices.getAll();
-      const membershipTypes = {};
-      freshMembers.forEach(m => {
-        if (membershipTypes[m.membership_type]) {
-          membershipTypes[m.membership_type]++;
-        } else {
-          membershipTypes[m.membership_type] = 1;
-        }
-      });
-      const freshData = Object.entries(membershipTypes).map(([name, value]) => ({ name, value }));
-      if (!freshData || freshData.length === 0) {
-        toast({
-          title: 'Sin datos',
-          description: 'No hay datos para exportar',
-          variant: 'destructive',
-        });
-        setIsLoading(false);
-        return;
-      }
-      let dataStr = '';
-      let fileName = '';
-      if (type === 'json') {
-        dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(freshData));
-        fileName = 'membership_types.json';
-      } else {
-        // CSV
-        const header = Object.keys(freshData[0]).join(',');
-        const rows = freshData.map(row => Object.values(row).join(','));
-        dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent([header, ...rows].join('\n'));
-        fileName = 'membership_types.csv';
-      }
-      const downloadAnchorNode = document.createElement('a');
-      downloadAnchorNode.setAttribute('href', dataStr);
-      downloadAnchorNode.setAttribute('download', fileName);
-      document.body.appendChild(downloadAnchorNode);
-      downloadAnchorNode.click();
-      downloadAnchorNode.remove();
-      toast({
-        title: 'Descarga exitosa',
-        description: `Archivo ${fileName} descargado correctamente`,
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'No se pudo obtener los datos actualizados',
-        variant: 'destructive',
-      });
-    }
-    setIsLoading(false);
-  };
-
-  const renderLabel = ({ name, percent }: { name: string; percent: number }) => {
-    // Show percentages next to the pie segments
-    return `${(percent * 100).toFixed(0)}%`;
-  };
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-card p-3 border border-border rounded-md shadow-md">
-          <p className="font-medium text-text">{payload[0].name}</p>
-          <p className="text-sm text-textSecondary">
-            <span className="font-semibold">{payload[0].value}</span> miembros
-          </p>
-          <p className="text-xs text-textSecondary mt-1">
-            {((payload[0].value / data.reduce((acc, curr) => acc + curr.value, 0)) * 100).toFixed(1)}% del total
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const renderCustomizedLegend = () => {
+  if (!data || data.length === 0) {
     return (
-      <div className="flex justify-center flex-wrap gap-4 mt-4">
-        {data.map((entry, index) => (
-          <div key={`legend-${index}`} className="flex items-center">
-            <div
-              className="w-3 h-3 mr-1 rounded-sm"
-              style={{ backgroundColor: colorArray[index % colorArray.length] }}
-            ></div>
-            <span className="text-xs text-textSecondary">{entry.name}</span>
-          </div>
-        ))}
-      </div>
+      <Card className="bg-background border-border shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Membership Type Distribution</CardTitle>
+          <MembershipExport onRefresh={onRefresh} isUpdating={isUpdating} />
+        </CardHeader>
+        <CardContent>
+          <div className="text-center text-muted-foreground">No data available</div>
+        </CardContent>
+      </Card>
     );
-  };
+  }
 
   return (
-    <Card className={`bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300 ${isUpdating ? 'data-update' : ''}`}>
-      <CardHeader className="p-5 border-b border-border/40">
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle className="text-base md:text-lg text-text">Distribución de Membresías</CardTitle>
-            <CardDescription className="text-sm text-textSecondary mt-1">
-              Tipos de membresías activas
-            </CardDescription>
-          </div>
-          <div className="flex gap-1">
-            {onRefresh && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-textSecondary hover:text-text hover:bg-accent/10 rounded-full h-8 w-8 p-0 flex items-center justify-center"
-                onClick={onRefresh}
-                disabled={isLoading || isUpdating}
-              >
-                <RefreshCw className={`h-4 w-4 ${(isLoading || isUpdating) ? 'animate-spin' : ''}`} />
-              </Button>
-            )}
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-textSecondary hover:text-text hover:bg-accent/10 rounded-full h-8 w-8 p-0 flex items-center justify-center"
-              onClick={() => handleDownload('json')}
-              disabled={isLoading}
-            >
-              <Download className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="text-xs text-textSecondary hover:text-text h-8"
-              onClick={() => handleDownload('csv')}
-              disabled={isLoading}
-            >
-              CSV
-            </Button>
-          </div>
+    <Card className="bg-background border-border shadow-sm">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <div>
+          <CardTitle className="text-sm font-medium">Membership Type Distribution</CardTitle>
+          <CardDescription className="text-xs text-muted-foreground">
+            Breakdown of membership types
+          </CardDescription>
         </div>
+        <MembershipExport onRefresh={onRefresh} isUpdating={isUpdating} />
       </CardHeader>
-      <CardContent className="p-5 pt-6">
-        <div className={`h-[240px] md:h-[280px] xl:h-[300px] flex justify-center ${chartContainerClass}`}>
-          {data.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={data}
-                  cx="50%"
-                  cy="45%"
-                  labelLine={false}
-                  outerRadius={pieChartConfig.outerRadius}
-                  innerRadius={pieChartConfig.innerRadius}
-                  fill="#8884d8"
-                  dataKey="value"
-                  nameKey="name"
-                  label={renderLabel}
-                  animationDuration={pieChartConfig.animationDuration}
-                  paddingAngle={pieChartConfig.paddingAngle}
-                >
-                  {data.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={colorArray[index % colorArray.length]} 
-                      stroke="var(--card)"
-                      strokeWidth={2}
-                    />
-                  ))}
-                </Pie>
-                <RechartsTooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="flex items-center justify-center h-full text-textSecondary">
-              No hay datos disponibles
-            </div>
-          )}
-        </div>
-        {data.length > 0 && renderCustomizedLegend()}
+      <CardContent>
+        <ResponsiveContainer width="100%" height={200}>
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              label={isMobile ? null : ({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+              outerRadius={80}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {data.map((_, index) => (
+                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
       </CardContent>
     </Card>
   );

@@ -1,36 +1,16 @@
-
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
+import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { MembershipExport } from '../dashboard/actions/MembershipExport';
+import { ChartTabs } from './ChartTabs';
 import { useToast } from '@/hooks/use-toast';
-import { attendanceServices, paymentServices } from '@/services/supabaseService';
-import AttendanceBarChart from './charts/AttendanceBarChart';
-import RevenueAreaChart from './charts/RevenueAreaChart';
-import DataExportActions from './actions/DataExportActions';
-
-interface AttendanceData {
-  name: string;
-  asistencias: number;
-}
-
-interface RevenueData {
-  name: string;
-  ingresos: number;
-}
-
-interface ChartConfig {
-  [key: string]: {
-    label: string;
-    color: string;
-  };
-}
+import { attendanceServices, paymentServices } from '@/services';
 
 interface DetailedStatsProps {
-  attendanceData: AttendanceData[];
-  revenueData: RevenueData[];
-  chartConfig: ChartConfig;
+  attendanceData: { day: string; asistencias: number }[];
+  revenueData: { payment_date: string; amount: number }[];
+  chartConfig: any;
   onRefresh?: () => void;
   isUpdating?: boolean;
 }
@@ -40,123 +20,96 @@ const DetailedStats: React.FC<DetailedStatsProps> = ({
   revenueData, 
   chartConfig,
   onRefresh,
-  isUpdating = false
+  isUpdating
 }) => {
+  const isMobile = useIsMobile();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'asistencias' | 'ingresos'>('asistencias');
+  const [activeTab, setActiveTab] = React.useState('attendance');
 
-  // Calcular el promedio de asistencias
-  const calculateAttendanceAverage = () => {
-    if (!attendanceData || attendanceData.length === 0) return 0;
-    const sum = attendanceData.reduce((acc, curr) => acc + curr.asistencias, 0);
-    return Math.round(sum / attendanceData.length);
-  };
+  // Preparar datos de ingresos mensuales
+  const monthlyRevenueData = React.useMemo(() => {
+    const monthlyData: { month: string; revenue: number }[] = [];
+    const monthlyRevenueMap: { [key: string]: number } = {};
 
-  const attendanceAverage = calculateAttendanceAverage();
+    revenueData.forEach(item => {
+      const date = new Date(item.payment_date);
+      const monthYear = `${date.toLocaleString('default', { month: 'short' })}-${date.getFullYear()}`;
 
-  const handleDownload = async (type: 'json' | 'csv') => {
-    setIsLoading(true);
-    try {
-      // Obtener datos frescos de Supabase
-      const freshAttendance = await attendanceServices.getAll();
-      const freshRevenue = await paymentServices.getAll();
-      const data = activeTab === 'asistencias' ? freshAttendance : freshRevenue;
-      if (!data || data.length === 0) {
-        toast({
-          title: 'Sin datos',
-          description: 'No hay datos para exportar',
-          variant: 'destructive',
-        });
-        setIsLoading(false);
-        return;
-      }
-      let dataStr = '';
-      let fileName = '';
-      if (type === 'json') {
-        dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-        fileName = activeTab === 'asistencias' ? 'attendance_data.json' : 'revenue_data.json';
+      if (monthlyRevenueMap[monthYear]) {
+        monthlyRevenueMap[monthYear] += item.amount;
       } else {
-        // CSV
-        const header = Object.keys(data[0]).join(',');
-        const rows = data.map(row => Object.values(row).join(','));
-        dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent([header, ...rows].join('\n'));
-        fileName = activeTab === 'asistencias' ? 'attendance_data.csv' : 'revenue_data.csv';
+        monthlyRevenueMap[monthYear] = item.amount;
       }
-      const downloadAnchorNode = document.createElement('a');
-      downloadAnchorNode.setAttribute('href', dataStr);
-      downloadAnchorNode.setAttribute('download', fileName);
-      document.body.appendChild(downloadAnchorNode);
-      downloadAnchorNode.click();
-      downloadAnchorNode.remove();
-      toast({
-        title: 'Descarga exitosa',
-        description: `Archivo ${fileName} descargado correctamente`,
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'No se pudo obtener los datos actualizados',
-        variant: 'destructive',
+    });
+
+    for (const monthYear in monthlyRevenueMap) {
+      monthlyData.push({
+        month: monthYear,
+        revenue: monthlyRevenueMap[monthYear]
       });
     }
-    setIsLoading(false);
-  };
+
+    return monthlyData;
+  }, [revenueData]);
 
   return (
-    <Card className={`bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300 col-span-1 lg:col-span-1 ${isUpdating ? 'data-update' : ''}`}>
-      <CardHeader className="p-5 border-b border-border/40">
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-base md:text-lg text-text">Estadísticas Detalladas</CardTitle>
-          <div className="flex gap-1">
-            {onRefresh && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-textSecondary hover:text-text hover:bg-accent/10 rounded-full h-8 w-8 p-0 flex items-center justify-center"
-                onClick={onRefresh}
-                disabled={isLoading || isUpdating}
-              >
-                <RefreshCw className={`h-4 w-4 ${(isLoading || isUpdating) ? 'animate-spin' : ''}`} />
-              </Button>
-            )}
-            <DataExportActions 
-              onExport={handleDownload}
-              isLoading={isLoading}
-            />
-          </div>
+    <Card className="bg-[#1A1F2C] border-gray-700 text-white">
+      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+        <div className="space-y-0.5">
+          <CardTitle className="text-lg font-semibold">Estadísticas Detalladas</CardTitle>
+          <CardDescription className="text-gray-400">
+            Asistencias y Ingresos mensuales
+          </CardDescription>
         </div>
+        <MembershipExport onRefresh={onRefresh} isUpdating={isUpdating} />
       </CardHeader>
-      <CardContent className="p-5 pt-6">
-        <Tabs 
-          defaultValue="asistencias" 
-          className="w-full"
-          onValueChange={(value) => setActiveTab(value as 'asistencias' | 'ingresos')}
-        >
-          <TabsList className="grid w-full grid-cols-2 h-auto bg-muted rounded-lg mb-4">
-            <TabsTrigger 
-              value="asistencias"
-              className="text-sm md:text-base py-2.5 data-[state=active]:bg-accent data-[state=active]:text-white rounded-md"
-            >
-              Asistencias
-            </TabsTrigger>
-            <TabsTrigger 
-              value="ingresos" 
-              className="text-sm md:text-base py-2.5 data-[state=active]:bg-accent data-[state=active]:text-white rounded-md"
-            >
-              Ingresos
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="asistencias" className="mt-0">
-            <AttendanceBarChart 
-              data={attendanceData}
-              average={attendanceAverage}
-            />
-          </TabsContent>
-          <TabsContent value="ingresos" className="mt-0">
-            <RevenueAreaChart data={revenueData} />
-          </TabsContent>
-        </Tabs>
+      <CardContent>
+        <ChartTabs 
+          tabs={[
+            { label: 'Asistencias', value: 'attendance' },
+            { label: 'Ingresos', value: 'revenue' }
+          ]}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
+        {activeTab === 'attendance' && (
+          <>
+            {attendanceData.length > 0 ? (
+              <div className="h-[250px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={attendanceData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                    <XAxis dataKey="day" stroke="#999" />
+                    <YAxis stroke="#999" />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="asistencias" stroke={chartConfig.members.color} name="Asistencias" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="text-center text-gray-500">No hay datos de asistencia disponibles.</div>
+            )}
+          </>
+        )}
+        {activeTab === 'revenue' && (
+          <>
+            {monthlyRevenueData.length > 0 ? (
+              <div className="h-[250px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={monthlyRevenueData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                    <XAxis dataKey="month" stroke="#999" />
+                    <YAxis stroke="#999" />
+                    <Tooltip formatter={(value) => `$${value}`} />
+                    <Legend />
+                    <Line type="monotone" dataKey="revenue" stroke={chartConfig.members.color} name="Ingresos" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="text-center text-gray-500">No hay datos de ingresos disponibles.</div>
+            )}
+          </>
+        )}
       </CardContent>
     </Card>
   );

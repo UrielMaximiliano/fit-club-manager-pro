@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Member, Membership, Payment, memberServices, membershipServices, paymentServices } from '@/services/supabaseService';
+import { Member, Membership, Payment, memberServices, membershipServices, paymentServices } from '@/services';
 
 export default function Payments() {
   const [payments, setPayments] = useState<Payment[]>([]);

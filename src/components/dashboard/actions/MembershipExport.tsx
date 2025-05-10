@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, ZoomIn, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { memberServices } from '@/services/supabaseService';
+import { memberServices } from '@/services';
 import DataExportActions from './DataExportActions';
 
 interface MembershipExportProps {

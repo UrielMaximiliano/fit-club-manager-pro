@@ -7,7 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from "jspdf";
 import 'jspdf-autotable';
-import { memberServices, attendanceServices, paymentServices, reportServices } from '@/services/supabaseService';
+import { memberServices, attendanceServices, paymentServices, reportServices } from '@/services';
 import { 
   LineChart, 
   Line, 

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import jsPDF from "jspdf";
 import 'jspdf-autotable';
 import { useToast } from '@/hooks/use-toast';
-import { cashboxServices, CashboxTransaction } from '@/services/supabaseService';
+import { cashboxServices, CashboxTransaction } from '@/services';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 export default function Cashbox() {

@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Membership, membershipServices } from '@/services/supabaseService';
+import { Membership, membershipServices } from '@/services';
 
 export default function Memberships() {
   const [memberships, setMemberships] = useState<Membership[]>([]);

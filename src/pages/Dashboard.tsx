@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from '@/hooks/use-toast';
-import { memberServices, attendanceServices, paymentServices } from '@/services/supabaseService';
+import { memberServices, attendanceServices, paymentServices } from '@/services';
 import { useRealtimeDashboard } from '@/hooks/use-realtime-dashboard';
 
 // Componentes de panel de control
