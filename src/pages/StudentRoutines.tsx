@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/card';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
-import { Member, memberServices } from '@/services/supabaseService';
+import { Member, memberServices } from '@/services';
 import { SearchBar } from '@/components/student-routines/SearchBar';
 import { MembersTable } from '@/components/student-routines/MembersTable';
 import { FormDialog } from '@/components/student-routines/FormDialog';

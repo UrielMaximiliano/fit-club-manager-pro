@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { CalendarDays } from 'lucide-react';
-import { Member } from '@/services/supabaseService';
+import { Member } from '@/services/types';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface MembersTableProps {

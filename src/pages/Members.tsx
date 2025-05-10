@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, Search, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -19,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Member, memberServices } from '@/services/supabaseService';
+import { Member, memberServices } from '@/services';
 import {
   Select,
   SelectContent,
