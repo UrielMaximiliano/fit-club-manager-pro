@@ -12,28 +12,20 @@ import {
   Cell
 } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
+import { MembershipData, ChartConfig } from '../types';
 import { 
   CHART_COLORS, 
   tooltipStyle, 
   barChartConfig, 
   colorArray,
-  chartContainerClass,
   createBarGradient,
   getBarGradientId,
   GRADIENT_IDS
 } from '../utils/chartConfig';
 
 interface MembershipChartComponentProps {
-  data: {
-    name: string;
-    miembros: number;
-  }[];
-  chartConfig: {
-    members: {
-      label: string;
-      color: string;
-    };
-  };
+  data: MembershipData[];
+  chartConfig: ChartConfig;
 }
 
 const MembershipChartComponent: React.FC<MembershipChartComponentProps> = ({ data, chartConfig }) => {
