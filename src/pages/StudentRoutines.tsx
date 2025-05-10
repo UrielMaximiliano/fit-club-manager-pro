@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Table, 
@@ -49,14 +49,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Member, memberServices } from '@/services/supabaseService';
 
 // Esquema de validación
 const memberRoutineSchema = z.object({
-  name: z.string().min(3, {
+  first_name: z.string().min(3, {
     message: "El nombre debe tener al menos 3 caracteres.",
   }),
+  last_name: z.string().min(2, {
+    message: "El apellido debe tener al menos 2 caracteres.",
+  }),
+  email: z.string().email({
+    message: "Por favor ingresa un correo electrónico válido.",
+  }),
+  phone: z.string().min(8, {
+    message: "El número de teléfono debe tener al menos 8 caracteres.",
+  }),
   age: z.coerce.number().min(16).max(99),
-  membershipType: z.string({
+  membership_type: z.string({
     required_error: "Por favor selecciona un tipo de membresía.",
   }),
   routineName: z.string().min(3, {
@@ -66,65 +76,101 @@ const memberRoutineSchema = z.object({
   notes: z.string().optional(),
 });
 
-// Mock data para la lista de estudiantes
-const studentsData = [
-  { id: 1, name: "John Doe", age: 22, membershipType: "Premium", routineUpdated: "2025-04-05" },
-  { id: 2, name: "Jane Smith", age: 24, membershipType: "Standard", routineUpdated: "2025-04-01" },
-  { id: 3, name: "Michael Johnson", age: 28, membershipType: "Premium", routineUpdated: "2025-04-07" },
-  { id: 4, name: "Emily Davis", age: 21, membershipType: "Standard", routineUpdated: "2025-03-28" },
-  { id: 5, name: "Robert Wilson", age: 25, membershipType: "Premium", routineUpdated: "2025-04-02" },
-  { id: 6, name: "Sarah Brown", age: 23, membershipType: "Basic", routineUpdated: "2025-03-25" },
-  { id: 7, name: "David Miller", age: 26, membershipType: "Standard", routineUpdated: "2025-04-06" },
-  { id: 8, name: "Jessica Taylor", age: 22, membershipType: "Basic", routineUpdated: "2025-03-30" }
-];
-
 const StudentRoutines = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [students, setStudents] = useState(studentsData);
+  const [students, setStudents] = useState<Member[]>([]);
+  const [loading, setLoading] = useState(true);
   
   // Configurar el formulario con validación
   const form = useForm<z.infer<typeof memberRoutineSchema>>({
     resolver: zodResolver(memberRoutineSchema),
     defaultValues: {
-      name: "",
+      first_name: "",
+      last_name: "",
+      email: "",
+      phone: "",
       age: 18,
-      membershipType: "",
+      membership_type: "",
       routineName: "",
       routineDays: 3,
       notes: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof memberRoutineSchema>) => {
-    // Simular la creación de un nuevo miembro con rutina
-    const newId = Math.max(...students.map(s => s.id)) + 1;
-    const today = new Date().toISOString().split('T')[0];
-    
-    const newStudent = {
-      id: newId,
-      name: values.name,
-      age: values.age,
-      membershipType: values.membershipType,
-      routineUpdated: today
-    };
-    
-    setStudents([newStudent, ...students]);
-    setIsDialogOpen(false);
-    form.reset();
-    
-    toast({
-      title: "Miembro creado",
-      description: `${values.name} ha sido agregado con éxito y se le ha asignado la rutina "${values.routineName}"`,
-    });
+  useEffect(() => {
+    loadMembers();
+  }, []);
+
+  const loadMembers = async () => {
+    try {
+      setLoading(true);
+      const data = await memberServices.getAll();
+      setStudents(data);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudieron cargar los miembros',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onSubmit = async (values: z.infer<typeof memberRoutineSchema>) => {
+    try {
+      setLoading(true);
+      // Preparar datos del miembro para guardar en Supabase
+      const memberData = {
+        first_name: values.first_name,
+        last_name: values.last_name,
+        email: values.email,
+        phone: values.phone,
+        membership_type: values.membership_type,
+        status: 'active' as const, // Necesitamos el tipado exacto
+        start_date: new Date().toISOString().split('T')[0],
+        end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 días después
+      };
+      
+      // Guardar en la base de datos
+      const newMember = await memberServices.create(memberData);
+      
+      // Actualizar la lista local
+      await loadMembers();
+      
+      // Cerrar el diálogo y resetear el formulario
+      setIsDialogOpen(false);
+      form.reset();
+      
+      // Notificar al usuario
+      toast({
+        title: "Miembro creado",
+        description: `${values.first_name} ${values.last_name} ha sido agregado con éxito y se le ha asignado la rutina "${values.routineName}"`,
+      });
+      
+      // Opcionalmente redirigir a la página de detalles de la rutina
+      // navigate(`/routines/${newMember.id}`);
+      
+    } catch (error) {
+      console.error("Error al guardar el miembro:", error);
+      toast({
+        title: "Error",
+        description: "Hubo un problema al guardar el miembro en la base de datos",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
   
   const filteredStudents = students.filter(student => 
-    student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.membershipType.toLowerCase().includes(searchTerm.toLowerCase())
+    student.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.membership_type.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
   return (
@@ -165,10 +211,10 @@ const StudentRoutines = () => {
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <FormField
                           control={form.control}
-                          name="name"
+                          name="first_name"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-gray-300">Nombre completo</FormLabel>
+                              <FormLabel className="text-gray-300">Nombre</FormLabel>
                               <FormControl>
                                 <Input 
                                   placeholder="Nombre del miembro" 
@@ -180,6 +226,64 @@ const StudentRoutines = () => {
                             </FormItem>
                           )}
                         />
+                        <FormField
+                          control={form.control}
+                          name="last_name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-gray-300">Apellido</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Apellido del miembro" 
+                                  className="bg-[#222732] border-gray-700 text-white" 
+                                  {...field} 
+                                />
+                              </FormControl>
+                              <FormMessage className="text-red-400" />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-gray-300">Email</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="email"
+                                  placeholder="correo@ejemplo.com" 
+                                  className="bg-[#222732] border-gray-700 text-white" 
+                                  {...field} 
+                                />
+                              </FormControl>
+                              <FormMessage className="text-red-400" />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="phone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-gray-300">Teléfono</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="123456789" 
+                                  className="bg-[#222732] border-gray-700 text-white" 
+                                  {...field} 
+                                />
+                              </FormControl>
+                              <FormMessage className="text-red-400" />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <FormField
                           control={form.control}
                           name="age"
@@ -197,32 +301,32 @@ const StudentRoutines = () => {
                             </FormItem>
                           )}
                         />
+                        <FormField
+                          control={form.control}
+                          name="membership_type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-gray-300">Tipo de membresía</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange} 
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="bg-[#222732] border-gray-700 text-white">
+                                    <SelectValue placeholder="Selecciona tipo de membresía" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="bg-[#1A1F2C] border-gray-700 text-white">
+                                  <SelectItem value="Premium">Premium</SelectItem>
+                                  <SelectItem value="Standard">Standard</SelectItem>
+                                  <SelectItem value="Basic">Basic</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage className="text-red-400" />
+                            </FormItem>
+                          )}
+                        />
                       </div>
-                      <FormField
-                        control={form.control}
-                        name="membershipType"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-gray-300">Tipo de membresía</FormLabel>
-                            <Select 
-                              onValueChange={field.onChange} 
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="bg-[#222732] border-gray-700 text-white">
-                                  <SelectValue placeholder="Selecciona tipo de membresía" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent className="bg-[#1A1F2C] border-gray-700 text-white">
-                                <SelectItem value="Premium">Premium</SelectItem>
-                                <SelectItem value="Standard">Standard</SelectItem>
-                                <SelectItem value="Basic">Basic</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage className="text-red-400" />
-                          </FormItem>
-                        )}
-                      />
                     </div>
                     
                     <div className="space-y-2 pt-2">
@@ -296,8 +400,9 @@ const StudentRoutines = () => {
                       <Button 
                         type="submit" 
                         className="bg-blue-600 hover:bg-blue-700 text-white"
+                        disabled={loading}
                       >
-                        Guardar
+                        {loading ? 'Guardando...' : 'Guardar'}
                       </Button>
                     </div>
                   </form>
@@ -324,14 +429,22 @@ const StudentRoutines = () => {
               <TableHeader className="bg-[#222732]">
                 <TableRow className="border-gray-700">
                   <TableHead className="text-gray-300 py-2">Nombre</TableHead>
-                  <TableHead className="text-gray-300 hidden md:table-cell">Edad</TableHead>
+                  <TableHead className="text-gray-300 hidden md:table-cell">Email</TableHead>
                   <TableHead className="text-gray-300">Membresía</TableHead>
-                  <TableHead className="text-gray-300 hidden md:table-cell">Actualización</TableHead>
+                  <TableHead className="text-gray-300 hidden md:table-cell">Fecha Alta</TableHead>
                   <TableHead className="text-gray-300 text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredStudents.length === 0 ? (
+                {loading ? (
+                  <TableRow className="border-gray-700">
+                    <TableCell colSpan={5} className="text-center py-8">
+                      <div className="flex justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : filteredStudents.length === 0 ? (
                   <TableRow className="border-gray-700">
                     <TableCell colSpan={5} className="text-center py-8 text-gray-400">
                       No se encontraron miembros
@@ -340,20 +453,20 @@ const StudentRoutines = () => {
                 ) : (
                   filteredStudents.map((student) => (
                     <TableRow key={student.id} className="border-gray-700 bg-[#1A1F2C] hover:bg-[#222732]">
-                      <TableCell className="font-medium text-white py-2">{student.name}</TableCell>
-                      <TableCell className="text-gray-300 hidden md:table-cell">{student.age}</TableCell>
+                      <TableCell className="font-medium text-white py-2">{student.first_name} {student.last_name}</TableCell>
+                      <TableCell className="text-gray-300 hidden md:table-cell">{student.email}</TableCell>
                       <TableCell>
                         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                          student.membershipType === "Premium" 
+                          student.membership_type === "Premium" 
                             ? "bg-green-900 text-green-300" 
-                            : student.membershipType === "Standard"
+                            : student.membership_type === "Standard"
                             ? "bg-blue-900 text-blue-300"
                             : "bg-gray-800 text-gray-300"
                         }`}>
-                          {student.membershipType}
+                          {student.membership_type}
                         </span>
                       </TableCell>
-                      <TableCell className="text-gray-300 hidden md:table-cell">{student.routineUpdated}</TableCell>
+                      <TableCell className="text-gray-300 hidden md:table-cell">{student.start_date}</TableCell>
                       <TableCell className="text-right py-2">
                         <Button 
                           variant="outline" 
