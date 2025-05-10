@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Plus, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -97,15 +98,29 @@ export default function Payments() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await paymentServices.create(formData);
+      // Aseguramos que todos los campos requeridos estén presentes
+      if (!formData.member_id || !formData.membership_id || formData.amount === undefined) {
+        toast({
+          title: 'Campos incompletos',
+          description: 'Por favor, completa todos los campos requeridos',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      await paymentServices.create({
+        ...formData,
+        amount: Number(formData.amount) || 0 // Aseguramos que amount sea un número
+      });
+
       toast({
         title: 'Éxito',
         description: 'Pago registrado correctamente',
       });
       setIsDialogOpen(false);
-      loadData();
       resetForm();
     } catch (error) {
+      console.error("Error al procesar pago:", error);
       toast({
         title: 'Error',
         description: 'Hubo un error al procesar el pago',
@@ -215,9 +230,9 @@ export default function Payments() {
                   required
                   min="0"
                   step="0.01"
-                  value={formData.amount}
+                  value={formData.amount.toString()}
                   onChange={(e) =>
-                    setFormData({ ...formData, amount: parseFloat(e.target.value) })
+                    setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })
                   }
                 />
               </div>

@@ -22,9 +22,15 @@ class PaymentService extends BaseService<Payment> {
   }
 
   async create(payment: Omit<Payment, 'id'>) {
+    // Aseguramos que amount es un número válido
+    const validatedPayment = {
+      ...payment,
+      amount: Number(payment.amount) || 0
+    };
+
     const { data, error } = await supabase
       .from('payments')
-      .insert([payment])
+      .insert([validatedPayment])
       .select();
     
     if (error) throw error;
