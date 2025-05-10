@@ -1,4 +1,3 @@
-
 // Utility functions for preparing dashboard data
 import { formatTimeAgo } from './formatUtils';
 
@@ -57,26 +56,18 @@ export interface SummaryStats {
 }
 
 // Prepare membership data by month
-export const prepareMembershipData = (membersData: Member[]): MembershipData[] => {
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
-  
-  const membershipByMonth = Array(6).fill(0).map((_, i) => {
-    const monthDate = new Date();
-    monthDate.setMonth(monthDate.getMonth() - 5 + i);
-    const month = monthDate.toLocaleString('es', { month: 'short' });
-    
-    const count = membersData.filter(m => {
-      const startDate = new Date(m.start_date);
-      return startDate.getMonth() === monthDate.getMonth() && 
-             startDate.getFullYear() === monthDate.getFullYear();
-    }).length;
-    
-    return { name: month, miembros: count };
-  });
-  
-  return membershipByMonth;
-};
+export function prepareMembershipData(members: any[]): MembershipData[] {
+  // Agrupa por tipo y cuenta miembros, asegurando enteros
+  const grouped = members.reduce((acc, member) => {
+    const type = member.membership_type || 'Sin tipo';
+    acc[type] = (acc[type] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  return Object.entries(grouped).map(([name, miembros]) => ({
+    name,
+    miembros: Math.round(Number(miembros)) // Asegura entero y tipo correcto
+  }));
+}
 
 // Prepare attendance data by day
 export const prepareAttendanceData = (allAttendance: Attendance[]): AttendanceData[] => {

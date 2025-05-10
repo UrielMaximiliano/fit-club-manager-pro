@@ -371,4 +371,6 @@ export const cashboxServices = {
       .eq('id', id);
     if (error) throw error;
   }
-}; 
+};
+
+export { supabase }; 

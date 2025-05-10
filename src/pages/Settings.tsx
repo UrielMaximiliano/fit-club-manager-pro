@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/services/supabaseService';
 
 export default function Settings() {
   const { toast } = useToast();
@@ -12,6 +12,7 @@ export default function Settings() {
   const [address, setAddress] = useState("Av. Principal 123, Ciudad");
   const [phone, setPhone] = useState("+56 9 1234 5678");
   const [email, setEmail] = useState("contacto@fitlifegym.cl");
+  const [clearing, setClearing] = useState(false);
   
   const handleSaveGeneralInfo = () => {
     toast({
@@ -32,6 +33,39 @@ export default function Settings() {
       title: "Copia de seguridad iniciada",
       description: "Se está generando la copia de seguridad de los datos",
     });
+  };
+  
+  const handleClearData = async () => {
+    if (!window.confirm('¿Estás seguro de que quieres borrar TODOS los datos? Esta acción no se puede deshacer.')) return;
+    setClearing(true);
+    try {
+      // Borra primero las tablas dependientes
+      const { error: errA } = await supabase.from('attendance').delete().not('id', 'is', null);
+      const { error: errP } = await supabase.from('payments').delete().not('id', 'is', null);
+      // const { error: errR } = await supabase.from('routines').delete().not('id', 'is', null); // Eliminado porque la tabla no existe
+      const { error: errC } = await supabase.from('cashbox').delete().not('id', 'is', null);
+      // Luego borra membresías y miembros
+      const { error: errMship } = await supabase.from('memberships').delete().not('id', 'is', null);
+      const { error: errM } = await supabase.from('members').delete().not('id', 'is', null);
+      if (errA || errP || errC || errMship || errM) {
+        console.error('Error al borrar:', { errA, errP, errC, errMship, errM });
+        throw new Error('Error al borrar datos');
+      }
+      toast({
+        title: 'Datos borrados',
+        description: 'Todos los datos han sido eliminados correctamente.',
+        variant: 'default',
+      });
+    } catch (e) {
+      toast({
+        title: 'Error',
+        description: 'Ocurrió un error al borrar los datos.',
+        variant: 'destructive',
+      });
+      console.error(e);
+    } finally {
+      setClearing(false);
+    }
   };
   
   return (
@@ -184,8 +218,8 @@ export default function Settings() {
                     <h3 className="font-medium">Borrar Datos</h3>
                     <p className="text-sm text-gray-400">Eliminar información antigua del sistema</p>
                   </div>
-                  <Button variant="destructive">
-                    Limpiar Datos
+                  <Button variant="destructive" onClick={handleClearData} disabled={clearing}>
+                    {clearing ? 'Borrando...' : 'Limpiar Datos'}
                   </Button>
                 </div>
               </div>

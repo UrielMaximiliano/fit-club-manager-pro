@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from '@/hooks/use-toast';
@@ -97,14 +96,6 @@ const Dashboard = () => {
     members: { 
       label: "Miembros", 
       color: colorArray[0]
-    },
-    attendance: { 
-      label: "Asistencias", 
-      color: colorArray[1] 
-    },
-    revenue: { 
-      label: "Ingresos", 
-      color: colorArray[2]
     }
   };
 
@@ -137,7 +128,7 @@ const Dashboard = () => {
       <SummaryCards stats={summaryStats} />
 
       {/* Gráficos principales, cada uno en su columna */}
-      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 my-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 my-10 items-start">
         <MembershipChart 
           data={membershipData} 
           chartConfig={chartConfig} 

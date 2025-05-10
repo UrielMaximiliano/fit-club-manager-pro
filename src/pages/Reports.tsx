@@ -285,7 +285,7 @@ export default function Reports() {
       else if (reportName === 'Membresías Activas') {
         const tableData = membershipData.map(item => [
           item.name,
-          item.value.toString()
+          Math.round(Number(item.value)).toString()
         ]);
         (doc as any).autoTable({
           startY: 40,
@@ -332,25 +332,9 @@ export default function Reports() {
   };
 
   const chartConfig = {
-    revenue: { 
-      label: "Ingresos", 
+    members: { 
+      label: "Miembros", 
       color: "#4F8EF6" 
-    },
-    expenses: { 
-      label: "Gastos", 
-      color: "#F97316" 
-    },
-    attendance: { 
-      label: "Asistencias", 
-      color: "#22C55E" 
-    },
-    renewals: {
-      label: "Renovaciones",
-      color: "#22C55E"
-    },
-    cancellations: {
-      label: "Bajas",
-      color: "#F97316"
     }
   };
 

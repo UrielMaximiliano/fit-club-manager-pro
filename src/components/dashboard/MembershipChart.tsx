@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import MembershipChartComponent from './charts/MembershipChartComponent';
@@ -41,7 +40,7 @@ const MembershipChart: React.FC<MembershipChartProps> = ({
         </div>
       </CardHeader>
       <CardContent className="p-5 pt-6">
-        <div className="h-[260px] md:h-[300px] xl:h-[340px] w-full h-full transition-all duration-300 ease-in-out">
+        <div className="w-full" style={{ height: 340 }}>
           <MembershipChartComponent data={data} chartConfig={chartConfig} />
         </div>
       </CardContent>
