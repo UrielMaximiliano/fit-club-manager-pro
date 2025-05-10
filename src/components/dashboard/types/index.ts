@@ -2,13 +2,13 @@
 // Common interface definitions for Dashboard components
 
 export interface AttendanceData {
-  name: string;
+  day: string;
   asistencias: number;
 }
 
 export interface RevenueData {
-  name: string;
-  ingresos: number;
+  payment_date: string;
+  amount: number;
 }
 
 export interface MembershipData {

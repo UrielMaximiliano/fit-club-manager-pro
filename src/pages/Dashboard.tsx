@@ -17,13 +17,17 @@ import {
   prepareAttendanceData, 
   prepareRevenueData, 
   prepareMembershipTypeData, 
-  calculateSummaryStats,
+  calculateSummaryStats
+} from '@/components/dashboard/utils/dataPreparation';
+
+// Types
+import {
   SummaryStats,
   MembershipData,
   AttendanceData,
   RevenueData,
   MembershipTypeData
-} from '@/components/dashboard/utils/dataPreparation';
+} from '@/components/dashboard/types';
 
 // Chart configuration
 import { colorArray } from '@/components/dashboard/utils/chartConfig';

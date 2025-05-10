@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { MembershipExport } from './actions/MembershipExport';
+import MembershipExport from './actions/MembershipExport';
 import { useToast } from '@/hooks/use-toast';
 import { memberServices } from '@/services';
 

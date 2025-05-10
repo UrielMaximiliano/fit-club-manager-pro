@@ -1,5 +1,13 @@
+
 // Utility functions for preparing dashboard data
 import { formatTimeAgo } from './formatUtils';
+import { 
+  AttendanceData, 
+  RevenueData, 
+  MembershipData, 
+  MembershipTypeData, 
+  SummaryStats
+} from '../types';
 
 interface Member {
   id: string;
@@ -21,38 +29,11 @@ interface Payment {
   payment_date: string;
 }
 
-export interface MembershipData {
-  name: string;
-  miembros: number;
-}
-
-export interface AttendanceData {
-  name: string;
-  asistencias: number;
-}
-
-export interface RevenueData {
-  name: string;
-  ingresos: number;
-}
-
-export interface MembershipTypeData {
-  name: string;
-  value: number;
-}
-
 export interface RecentActivity {
   type: 'member' | 'payment' | 'attendance' | 'routine';
   name: string;
   action: string;
   time: string;
-}
-
-export interface SummaryStats {
-  activeMembers: number;
-  todayAttendance: number;
-  updatedRoutines: number;
-  monthlyRevenue: number;
 }
 
 // Prepare membership data by month
@@ -86,7 +67,7 @@ export const prepareAttendanceData = (allAttendance: Attendance[]): AttendanceDa
       return checkInDate.toISOString().split('T')[0] === dayStr;
     }).length;
     
-    return { name: day, asistencias: count };
+    return { day, asistencias: count };
   });
   
   return attendanceByDay;
@@ -94,27 +75,10 @@ export const prepareAttendanceData = (allAttendance: Attendance[]): AttendanceDa
 
 // Prepare revenue data by month
 export const prepareRevenueData = (payments: Payment[]): RevenueData[] => {
-  const revenueByMonth = Array(6).fill(0).map((_, i) => {
-    const monthDate = new Date();
-    monthDate.setMonth(monthDate.getMonth() - 5 + i);
-    const month = monthDate.toLocaleString('es', { month: 'short' });
-    const monthNum = monthDate.getMonth();
-    const yearNum = monthDate.getFullYear();
-    
-    const total = payments
-      .filter(p => {
-        const paymentDate = new Date(p.payment_date);
-        return paymentDate.getMonth() === monthNum && 
-               paymentDate.getFullYear() === yearNum;
-      })
-      .reduce((sum, p) => {
-        return Number(sum) + Number(p.amount);
-      }, 0);
-    
-    return { name: month, ingresos: total };
-  });
-  
-  return revenueByMonth;
+  return payments.map(payment => ({
+    payment_date: payment.payment_date,
+    amount: Number(payment.amount)
+  }));
 };
 
 // Prepare membership type data

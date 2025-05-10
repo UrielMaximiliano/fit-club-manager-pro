@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { MembershipExport } from '../dashboard/actions/MembershipExport';
-import { ChartTabs } from './ChartTabs';
+import MembershipExport from '../dashboard/actions/MembershipExport';
+import ChartTabs from './ChartTabs';
 import { useToast } from '@/hooks/use-toast';
 import { attendanceServices, paymentServices } from '@/services';
 
