@@ -135,9 +135,9 @@ export default function Memberships() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="min-h-screen bg-[#18181b] py-8 px-2 sm:px-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Membresías</h1>
+        <h1 className="text-2xl font-bold text-white">Membresías</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button
@@ -145,114 +145,99 @@ export default function Memberships() {
                 resetForm();
                 setIsDialogOpen(true);
               }}
+              className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow px-4 py-2 flex items-center gap-2"
             >
               <Plus className="mr-2 h-4 w-4" />
               Nueva Membresía
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="bg-[#232329] border border-gray-700 text-white rounded-xl">
             <DialogHeader>
               <DialogTitle>{selectedMembership ? 'Editar Membresía' : 'Nueva Membresía'}</DialogTitle>
-              <DialogDescription>Completa los datos de la membresía y guarda los cambios.</DialogDescription>
+              <DialogDescription className="text-gray-400">Completa los datos de la membresía y guarda los cambios.</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Nombre
-                </label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Nombre</label>
                 <Input
                   required
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="bg-[#18181b] border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Descripción
-                </label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Descripción</label>
                 <Input
                   required
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="bg-[#18181b] border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Precio
-                </label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Precio</label>
                 <Input
                   type="number"
                   required
                   min="0"
                   step="0.01"
                   value={formData.price}
-                  onChange={(e) =>
-                    setFormData({ ...formData, price: parseFloat(e.target.value) })
-                  }
+                  onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+                  className="bg-[#18181b] border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Duración (días)
-                </label>
+                <label className="block text-sm font-medium mb-1 text-gray-300">Duración (días)</label>
                 <Input
                   type="number"
                   required
                   min="1"
                   value={formData.duration_days}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      duration_days: parseInt(e.target.value),
-                    })
-                  }
+                  onChange={(e) => setFormData({ ...formData, duration_days: parseInt(e.target.value) })}
+                  className="bg-[#18181b] border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <Button type="submit" className="w-full">
-                {selectedMembership ? 'Actualizar' : 'Crear'}
-              </Button>
+              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold">{selectedMembership ? 'Actualizar' : 'Crear'}</Button>
             </form>
           </DialogContent>
         </Dialog>
       </div>
-
       {loading ? (
-        <div className="text-center">Cargando...</div>
+        <div className="text-center text-white">Cargando...</div>
       ) : (
-        <div className="border rounded-lg">
+        <div className="border border-gray-700 rounded-xl bg-[#232329] overflow-x-auto">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-[#18181b]">
               <TableRow>
-                <TableHead>Nombre</TableHead>
-                <TableHead>Descripción</TableHead>
-                <TableHead>Precio</TableHead>
-                <TableHead>Duración</TableHead>
-                <TableHead>Acciones</TableHead>
+                <TableHead className="text-gray-400 font-semibold">Nombre</TableHead>
+                <TableHead className="text-gray-400 font-semibold">Descripción</TableHead>
+                <TableHead className="text-gray-400 font-semibold">Precio</TableHead>
+                <TableHead className="text-gray-400 font-semibold">Duración</TableHead>
+                <TableHead className="text-gray-400 font-semibold">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {memberships.map((membership) => (
-                <TableRow key={membership.id}>
-                  <TableCell>{membership.name}</TableCell>
-                  <TableCell>{membership.description}</TableCell>
-                  <TableCell>${membership.price.toFixed(2)}</TableCell>
-                  <TableCell>{membership.duration_days} días</TableCell>
+                <TableRow key={membership.id} className="bg-[#232329] hover:bg-[#18181b] border-b border-gray-700 transition-all">
+                  <TableCell className="text-white font-semibold">{membership.name}</TableCell>
+                  <TableCell className="text-gray-200">{membership.description}</TableCell>
+                  <TableCell className="text-blue-400 font-semibold">${membership.price.toFixed(2)}</TableCell>
+                  <TableCell className="text-gray-300">{membership.duration_days} días</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button
                         variant="ghost"
-                        size="sm"
+                        size="icon"
+                        className="text-gray-400 hover:text-blue-400"
                         onClick={() => handleEdit(membership)}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
-                        size="sm"
+                        size="icon"
+                        className="text-gray-400 hover:text-red-400"
                         onClick={() => handleDelete(membership.id)}
                       >
                         <Trash2 className="h-4 w-4" />

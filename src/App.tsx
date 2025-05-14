@@ -6,9 +6,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
-import StudentRoutines from "./pages/StudentRoutines";
-import RoutineDetail from "./pages/RoutineDetail";
 import Dashboard from "./pages/Dashboard";
+import Members from "./pages/Members";
 import Memberships from "./pages/Memberships";
 import Payments from "./pages/Payments";
 import Attendance from "./pages/Attendance";
@@ -32,7 +31,6 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />
-            
             {/* Ruta inicial después del login */}
             <Route path="/dashboard" element={
               <ProtectedRouteAuth>
@@ -41,40 +39,13 @@ const App = () => (
                 </AdminLayout>
               </ProtectedRouteAuth>
             } />
-            
-            <Route path="/routines" element={
-              <ProtectedRouteAuth>
-                <AdminLayout>
-                  <StudentRoutines />
-                </AdminLayout>
-              </ProtectedRouteAuth>
-            } />
-            
-            <Route path="/routines/:studentId" element={
-              <ProtectedRouteAuth>
-                <AdminLayout>
-                  <RoutineDetail />
-                </AdminLayout>
-              </ProtectedRouteAuth>
-            } />
-            
             <Route path="/members" element={
               <ProtectedRouteAuth>
                 <AdminLayout>
-                  <StudentRoutines />
+                  <Members />
                 </AdminLayout>
               </ProtectedRouteAuth>
             } />
-            
-            <Route path="/members/:studentId" element={
-              <ProtectedRouteAuth>
-                <AdminLayout>
-                  <RoutineDetail />
-                </AdminLayout>
-              </ProtectedRouteAuth>
-            } />
-            
-            {/* Rutas para las funcionalidades implementadas */}
             <Route path="/memberships" element={
               <ProtectedRouteAuth>
                 <AdminLayout>
@@ -82,7 +53,6 @@ const App = () => (
                 </AdminLayout>
               </ProtectedRouteAuth>
             } />
-            
             <Route path="/payments" element={
               <ProtectedRouteAuth>
                 <AdminLayout>
@@ -90,7 +60,6 @@ const App = () => (
                 </AdminLayout>
               </ProtectedRouteAuth>
             } />
-            
             <Route path="/attendance" element={
               <ProtectedRouteAuth>
                 <AdminLayout>
@@ -98,7 +67,6 @@ const App = () => (
                 </AdminLayout>
               </ProtectedRouteAuth>
             } />
-            
             <Route path="/cashbox" element={
               <ProtectedRouteAuth>
                 <AdminLayout>
@@ -106,7 +74,6 @@ const App = () => (
                 </AdminLayout>
               </ProtectedRouteAuth>
             } />
-            
             <Route path="/reports" element={
               <ProtectedRouteAuth>
                 <AdminLayout>
@@ -114,7 +81,6 @@ const App = () => (
                 </AdminLayout>
               </ProtectedRouteAuth>
             } />
-            
             <Route path="/settings" element={
               <ProtectedRouteAuth>
                 <AdminLayout>
@@ -122,8 +88,7 @@ const App = () => (
                 </AdminLayout>
               </ProtectedRouteAuth>
             } />
-            
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            {/* Ruta de error 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
           <SpeedInsights />
