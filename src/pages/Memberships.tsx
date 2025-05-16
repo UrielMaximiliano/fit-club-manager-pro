@@ -20,6 +20,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Membership, membershipServices } from '@/services';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Memberships() {
   const [memberships, setMemberships] = useState<Membership[]>([]);
@@ -27,6 +28,7 @@ export default function Memberships() {
   const [selectedMembership, setSelectedMembership] = useState<Membership | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
+  const { tenantId, isDemo } = useAuth();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -36,8 +38,10 @@ export default function Memberships() {
   });
 
   const loadMemberships = async () => {
+    if (!tenantId) return;
+    setLoading(true);
     try {
-      const data = await membershipServices.getAll();
+      const data = await membershipServices.getAll(tenantId);
       setMemberships(data);
     } catch (error) {
       toast({
@@ -51,32 +55,22 @@ export default function Memberships() {
   };
 
   useEffect(() => {
-    loadMemberships();
-
-    // Configurar suscripción en tiempo real
-    const unsubscribe = membershipServices.onDataChange((data) => {
-      setMemberships(data);
-      toast({
-        title: 'Actualización',
-        description: 'Los datos de membresías se han actualizado',
-      });
-    });
-    
-    // Limpiar suscripción al desmontar
-    return () => unsubscribe();
-  }, []);
+    if (tenantId) loadMemberships();
+    // eslint-disable-next-line
+  }, [tenantId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!tenantId) return;
     try {
       if (selectedMembership) {
-        await membershipServices.update(selectedMembership.id, formData);
+        await membershipServices.update(selectedMembership.id, { ...formData, tenant_id: tenantId }, tenantId);
         toast({
           title: 'Éxito',
           description: 'Membresía actualizada correctamente',
         });
       } else {
-        await membershipServices.create(formData);
+        await membershipServices.create({ ...formData, tenant_id: tenantId }, tenantId);
         toast({
           title: 'Éxito',
           description: 'Membresía creada correctamente',
@@ -95,21 +89,21 @@ export default function Memberships() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar esta membresía?')) {
-      try {
-        await membershipServices.delete(id);
-        toast({
-          title: 'Éxito',
-          description: 'Membresía eliminada correctamente',
-        });
-        loadMemberships();
-      } catch (error) {
-        toast({
-          title: 'Error',
-          description: 'No se pudo eliminar la membresía',
-          variant: 'destructive',
-        });
-      }
+    if (isDemo) return;
+    if (!tenantId) return;
+    try {
+      await membershipServices.delete(id, tenantId);
+      toast({
+        title: 'Éxito',
+        description: 'Membresía eliminada correctamente',
+      });
+      loadMemberships();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'No se pudo eliminar la membresía',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -203,6 +197,12 @@ export default function Memberships() {
           </DialogContent>
         </Dialog>
       </div>
+      {/* Banner modo demo */}
+      {isDemo && (
+        <div className="w-full bg-blue-900 text-blue-200 text-center py-2 rounded-lg mb-4 font-semibold">
+          Estás en modo DEMO. Los cambios no afectan datos reales y las acciones destructivas están deshabilitadas.
+        </div>
+      )}
       {loading ? (
         <div className="text-center text-white">Cargando...</div>
       ) : (
@@ -238,7 +238,8 @@ export default function Memberships() {
                         variant="ghost"
                         size="icon"
                         className="text-gray-400 hover:text-red-400"
-                        onClick={() => handleDelete(membership.id)}
+                        onClick={() => !isDemo && handleDelete(membership.id)}
+                        disabled={isDemo}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

@@ -1,4 +1,3 @@
-
 // Shared type definitions for all services
 export interface Member {
   id: string;
@@ -14,6 +13,7 @@ export interface Member {
 
 export interface Membership {
   id: string;
+  tenant_id: string;
   name: string;
   description: string;
   price: number;

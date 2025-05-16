@@ -267,7 +267,7 @@ export default function Members() {
                   <TableRow>
                     <TableCell colSpan={6} className="bg-transparent px-0 py-0 border-none">
                       <div className="mx-6 my-2">
-                        <div className="rounded-lg bg-[#222732] border border-gray-700 shadow-sm px-4 py-3 text-sm text-gray-100">
+                        <div className="rounded-lg bg-[#18181b] border border-gray-700 shadow-sm px-4 py-3 text-sm text-gray-100">
                           <strong className="block text-xs text-gray-400 mb-1">Rutina:</strong>
                           {getRutina(member.id).length > 0 ? (
                             <ul className="space-y-1">

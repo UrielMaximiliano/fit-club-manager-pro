@@ -40,8 +40,8 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-[#1A1F2C] px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-4 md:mb-6">
-          <h1 className="text-xl md:text-3xl font-bold text-blue-400">WALTER RECALDE</h1>
-          <p className="text-sm md:text-base text-gray-400 mt-2">SKEREER</p>
+          <h1 className="text-xl md:text-3xl font-bold text-blue-400">GIMNASIO</h1>
+          <p className="text-sm md:text-base text-gray-400 mt-2">Login</p>
         </div>
         
         <Card className="bg-[#222732] border-gray-700 shadow-lg">
