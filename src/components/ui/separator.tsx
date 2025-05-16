@@ -1,8 +1,18 @@
+// -----------------------------------------------------------------------------
+// Componente Separator reutilizable (Atom - Atomic Design)
+// Sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Utilizado para separar visualmente secciones de la interfaz.
+// -----------------------------------------------------------------------------
 import * as React from "react"
 import * as SeparatorPrimitive from "@radix-ui/react-separator"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Componente Separator
+ * @param {React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>} props - Propiedades del separador
+ * @returns {JSX.Element}
+ */
 const Separator = React.forwardRef<
   React.ElementRef<typeof SeparatorPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>

@@ -1,9 +1,19 @@
+// -----------------------------------------------------------------------------
+// Componente Checkbox reutilizable (Atom - Atomic Design)
+// Sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Permite extensión mediante props y composición.
+// -----------------------------------------------------------------------------
 import * as React from "react"
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
 import { Check } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Componente Checkbox
+ * @param {React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>} props - Propiedades del checkbox
+ * @returns {JSX.Element}
+ */
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>

@@ -1,7 +1,17 @@
+// -----------------------------------------------------------------------------
+// Componente Input reutilizable (Atom - Atomic Design)
+// Sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Permite extensión mediante props y composición.
+// -----------------------------------------------------------------------------
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Componente Input
+ * @param {React.ComponentProps<"input">} props - Propiedades del input
+ * @returns {JSX.Element}
+ */
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {
     return (

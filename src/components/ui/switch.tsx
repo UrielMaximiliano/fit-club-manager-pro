@@ -1,8 +1,18 @@
+// -----------------------------------------------------------------------------
+// Componente Switch reutilizable (Atom - Atomic Design)
+// Sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Permite alternar entre dos estados (on/off) de forma visual.
+// -----------------------------------------------------------------------------
 import * as React from "react"
 import * as SwitchPrimitives from "@radix-ui/react-switch"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Componente Switch
+ * @param {React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>} props - Propiedades del switch
+ * @returns {JSX.Element}
+ */
 const Switch = React.forwardRef<
   React.ElementRef<typeof SwitchPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>

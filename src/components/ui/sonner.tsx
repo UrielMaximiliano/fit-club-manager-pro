@@ -1,8 +1,19 @@
+// -----------------------------------------------------------------------------
+// Componente Toaster (Sonner) reutilizable (Atom - Atomic Design)
+// Sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Permite mostrar notificaciones tipo toast con soporte de tema.
+// -----------------------------------------------------------------------------
 import { useTheme } from "next-themes"
 import { Toaster as Sonner } from "sonner"
 
+// Tipado de las props del toaster
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
+/**
+ * Componente Toaster (Sonner)
+ * @param {ToasterProps} props - Propiedades del toaster
+ * @returns {JSX.Element}
+ */
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
 

@@ -1,11 +1,19 @@
-
+// -----------------------------------------------------------------------------
+// Componente Textarea reutilizable (Atom - Atomic Design)
+// Sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Permite extensión mediante props y composición.
+// -----------------------------------------------------------------------------
 import * as React from "react"
-
 import { cn } from "@/lib/utils"
 
-export interface TextareaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
+// Tipado de las props del textarea
+export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
+/**
+ * Componente Textarea
+ * @param {TextareaProps} props - Propiedades del textarea
+ * @returns {JSX.Element}
+ */
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, ...props }, ref) => {
     return (

@@ -1,10 +1,19 @@
+// -----------------------------------------------------------------------------
+// Componente Tabs y subcomponentes (Molecule - Atomic Design)
+// Cada subcomponente sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Permite navegación por pestañas de forma accesible y flexible.
+// -----------------------------------------------------------------------------
 import * as React from "react"
 import * as TabsPrimitive from "@radix-ui/react-tabs"
 
 import { cn } from "@/lib/utils"
 
+// Componente raíz de las pestañas
 const Tabs = TabsPrimitive.Root
 
+/**
+ * Lista de pestañas
+ */
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
@@ -20,6 +29,9 @@ const TabsList = React.forwardRef<
 ))
 TabsList.displayName = TabsPrimitive.List.displayName
 
+/**
+ * Trigger de pestaña (botón de la pestaña)
+ */
 const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
@@ -35,6 +47,9 @@ const TabsTrigger = React.forwardRef<
 ))
 TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
 
+/**
+ * Contenido de la pestaña
+ */
 const TabsContent = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>

@@ -1,12 +1,22 @@
+// -----------------------------------------------------------------------------
+// Componente Popover y subcomponentes (Molecule - Atomic Design)
+// Cada subcomponente sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Permite mostrar contenido flotante sobre otros elementos de la UI.
+// -----------------------------------------------------------------------------
 import * as React from "react"
 import * as PopoverPrimitive from "@radix-ui/react-popover"
 
 import { cn } from "@/lib/utils"
 
+// Componente raíz del popover
 const Popover = PopoverPrimitive.Root
 
+// Trigger del popover (elemento que lo activa)
 const PopoverTrigger = PopoverPrimitive.Trigger
 
+/**
+ * Contenido flotante del Popover
+ */
 const PopoverContent = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>

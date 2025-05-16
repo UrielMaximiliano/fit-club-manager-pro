@@ -1,14 +1,25 @@
+// -----------------------------------------------------------------------------
+// Componente Tooltip y subcomponentes (Atom/Molecule - Atomic Design)
+// Cada subcomponente sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Permite mostrar información adicional al pasar el mouse o enfocar un elemento.
+// -----------------------------------------------------------------------------
 import * as React from "react"
 import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 
 import { cn } from "@/lib/utils"
 
+// Proveedor de tooltips (contexto global)
 const TooltipProvider = TooltipPrimitive.Provider
 
+// Componente raíz del tooltip
 const Tooltip = TooltipPrimitive.Root
 
+// Trigger del tooltip (elemento que lo activa)
 const TooltipTrigger = TooltipPrimitive.Trigger
 
+/**
+ * Contenido del Tooltip
+ */
 const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>

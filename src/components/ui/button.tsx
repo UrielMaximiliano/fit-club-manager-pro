@@ -1,9 +1,15 @@
+// -----------------------------------------------------------------------------
+// Componente Button reutilizable (Atom - Atomic Design)
+// Sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Permite extensión mediante variantes, tamaños y composición.
+// -----------------------------------------------------------------------------
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
+// Definición de variantes y tamaños para el botón
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
@@ -33,14 +39,24 @@ const buttonVariants = cva(
   }
 )
 
+// Tipado de las props del botón
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
+  /**
+   * Si es true, el botón renderiza como hijo de otro componente (Slot).
+   */
   asChild?: boolean
 }
 
+/**
+ * Componente Button
+ * @param {ButtonProps} props - Propiedades del botón
+ * @returns {JSX.Element}
+ */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
+    // Permite composición avanzada usando Slot
     const Comp = asChild ? Slot : "button"
     return (
       <Comp

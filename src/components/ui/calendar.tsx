@@ -1,3 +1,8 @@
+// -----------------------------------------------------------------------------
+// Componente Calendar reutilizable (Molecule - Atomic Design)
+// Sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Permite seleccionar fechas de forma visual y flexible.
+// -----------------------------------------------------------------------------
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker } from "react-day-picker";
@@ -7,6 +12,11 @@ import { buttonVariants } from "@/components/ui/button";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
+/**
+ * Componente Calendar
+ * @param {CalendarProps} props - Propiedades del calendario
+ * @returns {JSX.Element}
+ */
 function Calendar({
   className,
   classNames,

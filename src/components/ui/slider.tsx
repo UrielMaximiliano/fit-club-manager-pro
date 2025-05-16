@@ -1,8 +1,18 @@
+// -----------------------------------------------------------------------------
+// Componente Slider reutilizable (Atom - Atomic Design)
+// Sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Permite seleccionar valores dentro de un rango de forma visual.
+// -----------------------------------------------------------------------------
 import * as React from "react"
 import * as SliderPrimitive from "@radix-ui/react-slider"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Componente Slider
+ * @param {React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>} props - Propiedades del slider
+ * @returns {JSX.Element}
+ */
 const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>

@@ -1,5 +1,15 @@
+// -----------------------------------------------------------------------------
+// Componente Skeleton reutilizable (Atom - Atomic Design)
+// Sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Utilizado para mostrar placeholders animados durante la carga de datos.
+// -----------------------------------------------------------------------------
 import { cn } from "@/lib/utils"
 
+/**
+ * Componente Skeleton
+ * @param {React.HTMLAttributes<HTMLDivElement>} props - Propiedades del skeleton
+ * @returns {JSX.Element}
+ */
 function Skeleton({
   className,
   ...props

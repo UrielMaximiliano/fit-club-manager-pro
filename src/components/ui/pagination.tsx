@@ -1,9 +1,17 @@
+// -----------------------------------------------------------------------------
+// Componente Pagination y subcomponentes (Molecule - Atomic Design)
+// Cada subcomponente sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Permite paginación accesible y flexible en listas y tablas.
+// -----------------------------------------------------------------------------
 import * as React from "react"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { ButtonProps, buttonVariants } from "@/components/ui/button"
 
+/**
+ * Componente principal de paginación
+ */
 const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
   <nav
     role="navigation"
@@ -14,6 +22,9 @@ const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
 )
 Pagination.displayName = "Pagination"
 
+/**
+ * Contenedor de los ítems de paginación
+ */
 const PaginationContent = React.forwardRef<
   HTMLUListElement,
   React.ComponentProps<"ul">
@@ -26,6 +37,9 @@ const PaginationContent = React.forwardRef<
 ))
 PaginationContent.displayName = "PaginationContent"
 
+/**
+ * Ítem individual de la paginación
+ */
 const PaginationItem = React.forwardRef<
   HTMLLIElement,
   React.ComponentProps<"li">
@@ -39,6 +53,9 @@ type PaginationLinkProps = {
 } & Pick<ButtonProps, "size"> &
   React.ComponentProps<"a">
 
+/**
+ * Enlace de paginación (número o acción)
+ */
 const PaginationLink = ({
   className,
   isActive,
@@ -59,6 +76,9 @@ const PaginationLink = ({
 )
 PaginationLink.displayName = "PaginationLink"
 
+/**
+ * Botón para ir a la página anterior
+ */
 const PaginationPrevious = ({
   className,
   ...props
@@ -75,6 +95,9 @@ const PaginationPrevious = ({
 )
 PaginationPrevious.displayName = "PaginationPrevious"
 
+/**
+ * Botón para ir a la página siguiente
+ */
 const PaginationNext = ({
   className,
   ...props
@@ -91,6 +114,9 @@ const PaginationNext = ({
 )
 PaginationNext.displayName = "PaginationNext"
 
+/**
+ * Elemento de puntos suspensivos para indicar más páginas
+ */
 const PaginationEllipsis = ({
   className,
   ...props

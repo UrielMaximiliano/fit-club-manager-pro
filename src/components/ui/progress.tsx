@@ -1,8 +1,18 @@
+// -----------------------------------------------------------------------------
+// Componente Progress reutilizable (Atom - Atomic Design)
+// Sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Utilizado para mostrar el avance de una operación o proceso.
+// -----------------------------------------------------------------------------
 import * as React from "react"
 import * as ProgressPrimitive from "@radix-ui/react-progress"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Componente Progress
+ * @param {React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>} props - Propiedades del progress
+ * @returns {JSX.Element}
+ */
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>

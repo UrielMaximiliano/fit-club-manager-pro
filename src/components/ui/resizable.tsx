@@ -1,8 +1,16 @@
+// -----------------------------------------------------------------------------
+// Componente Resizable y subcomponentes (Molecule - Atomic Design)
+// Cada subcomponente sigue el principio de Responsabilidad Única (SRP - SOLID).
+// Permite crear paneles redimensionables de forma flexible y accesible.
+// -----------------------------------------------------------------------------
 import { GripVertical } from "lucide-react"
 import * as ResizablePrimitive from "react-resizable-panels"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Grupo de paneles redimensionables
+ */
 const ResizablePanelGroup = ({
   className,
   ...props
@@ -16,8 +24,12 @@ const ResizablePanelGroup = ({
   />
 )
 
+// Panel individual redimensionable
 const ResizablePanel = ResizablePrimitive.Panel
 
+/**
+ * Handler visual para redimensionar paneles
+ */
 const ResizableHandle = ({
   withHandle,
   className,
