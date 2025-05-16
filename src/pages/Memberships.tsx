@@ -1,3 +1,8 @@
+// -----------------------------------------------------------------------------
+// Página de gestión de Membresías (Memberships)
+// Permite crear, editar, eliminar y listar membresías por tenant.
+// Sigue principios SOLID y patrones de diseño, con comentarios en español.
+// -----------------------------------------------------------------------------
 import React, { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -22,7 +27,11 @@ import {
 import { Membership, membershipServices } from '@/services';
 import { useAuth } from '@/contexts/AuthContext';
 
+/**
+ * Componente principal de la página de membresías
+ */
 export default function Memberships() {
+  // Estado de membresías y formulario
   const [memberships, setMemberships] = useState<Membership[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMembership, setSelectedMembership] = useState<Membership | null>(null);
@@ -37,6 +46,9 @@ export default function Memberships() {
     duration_days: 30,
   });
 
+  /**
+   * Carga las membresías del tenant actual
+   */
   const loadMemberships = async () => {
     if (!tenantId) return;
     setLoading(true);
@@ -59,6 +71,9 @@ export default function Memberships() {
     // eslint-disable-next-line
   }, [tenantId]);
 
+  /**
+   * Maneja el submit del formulario de membresía
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tenantId) return;
@@ -88,6 +103,9 @@ export default function Memberships() {
     }
   };
 
+  /**
+   * Maneja la eliminación de una membresía
+   */
   const handleDelete = async (id: string) => {
     if (isDemo) return;
     if (!tenantId) return;
@@ -107,6 +125,9 @@ export default function Memberships() {
     }
   };
 
+  /**
+   * Resetea el formulario y el estado de edición
+   */
   const resetForm = () => {
     setFormData({
       name: '',
@@ -117,6 +138,9 @@ export default function Memberships() {
     setSelectedMembership(null);
   };
 
+  /**
+   * Carga los datos de una membresía para editar
+   */
   const handleEdit = (membership: Membership) => {
     setSelectedMembership(membership);
     setFormData({

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -11,6 +10,8 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  tenantId: string | null;
+  isDemo: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,6 +22,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [tenantId, setTenantId] = useState<string | null>(null);
+  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
     // Obtenemos la sesión inicial y configuramos un listener para cambios en la autenticación
@@ -29,6 +32,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data: { session } } = await supabase.auth.getSession();
         setSession(session);
         setUser(session?.user ?? null);
+        // Extraer tenantId y isDemo de la metadata del usuario
+        const meta = session?.user?.user_metadata || {};
+        setTenantId(meta.tenant_id || null);
+        setIsDemo(!!meta.isDemo);
       } catch (error) {
         console.error('Error al obtener la sesión inicial:', error);
       } finally {
@@ -43,6 +50,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        // Extraer tenantId y isDemo de la metadata del usuario
+        const meta = session?.user?.user_metadata || {};
+        setTenantId(meta.tenant_id || null);
+        setIsDemo(!!meta.isDemo);
       }
     );
 
@@ -89,12 +100,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const value = {
+  const value: AuthContextType = {
     user,
     session,
     loading,
     signIn,
     signOut,
+    tenantId,
+    isDemo,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
