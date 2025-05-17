@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { LogOut, UserCircle, Menu, X } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '../hooks/use-toast';
+import { useIsMobile } from '../hooks/use-mobile';
+import { Button } from '../components/ui/button';
+import { useAuth } from '../contexts/AuthContext';
 
 const AdminSidebar = () => {
   const navigate = useNavigate();
@@ -13,7 +12,7 @@ const AdminSidebar = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(!isMobile);
-  const { signOut, user } = useAuth();
+  const { signOut, user, clienteId } = useAuth();
   
   // Close sidebar on mobile when route changes
   useEffect(() => {
@@ -39,7 +38,6 @@ const AdminSidebar = () => {
   const navItems = [
     { name: "Dashboard", icon: "📊", path: '/dashboard' },
     { name: "Miembros", icon: "👤", path: '/members' },
-    { name: "Membresías", icon: "🏋️", path: '/memberships' },
     { name: "Pagos", icon: "💰", path: '/payments' },
     { name: "Asistencias", icon: "📅", path: '/attendance' },
     { name: "Caja", icon: "💵", path: '/cashbox' },
@@ -73,27 +71,36 @@ const AdminSidebar = () => {
           <h1 className="text-xl font-bold text-blue-400">GIMNASIO</h1>
         </div>
         
-        <div className="py-2 flex-grow overflow-y-auto">
-          {navItems.map((item) => (
-            <div 
-              key={item.name}
-              className={`p-2 mx-2 my-1 rounded flex items-center ${isActive(item.path)} transition-colors duration-200 cursor-pointer`}
-              onClick={() => {
-                navigate(item.path);
-                if (isMobile) setIsOpen(false);
-              }}
-            >
-              <span className="mr-3 text-lg">{item.icon}</span>
-              <span>{item.name}</span>
-            </div>
-          ))}
-        </div>
+        <nav className="py-2 flex-grow overflow-y-auto" aria-label="Menú principal">
+          <ul>
+            {navItems.map((item) => (
+              <li key={item.name}>
+                <button
+                  className={`w-full text-left p-2 mx-2 my-1 rounded flex items-center ${isActive(item.path)} transition-colors duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 ${location.pathname.startsWith(item.path) ? 'bg-blue-700 text-white shadow' : 'hover:bg-blue-900 hover:text-white'}`}
+                  onClick={() => {
+                    navigate(item.path);
+                    if (isMobile) setIsOpen(false);
+                  }}
+                  aria-current={location.pathname.startsWith(item.path) ? "page" : undefined}
+                >
+                  <span className="mr-3 text-lg">{item.icon}</span>
+                  <span>{item.name}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
         
         <div className="p-4 border-t border-gray-800">
           <div className="flex items-center mb-3">
             <UserCircle className="h-5 w-5 mr-2 text-gray-400" />
             <span className="text-gray-300">{user?.email || 'Administrador'}</span>
           </div>
+          {clienteId && (
+            <div className="mb-3 text-xs text-blue-300 truncate">
+              <span className="font-semibold">ID de cliente:</span> {clienteId}
+            </div>
+          )}
           <button 
             onClick={handleLogout}
             className="flex items-center w-full p-2 text-gray-300 hover:bg-gray-800 rounded transition-colors duration-200"

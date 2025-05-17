@@ -1,15 +1,17 @@
-
 import React, { useEffect, useState, useCallback } from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { toast } from '@/hooks/use-toast';
-import { memberServices, attendanceServices, paymentServices } from '@/services';
-import { useRealtimeDashboard } from '@/hooks/use-realtime-dashboard';
+import { useIsMobile } from '../hooks/use-mobile';
+import { toast } from '../hooks/use-toast';
+import { memberServices } from '../services/memberService';
+import { attendanceServices } from '../services/attendanceService';
+import { paymentServices } from '../services/paymentService';
+import { useRealtimeDashboard } from '../hooks/use-realtime-dashboard';
+import { useAuth } from '../contexts/AuthContext';
 
 // Componentes de panel de control
-import SummaryCards from '@/components/dashboard/SummaryCards';
-import MembershipChart from '@/components/dashboard/MembershipChart';
-import TypeDistribution from '@/components/dashboard/TypeDistribution';
-import DetailedStats from '@/components/dashboard/DetailedStats';
+import SummaryCards from '../components/dashboard/SummaryCards';
+import MembershipChart from '../components/dashboard/MembershipChart';
+import TypeDistribution from '../components/dashboard/TypeDistribution';
+import DetailedStats from '../components/dashboard/DetailedStats';
 
 // Utilidades para preparar datos
 import { 
@@ -18,7 +20,7 @@ import {
   prepareRevenueData, 
   prepareMembershipTypeData, 
   calculateSummaryStats
-} from '@/components/dashboard/utils/dataPreparation';
+} from '../components/dashboard/utils/dataPreparation';
 
 // Types
 import {
@@ -27,13 +29,14 @@ import {
   AttendanceData,
   RevenueData,
   MembershipTypeData
-} from '@/components/dashboard/types';
+} from '../components/dashboard/types';
 
 // Chart configuration
-import { colorArray } from '@/components/dashboard/utils/chartConfig';
+import { colorArray } from '../components/dashboard/utils/chartConfig';
 
 const Dashboard = () => {
   const isMobile = useIsMobile();
+  const { clienteId } = useAuth();
   const [loading, setLoading] = useState(true);
   const [membershipData, setMembershipData] = useState<MembershipData[]>([]);
   const [attendanceData, setAttendanceData] = useState<AttendanceData[]>([]);
@@ -50,11 +53,11 @@ const Dashboard = () => {
   const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
-      
+      if (!clienteId) return;
       // Obtener datos de la API
-      const membersData = await memberServices.getAll();
-      const allAttendance = await attendanceServices.getAll();
-      const payments = await paymentServices.getAll();
+      const membersData = await memberServices.getAll(clienteId);
+      const allAttendance = await attendanceServices.getAll(clienteId);
+      const payments = await paymentServices.getAll(clienteId);
       
       // Calcular estadísticas de resumen
       const stats = calculateSummaryStats(membersData, allAttendance, payments);
@@ -76,7 +79,7 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [clienteId]);
 
   // Set up real-time dashboard updates
   const { loading: updatingData, lastUpdated, refreshDashboard } = useRealtimeDashboard({

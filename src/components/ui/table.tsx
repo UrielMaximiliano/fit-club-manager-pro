@@ -4,7 +4,7 @@
 // Permite mostrar tablas de datos de forma flexible y accesible.
 // -----------------------------------------------------------------------------
 import * as React from "react"
-import { cn } from "@/lib/utils"
+import { cn } from '../../lib/utils'
 
 /**
  * Componente Table principal

@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;600&family=Open+Sans:wght@400;300&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -29,7 +30,7 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: #2D3748;
+    --border: #e5e7eb;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
     --sidebar-background: 240 5.9% 10%;
@@ -88,14 +89,16 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
+  /* * {
+    @apply border;
+  } */
   body {
-    @apply bg-background text-text;
+    @apply font-sans bg-light text-text;
     background-color: var(--background);
     color: var(--text);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans;
   }
 }
 
@@ -138,7 +141,7 @@
 }
 
 .recharts-default-tooltip {
-  @apply bg-card border border-border shadow-lg rounded-md !important;
+  @apply bg-white border border-border shadow-lg rounded-md !important;
 }
 
 .recharts-tooltip-label {

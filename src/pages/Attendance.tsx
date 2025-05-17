@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useToast } from '../hooks/use-toast';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 import {
   Table,
   TableBody,
@@ -10,15 +10,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '../components/ui/table';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Member, Attendance, memberServices, attendanceServices } from '@/services';
+} from '../components/ui/select';
+import { Member } from '../services/types';
+import { Attendance } from '../services/types';
+import { memberServices } from '../services/memberService';
+import { attendanceServices } from '../services/attendanceService';
 
 export default function AttendancePage() {
   const [attendances, setAttendances] = useState<Attendance[]>([]);

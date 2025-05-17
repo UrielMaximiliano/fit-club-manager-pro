@@ -1,4 +1,3 @@
-
 import { BaseService, notifyListeners, supabase } from './baseService';
 import { Attendance } from './types';
 
@@ -7,15 +6,15 @@ class AttendanceService extends BaseService<Attendance> {
     super('attendance');
   }
 
-  async getAll() {
-    const { data, error } = await supabase
+  async getAll(tenantId?: string) {
+    let query = supabase
       .from('attendance')
-      .select(`
-        *,
-        members (first_name, last_name)
-      `)
+      .select(`*, members (first_name, last_name)`)
       .order('check_in', { ascending: false });
-    
+    if (tenantId) {
+      query = query.eq('tenant_id', tenantId);
+    }
+    const { data, error } = await query;
     if (error) throw error;
     return data;
   }

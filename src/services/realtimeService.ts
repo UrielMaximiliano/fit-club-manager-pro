@@ -1,6 +1,5 @@
-
 import { RealtimeChannel } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '../lib/supabase';
 
 // Tipos de eventos para notificaciones
 export type DataChangeEvent = 'INSERT' | 'UPDATE' | 'DELETE';

@@ -1,6 +1,7 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import React from "react";
+import { Toaster } from './components/ui/toaster';
+import { Toaster as Sonner } from './components/ui/sonner';
+import { TooltipProvider } from './components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
@@ -8,7 +9,6 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Members from "./pages/Members";
-import Memberships from "./pages/Memberships";
 import Payments from "./pages/Payments";
 import Attendance from "./pages/Attendance";
 import Cashbox from "./pages/Cashbox";
@@ -43,13 +43,6 @@ const App = () => (
               <ProtectedRouteAuth>
                 <AdminLayout>
                   <Members />
-                </AdminLayout>
-              </ProtectedRouteAuth>
-            } />
-            <Route path="/memberships" element={
-              <ProtectedRouteAuth>
-                <AdminLayout>
-                  <Memberships />
                 </AdminLayout>
               </ProtectedRouteAuth>
             } />

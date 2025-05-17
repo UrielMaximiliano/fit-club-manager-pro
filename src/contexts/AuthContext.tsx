@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
-import { useToast } from '@/hooks/use-toast';
+import { supabase } from '../lib/supabase';
+import { useToast } from '../hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
@@ -10,8 +10,7 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
-  tenantId: string | null;
-  isDemo: boolean;
+  clienteId: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,8 +21,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [tenantId, setTenantId] = useState<string | null>(null);
-  const [isDemo, setIsDemo] = useState(false);
+  const [clienteId, setClienteId] = useState<string | null>(null);
 
   useEffect(() => {
     // Obtenemos la sesión inicial y configuramos un listener para cambios en la autenticación
@@ -32,10 +30,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data: { session } } = await supabase.auth.getSession();
         setSession(session);
         setUser(session?.user ?? null);
-        // Extraer tenantId y isDemo de la metadata del usuario
+        // Extraer clienteId de la metadata del usuario
         const meta = session?.user?.user_metadata || {};
-        setTenantId(meta.tenant_id || null);
-        setIsDemo(!!meta.isDemo);
+        setClienteId(meta.cliente_id || null);
       } catch (error) {
         console.error('Error al obtener la sesión inicial:', error);
       } finally {
@@ -50,10 +47,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        // Extraer tenantId y isDemo de la metadata del usuario
+        // Extraer clienteId de la metadata del usuario
         const meta = session?.user?.user_metadata || {};
-        setTenantId(meta.tenant_id || null);
-        setIsDemo(!!meta.isDemo);
+        setClienteId(meta.cliente_id || null);
       }
     );
 
@@ -106,8 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading,
     signIn,
     signOut,
-    tenantId,
-    isDemo,
+    clienteId,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

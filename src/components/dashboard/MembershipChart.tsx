@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import MembershipChartComponent from './charts/MembershipChartComponent';
 import MembershipExport from './actions/MembershipExport';
 import { MembershipData, ChartConfig } from './types';

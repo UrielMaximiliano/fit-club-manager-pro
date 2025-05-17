@@ -1,6 +1,5 @@
-
 import { debounce } from 'lodash';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '../hooks/use-toast';
 import { TableName, realtimeService } from './realtimeService';
 
 type UpdateCallback = () => void;

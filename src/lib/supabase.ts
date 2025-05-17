@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 // Creamos y exportamos el cliente de Supabase para usarlo en toda la aplicación

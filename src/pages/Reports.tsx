@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { Download, Calendar, ChevronLeft, ChevronRight, FileText, BarChart, UserCheck, CreditCard } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from "../hooks/use-mobile";
+import { useToast } from '../hooks/use-toast';
 import jsPDF from "jspdf";
 import 'jspdf-autotable';
-import { memberServices, attendanceServices, paymentServices, reportServices } from '@/services';
+import { memberServices } from '../services/memberService';
+import { attendanceServices } from '../services/attendanceService';
+import { paymentServices } from '../services/paymentService';
+import { reportServices } from '../services/reportService';
 import { 
   LineChart, 
   Line, 
@@ -27,22 +30,37 @@ import {
   ChartContainer, 
   ChartTooltip, 
   ChartTooltipContent 
-} from '@/components/ui/chart';
+} from '../components/ui/chart';
+import { useAuth } from '../contexts/AuthContext';
 
 // Colores para los gráficos
 const COLORS = ['#4F8EF6', '#22C55E', '#A855F7', '#F97316', '#9b87f5'];
 
+type ReportItem = {
+  id: string;
+  name: string;
+  description: string;
+  period: string;
+  data: any;
+};
+
+type RevenueExpense = { day: number; ingresos: number; gastos: number };
+type AttendanceDay = { day: string; asistencias: number };
+type MembershipPie = { name: string; value: number };
+type RetentionStat = { month: string; renovaciones: number; bajas: number };
+
 export default function Reports() {
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const { clienteId } = useAuth();
   const [loading, setLoading] = useState(true);
 
   // Datos para los reportes
-  const [revenueExpenseData, setRevenueExpenseData] = useState([]);
-  const [attendanceData, setAttendanceData] = useState([]);
-  const [membershipData, setMembershipData] = useState([]);
-  const [retentionData, setRetentionData] = useState([]);
-  const [availableReports, setAvailableReports] = useState([]);
+  const [revenueExpenseData, setRevenueExpenseData] = useState<RevenueExpense[]>([]);
+  const [attendanceData, setAttendanceData] = useState<AttendanceDay[]>([]);
+  const [membershipData, setMembershipData] = useState<MembershipPie[]>([]);
+  const [retentionData, setRetentionData] = useState<RetentionStat[]>([]);
+  const [availableReports, setAvailableReports] = useState<ReportItem[]>([]);
 
   // Gestión de períodos
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -55,9 +73,10 @@ export default function Reports() {
     loadReportsData(currentDate);
   }, [currentDate]);
 
-  const loadReportsData = async (date) => {
+  const loadReportsData = async (date: Date) => {
     try {
       setLoading(true);
+      if (!clienteId) return;
       
       // Definir rango de fechas para el mes actual
       const year = date.getFullYear();
@@ -69,15 +88,15 @@ export default function Reports() {
       setSelectedPeriod(`${date.toLocaleString('es', { month: 'long' })} ${year}`);
       
       // 1. Obtener datos de pagos para ingresos
-      const payments = await paymentServices.getAll();
-      const monthlyPayments = payments.filter(p => {
+      const payments = await paymentServices.getAll(clienteId);
+      const monthlyPayments = payments.filter((p: any) => {
         const paymentDate = new Date(p.payment_date);
         return paymentDate.getMonth() === month && paymentDate.getFullYear() === year;
       });
       
       // Agrupar pagos por día para el gráfico de ingresos vs gastos
-      const dailyRevenueMap = {};
-      monthlyPayments.forEach(p => {
+      const dailyRevenueMap: { [key: number]: number } = {};
+      monthlyPayments.forEach((p: any) => {
         const day = new Date(p.payment_date).getDate();
         if (dailyRevenueMap[day]) {
           dailyRevenueMap[day] += p.amount;
@@ -104,32 +123,32 @@ export default function Reports() {
       setRevenueExpenseData(revenueExpense);
       
       // 2. Obtener datos de asistencias
-      const attendances = await attendanceServices.getAll();
-      const monthlyAttendances = attendances.filter(a => {
+      const attendances = await attendanceServices.getAll(clienteId);
+      const monthlyAttendances = attendances.filter((a: any) => {
         const checkInDate = new Date(a.check_in);
         return checkInDate.getMonth() === month && checkInDate.getFullYear() === year;
       });
       
       // Agrupar asistencias por día de la semana
-      const weekdayMap = {0: 'Dom', 1: 'Lun', 2: 'Mar', 3: 'Mie', 4: 'Jue', 5: 'Vie', 6: 'Sab'};
+      const weekdayMap: { [key: number]: string } = {0: 'Dom', 1: 'Lun', 2: 'Mar', 3: 'Mie', 4: 'Jue', 5: 'Vie', 6: 'Sab'};
       const weekdayAttendance = Array(7).fill(0).map((_, i) => ({ 
         day: weekdayMap[i], 
         asistencias: 0 
       }));
       
-      monthlyAttendances.forEach(a => {
+      monthlyAttendances.forEach((a: any) => {
         const weekday = new Date(a.check_in).getDay();
         weekdayAttendance[weekday].asistencias++;
       });
       setAttendanceData(weekdayAttendance);
       
       // 3. Obtener datos de membresías activas
-      const members = await memberServices.getAll();
-      const activeMembers = members.filter(m => m.status === 'active');
+      const members = await memberServices.getAll(clienteId);
+      const activeMembers = members.filter((m: any) => m.status === 'active');
       
       // Agrupar por tipo de membresía
-      const membershipTypes = {};
-      activeMembers.forEach(m => {
+      const membershipTypes: Record<string, number> = {};
+      activeMembers.forEach((m: any) => {
         if (membershipTypes[m.membership_type]) {
           membershipTypes[m.membership_type]++;
         } else {
@@ -219,17 +238,25 @@ export default function Reports() {
   };
 
   // Generar PDF para reportes
-  const handleDownload = async (reportName, reportData) => {
+  const handleDownload = async (reportName: string, reportData: any) => {
     setLoading(true);
     try {
-      // Obtener datos frescos de Supabase según el reporte
+      if (!clienteId) {
+        toast({
+          title: 'Error',
+          description: 'No se pudo obtener el tenantId para exportar el reporte',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
       let freshData = reportData;
       if (reportName === 'Lista de Miembros') {
-        freshData = await memberServices.getAll();
+        freshData = await memberServices.getAll(clienteId);
       } else if (reportName === 'Resumen de Pagos') {
-        freshData = await paymentServices.getAll();
+        freshData = await paymentServices.getAll(clienteId);
       } else if (reportName === 'Reporte de Asistencias') {
-        freshData = await attendanceServices.getAll();
+        freshData = await attendanceServices.getAll(clienteId);
       }
       if (!Array.isArray(freshData) || freshData.length === 0) {
         toast({

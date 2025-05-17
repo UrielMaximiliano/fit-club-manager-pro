@@ -4,7 +4,7 @@
 // Permite extensión mediante props y composición.
 // -----------------------------------------------------------------------------
 import * as React from "react"
-import { cn } from "@/lib/utils"
+import { cn } from '../../lib/utils'
 
 // Tipado de las props del textarea
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}

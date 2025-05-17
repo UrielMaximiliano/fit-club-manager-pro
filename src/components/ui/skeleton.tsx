@@ -3,7 +3,8 @@
 // Sigue el principio de Responsabilidad Única (SRP - SOLID).
 // Utilizado para mostrar placeholders animados durante la carga de datos.
 // -----------------------------------------------------------------------------
-import { cn } from "@/lib/utils"
+import React from 'react'
+import { cn } from '../../lib/utils'
 
 /**
  * Componente Skeleton

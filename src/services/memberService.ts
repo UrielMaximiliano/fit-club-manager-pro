@@ -1,4 +1,3 @@
-
 import { BaseService, notifyListeners, supabase } from './baseService';
 import { Member } from './types';
 
@@ -7,24 +6,27 @@ class MemberService extends BaseService<Member> {
     super('members');
   }
 
-  async getAll() {
-    const { data, error } = await supabase
+  async getAll(tenantId?: string) {
+    let query = supabase
       .from('members')
       .select('*')
       .order('created_at', { ascending: false });
-    
+    if (tenantId) {
+      query = query.eq('tenant_id', tenantId);
+    }
+    const { data, error } = await query;
     if (error) throw error;
     return data;
   }
 
-  async create(member: Omit<Member, 'id'>) {
+  async create(member: Omit<Member, 'id'>, tenantId?: string) {
+    const memberWithTenant = tenantId ? { ...member, tenant_id: tenantId } : member;
     const { data, error } = await supabase
       .from('members')
-      .insert([member])
+      .insert([memberWithTenant])
       .select();
-    
     if (error) throw error;
-    notifyListeners(this.tableName, () => this.getAll());
+    notifyListeners(this.tableName, () => this.getAll(tenantId));
     return data[0];
   }
 

@@ -27,6 +27,7 @@ export interface Payment {
   payment_date: string;
   payment_type: string;
   membership_id: string;
+  tenant_id: string;
 }
 
 export interface Attendance {
@@ -42,6 +43,7 @@ export interface CashboxTransaction {
   concept: string;
   type: 'Ingreso' | 'Gasto' | 'Cierre';
   amount: number;
+  tenant_id: string;
 }
 
 // Tipo para listeners de cambios en datos

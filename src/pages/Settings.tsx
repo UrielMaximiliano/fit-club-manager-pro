@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { supabase } from '@/services';
+import { useToast } from '../hooks/use-toast';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { supabase } from '../lib/supabase';
 
 const Settings = () => {
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -21,7 +23,7 @@ const Settings = () => {
       if (user) {
         setProfile(user);
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: 'Error',
         description: 'No se pudo cargar el perfil',
@@ -32,54 +34,25 @@ const Settings = () => {
     }
   };
 
-  const handleUpdateEmail = async (newEmail: string) => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase.auth.updateUser({
-        email: newEmail,
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      toast({
-        title: 'Éxito',
-        description: 'Correo electrónico actualizado correctamente. Por favor, verifica tu nuevo correo para confirmar el cambio.',
-      });
-      fetchProfile(); // Recargar el perfil para mostrar el nuevo correo
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: `No se pudo actualizar el correo electrónico: ${error.message}`,
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword || !confirmPassword) {
+      toast({ title: 'Error', description: 'Completa ambos campos de contraseña.', variant: 'destructive' });
+      return;
     }
-  };
-
-  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      toast({ title: 'Error', description: 'Las contraseñas no coinciden.', variant: 'destructive' });
+      return;
+    }
     try {
       setLoading(true);
-      const { data, error } = await supabase.auth.resetPasswordForEmail(profile.email, {
-        redirectTo: `${window.location.origin}/update-password`,
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      toast({
-        title: 'Éxito',
-        description: 'Se ha enviado un enlace para cambiar tu contraseña a tu correo electrónico.',
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: `No se pudo enviar el enlace para cambiar la contraseña: ${error.message}`,
-        variant: 'destructive',
-      });
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      toast({ title: 'Éxito', description: 'Contraseña actualizada correctamente.' });
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message || 'No se pudo cambiar la contraseña', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -92,7 +65,6 @@ const Settings = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Configuración</h1>
-
       <Card>
         <CardHeader>
           <CardTitle>Información del Perfil</CardTitle>
@@ -108,18 +80,25 @@ const Settings = () => {
               className="mt-1"
             />
           </div>
-          <div>
-            <Button onClick={handleChangePassword}>Cambiar Contraseña</Button>
-          </div>
-          {/* <div>
-            <label className="block text-sm font-medium leading-none">Nuevo Correo Electrónico</label>
+          <form onSubmit={handleChangePassword} className="grid gap-2 mt-4">
+            <label className="block text-sm font-medium leading-none">Nueva Contraseña</label>
             <Input
-              type="email"
-              placeholder="nuevo@correo.com"
+              type="password"
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              placeholder="Nueva contraseña"
               className="mt-1"
             />
-            <Button onClick={() => handleUpdateEmail('nuevo@correo.com')}>Actualizar Correo</Button>
-          </div> */}
+            <label className="block text-sm font-medium leading-none">Confirmar Contraseña</label>
+            <Input
+              type="password"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              placeholder="Confirmar contraseña"
+              className="mt-1"
+            />
+            <Button type="submit" className="mt-2">Cambiar Contraseña</Button>
+          </form>
         </CardContent>
       </Card>
     </div>

@@ -1,11 +1,11 @@
-
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '../../lib/utils';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '../../hooks/use-mobile';
 import MembershipExport from './actions/MembershipExport';
-import { useToast } from '@/hooks/use-toast';
-import { memberServices } from '@/services';
+import { useToast } from '../../hooks/use-toast';
+import { memberServices } from '../../services/memberService';
 
 interface TypeDistributionProps {
   data: { name: string; value: number }[];
@@ -56,7 +56,7 @@ const TypeDistribution: React.FC<TypeDistributionProps> = ({
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={isMobile ? null : ({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+              label={isMobile ? undefined : ({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
               outerRadius={80}
               fill="#8884d8"
               dataKey="value"

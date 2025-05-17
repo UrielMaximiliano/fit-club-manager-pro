@@ -1,5 +1,4 @@
-
-import { supabase } from '@/lib/supabase';
+import { supabase } from '../lib/supabase';
 import { realtimeService, TableName } from './realtimeService';
 
 // Mapa para almacenar listeners por tipo de tabla

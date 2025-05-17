@@ -1,7 +1,6 @@
-
 import React, { useEffect } from 'react';
 import AdminSidebar from './AdminSidebar';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '../hooks/use-mobile';
 
 interface AdminLayoutProps {
   children: React.ReactNode;

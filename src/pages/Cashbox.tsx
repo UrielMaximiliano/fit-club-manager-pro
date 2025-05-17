@@ -1,20 +1,22 @@
-
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { PlusCircle, Search, ArrowUp, ArrowDown, Calendar } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Input } from "../components/ui/input";
+import { useIsMobile } from "../hooks/use-mobile";
 import jsPDF from "jspdf";
 import 'jspdf-autotable';
-import { useToast } from '@/hooks/use-toast';
-import { cashboxServices, CashboxTransaction } from '@/services';
+import { useToast } from '../components/ui/use-toast';
+import { cashboxServices } from '../services/cashboxService';
+import { CashboxTransaction } from '../services/types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Cashbox() {
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const { clienteId } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [showIncomeForm, setShowIncomeForm] = useState(false);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
@@ -28,13 +30,15 @@ export default function Cashbox() {
   const [formAmount, setFormAmount] = useState("");
 
   useEffect(() => {
+    if (!clienteId) return;
     loadTransactions();
-  }, []);
+  }, [clienteId]);
 
   const loadTransactions = async () => {
     setLoading(true);
     try {
-      const data = await cashboxServices.getAll();
+      if (!clienteId) return;
+      const data = await cashboxServices.getAll(clienteId);
       setTransactions(data || []);
     } catch (error) {
       toast({
@@ -65,7 +69,7 @@ export default function Cashbox() {
   };
 
   const handleFormSubmit = async () => {
-    if (!formDate || !formConcept || !formAmount) {
+    if (!formDate || !formConcept || !formAmount || !clienteId) {
       alert("Por favor, complete todos los campos.");
       return;
     }
@@ -75,7 +79,7 @@ export default function Cashbox() {
         concept: formConcept,
         type: showIncomeForm ? "Ingreso" : "Gasto",
         amount: Number(formAmount),
-      });
+      } as Omit<CashboxTransaction, 'id'>, clienteId);
       toast({ title: 'Transacción registrada', description: 'Se ha registrado correctamente.' });
       loadTransactions();
     } catch (error) {
@@ -90,13 +94,14 @@ export default function Cashbox() {
 
   const handleCloseCashbox = async () => {
     setShowCloseCashbox(false);
+    if (!clienteId) return;
     try {
       await cashboxServices.create({
         date: new Date().toISOString().split('T')[0],
         concept: "Cierre de Caja",
         type: "Cierre",
         amount: 0,
-      });
+      } as Omit<CashboxTransaction, 'id'>, clienteId);
       toast({ title: 'Cierre de caja registrado', description: 'Se ha registrado el cierre de caja.' });
       loadTransactions();
     } catch (error) {
@@ -108,7 +113,8 @@ export default function Cashbox() {
   const handleDownloadCashFlow = async () => {
     setLoading(true);
     try {
-      const freshTransactions = await cashboxServices.getAll();
+      if (!clienteId) return;
+      const freshTransactions = await cashboxServices.getAll(clienteId);
       if (!freshTransactions || freshTransactions.length === 0) {
         toast({
           title: 'Sin datos',
@@ -124,7 +130,7 @@ export default function Cashbox() {
       doc.setFontSize(12);
       doc.text(`Fecha de generación: ${new Date().toLocaleDateString()}`, 10, 20);
       // Tabla de transacciones
-      const tableData = freshTransactions.map(t => [
+      const tableData = freshTransactions.map((t: CashboxTransaction) => [
         t.id,
         t.date,
         t.concept,
@@ -152,7 +158,7 @@ export default function Cashbox() {
   };
 
   // Filter transactions by search term
-  const filteredTransactions = transactions.filter(t =>
+  const filteredTransactions = transactions.filter((t: CashboxTransaction) =>
     t.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
     t.date.toLowerCase().includes(searchTerm.toLowerCase()) ||
     t.concept.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -203,18 +209,18 @@ export default function Cashbox() {
             <CardTitle>Registrar Ingreso</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={(e) => { e.preventDefault(); handleFormSubmit(); }}>
+            <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); handleFormSubmit(); }}>
               <div className="mb-2">
                 <label>Fecha:</label>
-                <Input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} required className="bg-black text-white" />
+                <Input type="date" value={formDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormDate(e.target.value)} required className="bg-black text-white" />
               </div>
               <div className="mb-2">
                 <label>Concepto:</label>
-                <Input type="text" value={formConcept} onChange={(e) => setFormConcept(e.target.value)} required className="bg-black text-white" />
+                <Input type="text" value={formConcept} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormConcept(e.target.value)} required className="bg-black text-white" />
               </div>
               <div className="mb-2">
                 <label>Monto:</label>
-                <Input type="number" value={formAmount} onChange={(e) => setFormAmount(e.target.value)} required className="bg-black text-white" />
+                <Input type="number" value={formAmount} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormAmount(e.target.value)} required className="bg-black text-white" />
               </div>
               <Button type="submit" className="mt-2">Registrar</Button>
               <Button variant="ghost" className="mt-2 ml-2" onClick={() => setShowIncomeForm(false)}>Cancelar</Button>
@@ -229,18 +235,18 @@ export default function Cashbox() {
             <CardTitle>Registrar Gasto</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={(e) => { e.preventDefault(); handleFormSubmit(); }}>
+            <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); handleFormSubmit(); }}>
               <div className="mb-2">
                 <label>Fecha:</label>
-                <Input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)} required className="bg-black text-white" />
+                <Input type="date" value={formDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormDate(e.target.value)} required className="bg-black text-white" />
               </div>
               <div className="mb-2">
                 <label>Concepto:</label>
-                <Input type="text" value={formConcept} onChange={(e) => setFormConcept(e.target.value)} required className="bg-black text-white" />
+                <Input type="text" value={formConcept} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormConcept(e.target.value)} required className="bg-black text-white" />
               </div>
               <div className="mb-2">
                 <label>Monto:</label>
-                <Input type="number" value={formAmount} onChange={(e) => setFormAmount(e.target.value)} required className="bg-black text-white" />
+                <Input type="number" value={formAmount} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormAmount(e.target.value)} required className="bg-black text-white" />
               </div>
               <Button type="submit" className="mt-2">Registrar</Button>
               <Button variant="ghost" className="mt-2 ml-2" onClick={() => setShowExpenseForm(false)}>Cancelar</Button>
@@ -317,7 +323,7 @@ export default function Cashbox() {
               placeholder="Buscar transacción..."
               className="pl-8 bg-gray-700 border-gray-600 text-gray-300 placeholder:text-gray-400"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
             />
           </div>
         </CardHeader>
