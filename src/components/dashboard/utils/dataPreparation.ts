@@ -173,13 +173,13 @@ export const prepareRecentActivities = (
 
 // Calculate summary statistics
 export const calculateSummaryStats = (
-  membersData: Member[],
+  membersData: Member[], // Keep this for now as other functions in this file might use it, or it's used by other stats.
   allAttendance: Attendance[],
-  payments: Payment[]
+  payments: Payment[],
+  activeMembersCount: number // New parameter
 ): SummaryStats => {
-  // Miembros activos
-  const activeMembers = membersData.filter(m => m.status === 'active').length;
-  
+  // const activeMembers = membersData.filter(m => m.status === 'active').length; // This line is now replaced by the parameter
+
   // Asistencias de hoy
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
@@ -204,7 +204,7 @@ export const calculateSummaryStats = (
   }, 0);
   
   return {
-    activeMembers,
+    activeMembers: activeMembersCount, // Use the passed count
     todayAttendance,
     updatedRoutines: 18, // Placeholder, ajustar cuando tengamos la tabla de rutinas
     monthlyRevenue

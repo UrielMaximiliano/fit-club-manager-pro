@@ -31,8 +31,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         // Extraer clienteId de la metadata del usuario
-        const meta = session?.user?.user_metadata || {};
-        setClienteId(meta.cliente_id || null);
+        const meta = session?.user?.app_metadata || {}; // Changed to app_metadata
+        setClienteId(meta.tenant_id || null); // Changed to tenant_id
       } catch (error) {
         console.error('Error al obtener la sesión inicial:', error);
       } finally {
@@ -48,8 +48,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         // Extraer clienteId de la metadata del usuario
-        const meta = session?.user?.user_metadata || {};
-        setClienteId(meta.cliente_id || null);
+        const meta = session?.user?.app_metadata || {}; // Changed to app_metadata
+        setClienteId(meta.tenant_id || null); // Changed to tenant_id
       }
     );
 

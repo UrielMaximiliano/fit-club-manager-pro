@@ -55,12 +55,14 @@ const Dashboard = () => {
       setLoading(true);
       if (!clienteId) return;
       // Obtener datos de la API
-      const membersData = await memberServices.getAll(clienteId);
+      // Fetch active members count first
+      const activeMembersCount = await memberServices.getActiveMembersCount(clienteId);
+      const membersData = await memberServices.getAll(clienteId); // Still fetch all members for other charts/data
       const allAttendance = await attendanceServices.getAll(clienteId);
       const payments = await paymentServices.getAll(clienteId);
       
       // Calcular estadísticas de resumen
-      const stats = calculateSummaryStats(membersData, allAttendance, payments);
+      const stats = calculateSummaryStats(membersData, allAttendance, payments, activeMembersCount);
       setSummaryStats(stats);
       
       // Preparar datos para gráficos

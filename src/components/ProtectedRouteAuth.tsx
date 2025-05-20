@@ -7,7 +7,7 @@ interface ProtectedRouteAuthProps {
 }
 
 const ProtectedRouteAuth: React.FC<ProtectedRouteAuthProps> = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, clienteId } = useAuth(); // Added clienteId
 
   if (loading) {
     // Muestra un indicador de carga mientras se verifica la autenticación
@@ -21,6 +21,12 @@ const ProtectedRouteAuth: React.FC<ProtectedRouteAuthProps> = ({ children }) => 
   if (!user) {
     // Si no hay usuario autenticado, redirigir al inicio de sesión
     return <Navigate to="/login" replace />;
+  }
+
+  // New check for clienteId
+  if (!clienteId) {
+    console.error("User authenticated but clienteId is missing. Redirecting to login.");
+    return <Navigate to="/login?error=missing_tenant_id" replace />;
   }
 
   // Si hay un usuario autenticado, muestra el contenido protegido
