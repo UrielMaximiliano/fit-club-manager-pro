@@ -10,7 +10,7 @@ async function crearUsuarioConTenant(email: string, password: string, tenantId: 
   const { data, error } = await supabase.auth.admin.createUser({
     email,
     password,
-    user_metadata: {
+    app_metadata: { // Changed from user_metadata to app_metadata
       tenant_id: tenantId,
       is_demo: isDemo,
     },

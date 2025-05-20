@@ -51,6 +51,20 @@ class MemberService extends BaseService<Member> {
     if (error) throw error;
     notifyListeners(this.tableName, () => this.getAll());
   }
+
+  async getActiveMembersCount(tenantId: string): Promise<number> {
+    const { count, error } = await supabase
+      .from('members')
+      .select('*', { count: 'exact', head: true })
+      .eq('tenant_id', tenantId)
+      .eq('status', 'active');
+
+    if (error) {
+      console.error('Error fetching active members count:', error);
+      throw error; 
+    }
+    return count ?? 0;
+  }
 }
 
 export const memberServices = new MemberService();

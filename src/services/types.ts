@@ -9,6 +9,9 @@ export interface Member {
   membership_type: string;
   start_date: string;
   end_date: string;
+  tenant_id: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Membership {
@@ -35,6 +38,9 @@ export interface Attendance {
   member_id: string;
   check_in: string;
   check_out?: string;
+  tenant_id: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CashboxTransaction {

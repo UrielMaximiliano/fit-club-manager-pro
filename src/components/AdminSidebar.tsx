@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, UserCircle, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, CreditCard, ClipboardList, LogOut, UserCircle, Menu, X } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 import { useIsMobile } from '../hooks/use-mobile';
 import { Button } from '../components/ui/button';
@@ -36,13 +36,10 @@ const AdminSidebar = () => {
 
   // Navigation items with routes and icons
   const navItems = [
-    { name: "Dashboard", icon: "📊", path: '/dashboard' },
-    { name: "Miembros", icon: "👤", path: '/members' },
-    { name: "Pagos", icon: "💰", path: '/payments' },
-    { name: "Asistencias", icon: "📅", path: '/attendance' },
-    { name: "Caja", icon: "💵", path: '/cashbox' },
-    { name: "Reportes", icon: "📈", path: '/reports' },
-    { name: "Configuración", icon: "⚙️", path: '/settings' },
+    { name: "Dashboard", icon: <LayoutDashboard className="h-5 w-5" />, path: '/dashboard' },
+    { name: "Members", icon: <Users className="h-5 w-5" />, path: '/members' },
+    { name: "Payments", icon: <CreditCard className="h-5 w-5" />, path: '/payments' },
+    { name: "Routines", icon: <ClipboardList className="h-5 w-5" />, path: '/routines' },
   ];
 
   return (
@@ -83,7 +80,7 @@ const AdminSidebar = () => {
                   }}
                   aria-current={location.pathname.startsWith(item.path) ? "page" : undefined}
                 >
-                  <span className="mr-3 text-lg">{item.icon}</span>
+                  <span className="mr-3">{item.icon}</span> {/* Ensure this renders the icon component */}
                   <span>{item.name}</span>
                 </button>
               </li>

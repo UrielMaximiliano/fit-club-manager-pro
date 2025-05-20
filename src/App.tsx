@@ -14,6 +14,7 @@ import Attendance from "./pages/Attendance";
 import Cashbox from "./pages/Cashbox";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import RoutinesPage from "./pages/Routines"; // Import RoutinesPage
 import ProtectedRouteAuth from "./components/ProtectedRouteAuth";
 import AdminLayout from "./components/AdminLayout";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -78,6 +79,14 @@ const App = () => (
               <ProtectedRouteAuth>
                 <AdminLayout>
                   <Settings />
+                </AdminLayout>
+              </ProtectedRouteAuth>
+            } />
+            {/* Add new route for RoutinesPage */}
+            <Route path="/routines" element={
+              <ProtectedRouteAuth>
+                <AdminLayout>
+                  <RoutinesPage />
                 </AdminLayout>
               </ProtectedRouteAuth>
             } />
