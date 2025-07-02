@@ -56,51 +56,53 @@ export const useRealtimeDashboard = (
     // No tables to subscribe to
     if (tablesToSubscribe.length === 0) return;
 
-    const channels = tablesToSubscribe.map(table => {
-      // Create a channel for each table
-      const channel = supabase
-        .channel(`public:${table}`)
-        .on('postgres_changes', 
-          { 
-            event: '*',  // Listen to all events (INSERT, UPDATE, DELETE)
-            schema: 'public', 
-            table 
-          }, 
-          payload => {
-            // Call appropriate listener based on table
-            switch (table) {
-              case 'members':
-                if (listeners.onMembersUpdate) listeners.onMembersUpdate();
-                break;
-              case 'memberships':
-                if (listeners.onMembershipsUpdate) listeners.onMembershipsUpdate();
-                break;
-              case 'payments':
-                if (listeners.onPaymentsUpdate) listeners.onPaymentsUpdate();
-                break;
-              case 'attendance':
-                if (listeners.onAttendanceUpdate) listeners.onAttendanceUpdate();
-                break;
-              case 'cashbox':
-                if (listeners.onCashboxUpdate) listeners.onCashboxUpdate();
-                break;
-            }
-            
-            // Notify of update
-            notifyUpdate(table);
-          }
-        )
-        .subscribe();
-        
-      return channel;
-    });
+    // Disable realtime subscriptions for now - use polling instead
+    console.log('Realtime subscriptions disabled, using polling fallback');
 
-    // Cleanup function to remove all subscriptions
-    return () => {
-      channels.forEach(channel => {
-        supabase.removeChannel(channel);
-      });
-    };
+    // // Create a single channel for all tables
+    // const channel = supabase
+    //   .channel('dashboard-updates')
+    //   .on('postgres_changes', 
+    //     { 
+    //       event: '*',
+    //       schema: 'public', 
+    //       table: 'members' 
+    //     }, 
+    //     () => {
+    //       if (listeners.onMembersUpdate) listeners.onMembersUpdate();
+    //       notifyUpdate('members');
+    //     }
+    //   )
+    //   .on('postgres_changes', 
+    //     { 
+    //       event: '*',
+    //       schema: 'public', 
+    //       table: 'payments' 
+    //     }, 
+    //     () => {
+    //       if (listeners.onPaymentsUpdate) listeners.onPaymentsUpdate();
+    //       notifyUpdate('payments');
+    //     }
+    //   )
+    //   .on('postgres_changes', 
+    //     { 
+    //       event: '*',
+    //       schema: 'public', 
+    //       table: 'attendance' 
+    //     }, 
+    //     () => {
+    //       if (listeners.onAttendanceUpdate) listeners.onAttendanceUpdate();
+    //       notifyUpdate('attendance');
+    //     }
+    //   )
+    //   .subscribe((status) => {
+    //     console.log('Dashboard subscription status:', status);
+    //   });
+
+    // // Cleanup function
+    // return () => {
+    //   supabase.removeChannel(channel);
+    // };
   }, [
     listeners.onMembersUpdate, 
     listeners.onMembershipsUpdate, 
@@ -123,7 +125,7 @@ export const useRealtimeDashboard = (
       return;
     }
 
-    // Set up polling interval (30 seconds)
+    // Set up polling interval (60 seconds - reduced frequency)
     const interval = setInterval(() => {
       if (listeners.onMembersUpdate) listeners.onMembersUpdate();
       if (listeners.onMembershipsUpdate) listeners.onMembershipsUpdate();
@@ -132,7 +134,7 @@ export const useRealtimeDashboard = (
       if (listeners.onCashboxUpdate) listeners.onCashboxUpdate();
       
       setLastUpdated(new Date());
-    }, 30000); // 30 seconds
+    }, 60000); // 60 seconds
 
     // Cleanup interval on unmount
     return () => clearInterval(interval);

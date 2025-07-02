@@ -47,18 +47,21 @@ export class BaseService<T> {
 
 // Configuración de suscripciones en tiempo real para cada tabla
 export const setupRealtimeSubscriptions = () => {
-  const tables: TableName[] = ['members', 'memberships', 'payments', 'attendance'];
+  // Disabled for now to avoid CHANNEL_ERROR issues
+  console.log('Realtime subscriptions setup disabled');
   
-  tables.forEach(table => {
-    realtimeService.subscribe(table, {
-      onAny: () => {
-        // This will be called by each service's getAll function
-      }
-    });
-  });
+  // const tables: TableName[] = ['members', 'memberships', 'payments', 'attendance'];
+  // 
+  // tables.forEach(table => {
+  //   realtimeService.subscribe(table, {
+  //     onAny: () => {
+  //       // This will be called by each service's getAll function
+  //     }
+  //   });
+  // });
 };
 
 // Start subscriptions
-setupRealtimeSubscriptions();
+// setupRealtimeSubscriptions();
 
 export { supabase };

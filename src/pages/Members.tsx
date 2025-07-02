@@ -104,7 +104,7 @@ export default function Members() {
       membership_type: formData.membership_type,
       start_date: formData.start_date,
       end_date: formData.end_date,
-      cliente_id: clienteId!,
+      tenant_id: clienteId!,
     };
     try {
       if (selectedMember) {
